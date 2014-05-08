@@ -29,7 +29,7 @@ class Driver : public node::ObjectWrap
 		static void Init( v8::Handle<v8::Object> exports );
 
 	private:
-		explicit Driver( String::AsciiValue host = "localhost", String::AsciiValue port = "3306", String::AsciiValue db = "test", String::AsciiValue user = "test", String::AsciiValue password = "password" );
+		explicit Driver( v8::String::Utf8Value host = "localhost", v8::String::Utf8Value port = "3306", v8::String::Utf8Value db = "test", v8::String::Utf8Value user = "test", v8::String::Utf8Value password = "password" );
 		~Driver();
 
 		static v8::Handle<v8::Value> New( const v8::Arguments& args );
@@ -39,12 +39,12 @@ class Driver : public node::ObjectWrap
 		static v8::Handle<v8::Value> Limit( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Order( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Execute( const v8::Arguments& args );
-		String::AsciiValue host_;
-		String::AsciiValue port_;
-		String::AsciiValue db_;
-		String::AsciiValue user_;
-		String::AsciiValue password_;
-		String::AsciiValue query_;
+		v8::String::Utf8Value host_;
+		v8::String::Utf8Value port_;
+		v8::String::Utf8Value db_;
+		v8::String::Utf8Value user_;
+		v8::String::Utf8Value password_;
+		v8::String::Utf8Value query_;
 		Object phmap_;
 };
 

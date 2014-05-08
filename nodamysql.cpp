@@ -9,7 +9,7 @@
 
 // INCLUDES
 #include <node.h>
-#include "driver.cpp"
+#include "driver.h"
 
 using namespace v8;
 

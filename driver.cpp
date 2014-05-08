@@ -9,7 +9,7 @@
 
 // INCLUDES
 #include <node.h>
-#include <driver.h>
+#include "driver.h"
 
 using namespace v8;
 
@@ -25,7 +25,7 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( String::AsciiValue host, String::AsciiValue port, String::AsciiValue db, String::AsciiValue user, String::AsciiValue password ) : host_( host ), port_( port ), db_( db ), user_( user ), password_( password )
+Driver::Driver( String::Utf8Value host, String::Utf8Value port, String::Utf8Value db, String::Utf8Value user, String::Utf8Value password ) : host_( host ), port_( port ), db_( db ), user_( user ), password_( password )
 {
 	query_ = "";
 	phmap_ = Object::New();
@@ -89,12 +89,12 @@ Handle<Value> Driver::New( const Arguments& args )
 	if( args.IsConstructCall() )
 	{
 		// Invoked as constructor: 'new nodamysql(...)'
-		String::AsciiValue host = args[0]->IsUndefined() ? "localhost" : args[0]->ToString();
-		String::AsciiValue port = args[1]->IsUndefined() ? "3306" : args[1]->NumberValue();
-		String::AsciiValue db = args[2]->IsUndefined() ? "test" : args[2]->ToString();
-		String::AsciiValue user = args[3]->IsUndefined() ? "test" : args[3]->ToString();
-		String::AsciiValue password = args[4]->IsUndefined() ? "password" : args[4]->ToString();
-		String::AsciiValue query = args[5]->IsUndefined() ? String::New("") : args[5]->ToString();	// Might not need this
+		String::Utf8Value host = args[0]->IsUndefined() ? "localhost" : args[0]->ToString();
+		String::Utf8Value port = args[1]->IsUndefined() ? "3306" : args[1]->NumberValue();
+		String::Utf8Value db = args[2]->IsUndefined() ? "test" : args[2]->ToString();
+		String::Utf8Value user = args[3]->IsUndefined() ? "test" : args[3]->ToString();
+		String::Utf8Value password = args[4]->IsUndefined() ? "password" : args[4]->ToString();
+		String::Utf8Value query = args[5]->IsUndefined() ? String::New("") : args[5]->ToString();	// Might not need this
 
 		Driver* dvr = new Driver( host, port, db, user, password );
 		dvr->query_ = query;	// Or this
@@ -130,7 +130,7 @@ Handle<Value> Driver::Select( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// Don't forget to fetch our arguments
-	String::AsciiValue select = args[0]->ToString();
+	String::Utf8Value select = args[0]->ToString();
 
 	// Build our query string
 	dvr->query_ = String::New( "SELECT " + select );
@@ -204,7 +204,7 @@ Handle<Value> Driver::Join( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// Don't forget to fetch our arguments
-	String::AsciiValue db = args[0]->IsUndefined() ? "test" : args[0]->ToString();
+	String::Utf8Value db = args[0]->IsUndefined() ? "test" : args[0]->ToString();
 
 	// Build our query string
 	dvr->query_ = String::New( drv->query_ + " JOIN (" + db + ")" );
@@ -236,7 +236,7 @@ Handle<Value> Driver::On( const Arguments& args )
 		return scope.Close( String::New( drv->query_ ) )
 	}
 
-	String::AsciiValue on = args[0]->ToString();
+	String::Utf8Value on = args[0]->ToString();
 
 	// Build our query string
 	dvr->query_ = String::New( drv->query_ + " ON (" + on + ")" );
@@ -311,7 +311,7 @@ Handle<Value> Driver::Order( const Arguments& args )
 		return scope.Close( String::New( drv->query_ ) );
 	}
 
-	String::AsciiValue order = args[0]->ToString();
+	String::Utf8Value order = args[0]->ToString();
 
 	// Build our query string
 	dvr->query_ = String::New( drv->query_ + " ORDER BY " + order );
