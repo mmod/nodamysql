@@ -25,7 +25,7 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( String::Utf8Value host, String::Utf8Value port, String::Utf8Value db, String::Utf8Value user, String::Utf8Value password ) : host_( host ), port_( port ), db_( db ), user_( user ), password_( password )
+Driver::Driver( Handle<String> host, Handle<String> port, Handle<String> db, Handle<String> user, Handle<String> password ) : host_( host ), port_( port ), db_( db ), user_( user ), password_( password )
 {
 	query_ = "";
 	phmap_ = Object::New();
