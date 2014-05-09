@@ -29,7 +29,7 @@ class Driver : public node::ObjectWrap
 		static void Init( v8::Handle<v8::Object> exports );
 
 	private:
-		explicit Driver( v8::String::Utf8Value host = "localhost", v8::String::Utf8Value port = "3306", v8::String::Utf8Value db = "test", v8::String::Utf8Value user = "test", v8::String::Utf8Value password = "password" );
+		explicit Driver( v8::String::Utf8Value host = v8::String::New( "localhost" ), v8::String::Utf8Value port = v8::String::New( "3306" ), v8::String::Utf8Value db = v8::String::New( "test" ), v8::String::Utf8Value user = v8::String::New( "test" ), v8::String::Utf8Value password = v8::String::New( "password" ) );
 		~Driver();
 
 		static v8::Handle<v8::Value> New( const v8::Arguments& args );
