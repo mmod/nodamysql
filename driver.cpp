@@ -25,10 +25,10 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( Handle<String> host, Handle<String> port, Handle<String> db, Handle<String> user, Handle<String> password ) : host_( host ), port_( port ), db_( db ), user_( user ), password_( password )
+Driver::Driver( Local<String> host, Local<String> port, Local<String> db, Local<String> user, Local<String> password ) : host_( host->ToString() ), port_( port->ToString() ), db_( db->ToString() ), user_( user->ToString() ), password_( password->ToString() )
 {
-	query_ = "";
-	phmap_ = Object::New();
+	//query_ = *String::New( "" );
+	//phmap_ = Object::New();
 }
 
 
@@ -61,12 +61,12 @@ void Driver::Init( Handle<Object> exports )
 	tpl->InstanceTemplate()->SetInternalFieldCount( 6 );		// We probably need to change this to 6 (db, host, port, user, pass, query)
 
 	// Prototype(s) of our methods for v8
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Select" ) ), FunctionTemplate::New( Select )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Where" ) ), FunctionTemplate::New( Where )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Join" ) ), FunctionTemplate::New( Join )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Limit" ) ), FunctionTemplate::New( Limit )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Order" ) ), FunctionTemplate::New( Order )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Execute" ) ), FunctionTemplate::New( Execute )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Select" ), FunctionTemplate::New( Select )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Where" ), FunctionTemplate::New( Where )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Join" ), FunctionTemplate::New( Join )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Limit" ), FunctionTemplate::New( Limit )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Order" ), FunctionTemplate::New( Order )->GetFunction() );
+	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Execute" ), FunctionTemplate::New( Execute )->GetFunction() );
 
 	constructor = Persistent<Function>::New( tpl->GetFunction() );
 	exports->Set( String::NewSymbol( "Driver" ), constructor );
@@ -89,16 +89,16 @@ Handle<Value> Driver::New( const Arguments& args )
 	if( args.IsConstructCall() )
 	{
 		// Invoked as constructor: 'new nodamysql(...)'
-		String::Utf8Value host = args[0]->IsUndefined() ? "localhost" : args[0]->ToString();
-		String::Utf8Value port = args[1]->IsUndefined() ? "3306" : args[1]->NumberValue();
-		String::Utf8Value db = args[2]->IsUndefined() ? "test" : args[2]->ToString();
-		String::Utf8Value user = args[3]->IsUndefined() ? "test" : args[3]->ToString();
-		String::Utf8Value password = args[4]->IsUndefined() ? "password" : args[4]->ToString();
-		String::Utf8Value query = args[5]->IsUndefined() ? String::New("") : args[5]->ToString();	// Might not need this
+		Local<String> host = args[0]->IsUndefined() ? String::New( "localhost" ) : args[0]->ToString();
+		Local<String> port = args[1]->IsUndefined() ? String::New( "3306" ) : args[1]->ToString();
+		Local<String> db = args[2]->IsUndefined() ? String::New( "test" ) : args[2]->ToString();
+		Local<String> user = args[3]->IsUndefined() ? String::New( "test" ) : args[3]->ToString();
+		Local<String> password = args[4]->IsUndefined() ? String::New( "password" ) : args[4]->ToString();
+		//Local<String> query = args[5]->IsUndefined() ? String::New("") : args[5]->ToString();	// Might not need this
 
 		Driver* dvr = new Driver( host, port, db, user, password );
-		dvr->query_ = query;	// Or this
-		drv->Wrap( args.This() );
+		//dvr->query_ = query;	// Or this
+		dvr->Wrap( args.This() );
 
 		return args.This();
 	}
@@ -130,13 +130,13 @@ Handle<Value> Driver::Select( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// Don't forget to fetch our arguments
-	String::Utf8Value select = args[0]->ToString();
+	Local<String> select = args[0]->ToString();
 
 	// Build our query string
-	dvr->query_ = String::New( "SELECT " + select );
+	dvr->query_ = String::Concat( String::New( "SELECT " ), select->ToString() );
 
 	// Return the resulting query string to the user so they can verify
-	return scope.Close( String::New( drv->query_ ) );
+	return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -153,37 +153,37 @@ Handle<Value> Driver::Where( const Arguments& args )
 {
 	HandleScope scope;
 
-		// Unwrap the object
-		Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+	// Unwrap the object
+	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-		// Don't forget to fetch our arguments
-		if( args[0]->IsUndefined() || !args[0]->IsObject() )
+	// Don't forget to fetch our arguments
+	if( args[0]->IsUndefined() || !args[0]->IsObject() )
+	{
+		return scope.Close( dvr->query_->ToString() );
+	}
+
+	dvr->query_ = String::Concat( dvr->query_, String::New( " WHERE" ) );
+
+	// he supplied argument should be an object with columns and values specified for the where clause
+	Local<Object> where = args[0]->ToObject();				// Could be args[0].As<Object>();
+	Local<Array> keys = where->GetOwnPropertyNames();		// Gets us all the keys in an array ofc
+	for( int i = 0, l = keys->Length(); i < l; i++ )
+	{
+		// Add the key and the values to our local map so they can be provided during executing of the query.
+		Local<String> k = keys->Get( i )->ToString();
+		dvr->phmap_->Set( k, where->Get( k ) );
+
+		if( i == 0 )
 		{
-			return scope.Close( String::New( drv->query_ ) )
-		}
-
-		drv->query_ = String::New( drv->query_ + " WHERE" );
-
-		// he supplied argument should be an object with columns and values specified for the where clause
-		Local<Object> where = args[0]->ToObject();				// Could be args[0].As<Object>();
-		Local<Array> keys = where->GetOwnPropertyNames();		// Gets us all the keys in an array ofc
-		for( int i = 0, l = props->length(); i < l; i++ )
+			dvr->query_ = String::Concat( dvr->query_ , String::Concat( String::Concat( String::New( " " ), k ), String::New( "=?" ) ) );
+		}else
 		{
-			// Add the key and the values to our local map so they can be provided during executing of the query.
-			Local<String> k = keys->Get( i )->ToString() );
-			drv->phmap_->Set( k, where->Get( k ) );
-
-			if( i == 0 )
-			{
-				drv->query_ = String::New( drv->query_ + " " + k + "=?");
-			}else
-			{
-				drv->query_ = String::New( drv->query_ + " AND " + k + "=?")
-			}
+			dvr->query_ = String::Concat( dvr->query_, String::Concat( String::Concat( String::New( " AND " ), k ), String::New( "=?") ) );
 		}
+	}
 
-		// Return the resulting query string to the user so they can verify
-		return scope.Close( String::New( drv->query_ ) );
+	// Return the resulting query string to the user so they can verify
+	return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -204,13 +204,13 @@ Handle<Value> Driver::Join( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// Don't forget to fetch our arguments
-	String::Utf8Value db = args[0]->IsUndefined() ? "test" : args[0]->ToString();
+	Local<String> db = args[0]->IsUndefined() ? String::New( "test" ) : args[0]->ToString();
 
 	// Build our query string
-	dvr->query_ = String::New( drv->query_ + " JOIN (" + db + ")" );
+	dvr->query_ = String::Concat( dvr->query_, String::Concat( String::Concat( String::New( " JOIN (" ), db ), String::New( ")" ) ) );
 
 	// Return the resulting query string to the user so they can verify
-	return scope.Close( String::New( drv->query_ ) );
+	return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -233,16 +233,16 @@ Handle<Value> Driver::On( const Arguments& args )
 	// Don't forget to fetch our arguments
 	if( args[0]->IsUndefined() )
 	{
-		return scope.Close( String::New( drv->query_ ) )
+		return scope.Close( dvr->query_->ToString() );
 	}
 
-	String::Utf8Value on = args[0]->ToString();
+	Local<String> on = args[0]->ToString();
 
 	// Build our query string
-	dvr->query_ = String::New( drv->query_ + " ON (" + on + ")" );
+	dvr->query_ = String::Concat( dvr->query_, String::Concat( String::Concat( String::New( " ON (" ) , on ), String::New( ")" ) ) );
 
 	// Return the resulting query string to the user so they can verify
-	return scope.Close( String::New( drv->query_ ) );
+	return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -265,27 +265,27 @@ Handle<Value> Driver::Limit( const Arguments& args )
 	// Don't forget to fetch our arguments
 	if( args[0]->IsUndefined() )
 	{
-		return scope.Close( String::New( drv->query_ ) );
+		return scope.Close( dvr->query_->ToString() );
 	}
 
 	// We allow the invoker to specify 1 or two arguments for ease of use
-	int from, to;
+	Local<String> from, to;
 	if( args[1]->IsUndefined() )
 	{
-		from = 0;
-		to = args[0]->NumberValue();
+		from = String::New( "0" );
+		to = args[0]->ToString();
 	}
 	else
 	{
-		from = args[0]->NumberValue();
-		to = args[1]->NumberValue();
+		from = args[0]->ToString();
+		to = args[1]->ToString();
 	}
 
 	// Build our query string
-	dvr->query_ = String::New( drv->query_ + " LIMIT " + from + ", " + to );
+	dvr->query_ = String::Concat( dvr->query_, String::Concat( String::Concat( String::New( " LIMIT " ), from ), String::Concat( String::New( ", " ), to ) ) );
 
 	// Return the resulting query string to the user so they can verify
-	return scope.Close( String::New( drv->query_ ) );
+	return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -308,30 +308,14 @@ Handle<Value> Driver::Order( const Arguments& args )
 	// Don't forget to fetch our arguments
 	if( args[0]->IsUndefined() )
 	{
-		return scope.Close( String::New( drv->query_ ) );
+		return scope.Close( dvr->query_->ToString() );
 	}
 
-	String::Utf8Value order = args[0]->ToString();
+	Local<String> order = args[0]->ToString();
 
 	// Build our query string
-	dvr->query_ = String::New( drv->query_ + " ORDER BY " + order );
+	dvr->query_ = String::Concat( dvr->query_, String::Concat( String::New( " ORDER BY "), order ) );
 
 	// Return the resulting query string to the user so they can verify
-	return scope.Close( String::New( drv->query_ ) );
+	return scope.Close( dvr->query_->ToString() );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

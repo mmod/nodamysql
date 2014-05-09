@@ -29,23 +29,25 @@ class Driver : public node::ObjectWrap
 		static void Init( v8::Handle<v8::Object> exports );
 
 	private:
-		explicit Driver( v8::Handle<v8::String> host = v8::String::New( "localhost" ), v8::Handle<v8::String> port = v8::String::New( "3306" ), v8::Handle<v8::String> db = v8::String::New( "test" ), v8::Handle<v8::String> user = v8::String::New( "test" ), v8::Handle<v8::String> password = v8::String::New( "password" ) );
+		explicit Driver( v8::Local<v8::String> host = v8::String::New( "localhost" ), v8::Local<v8::String> port = v8::String::New( "3306" ), v8::Local<v8::String> db = v8::String::New( "test" ), v8::Local<v8::String> user = v8::String::New( "test" ), v8::Local<v8::String> password = v8::String::New( "password" ) );
 		~Driver();
 
+		static v8::Persistent<v8::Function> constructor;
 		static v8::Handle<v8::Value> New( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Select( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Where( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Join( const v8::Arguments& args );
+		static v8::Handle<v8::Value> On( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Limit( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Order( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Execute( const v8::Arguments& args );
-		v8::String::Utf8Value host_;
-		v8::String::Utf8Value port_;
-		v8::String::Utf8Value db_;
-		v8::String::Utf8Value user_;
-		v8::String::Utf8Value password_;
-		v8::String::Utf8Value query_;
-		v8::Object phmap_;
+		v8::Handle<v8::String> host_;
+		v8::Handle<v8::String> port_;
+		v8::Handle<v8::String> db_;
+		v8::Handle<v8::String> user_;
+		v8::Handle<v8::String> password_;
+		v8::Handle<v8::String> query_;
+		v8::Handle<v8::Object> phmap_;
 };
 
 #endif
