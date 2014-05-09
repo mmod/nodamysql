@@ -45,7 +45,7 @@ class Driver : public node::ObjectWrap
 		v8::String::Utf8Value user_;
 		v8::String::Utf8Value password_;
 		v8::String::Utf8Value query_;
-		Object phmap_;
+		v8::Object phmap_;
 };
 
 #endif
