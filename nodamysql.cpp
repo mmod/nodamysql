@@ -2,12 +2,13 @@
  * package: nodamysql
  * version:  0.0.1
  * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
- * copyright: 2013-2014 Richard B. Winters
+ * copyright: 2013-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
  */
 
 
 // INCLUDES
+#include <v8.h>
 #include <node.h>
 #include "driver.h"
 
