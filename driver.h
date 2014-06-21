@@ -30,7 +30,18 @@ class Driver : public node::ObjectWrap
 		static void Init( v8::Handle<v8::Object> exports );
 
 	private:
-		explicit Driver( v8::Persistent<v8::String> host = v8::Persistent<v8::String>::New( v8::String::New( "localhost" ) ), v8::Persistent<v8::String> port = v8::Persistent<v8::String>::New( v8::String::New( "3306" ) ), v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ), v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ), v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( v8::String::New( "password" ) ), v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( 0 ) ), v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ), v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>::New( v8::False() ), v8::Local<v8::String> query = v8::String::New( "" ) ), v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>::New( v8::False() );
+		explicit Driver(
+							v8::Persistent<v8::String> host = v8::Persistent<v8::String>::New( v8::String::New( "localhost" ) ),
+							v8::Persistent<v8::String> port = v8::Persistent<v8::String>::New( v8::String::New( "3306" ) ),
+							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ),
+							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ),
+							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( v8::String::New( "password" ) ),
+							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( 0 ) ),
+							v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ),
+							v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>( v8::False() ),
+							v8::Local<v8::String> query = v8::String::New( "" ),
+							v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>( v8::False() )
+						);
 		~Driver();
 
 		static v8::Persistent<v8::Function> constructor;
@@ -51,16 +62,16 @@ class Driver : public node::ObjectWrap
 		static v8::Handle<v8::Value> Reset( const v8::Arguments& args );
 
 	public:
-		v8::Persistent<v8::String> _host;
-		v8::Persistent<v8::String> _port;
-		v8::Persistent<v8::String> _db;
-		v8::Persistent<v8::String> _user;
-		v8::Persistent<v8::String> _password;
-		v8::Persistent<v8::Integer> _type;
-		v8::Persistent<v8::Object> _phmap;
-		v8::Handle<v8::Boolean> _mapped;
-		v8::Handle<v8::String> _query;
-		v8::Handle<v8::Boolean> _prepared;
+		v8::Persistent<v8::String> host_;
+		v8::Persistent<v8::String> port_;
+		v8::Persistent<v8::String> db_;
+		v8::Persistent<v8::String> user_;
+		v8::Persistent<v8::String> password_;
+		v8::Persistent<v8::Integer> type_;
+		v8::Persistent<v8::Object> phmap_;
+		v8::Handle<v8::Boolean> mapped_;
+		v8::Handle<v8::String> query_;
+		v8::Handle<v8::Boolean> prepared_;
 };
 
 #endif
