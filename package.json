@@ -1,6 +1,6 @@
 {
   "name": "nk-mysql",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha",
   "description": "nodakwaeri MySQL Connector for Node.js",
   "main": "index.js",
   "scripts": {
