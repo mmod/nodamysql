@@ -5,7 +5,7 @@
 	
 	'includes':
 	[	# Any GYP include - or .gypi - files
-		'../../../includes/common-mysql.gypi'	
+		'../../../includables/common-mysql.gypi'	
 	],
 	
 	'target_defaults':
@@ -26,7 +26,13 @@
 					'VCCLCompilerTool':
 					{
 						'RuntimeLibrary': 3,		# shared debug
-						'ExceptionHandling': 1		# /EHsc
+						'ExceptionHandling': 1,		# /EHsc
+						'AdditionalOptions':
+						[
+							'/GR',
+							'/MDd',
+							'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+						]
 					}
 				}
 			},
@@ -38,35 +44,16 @@
 					'VCCLCompilerTool':
 					{
 						'RuntimeLibrary': 2,		# shared release
-						'ExceptionHandling': 1		# /EHsc
+						'ExceptionHandling': 1,		# /EHsc
+						'AdditionalOptions':
+						[
+							'/GR',
+							'/MD',	# RuntimeLibrary setting above seems to not do anything as the warning makes clear to you during build.
+							'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+							'/Dmysqlcppconn_EXPORTS'	# This needs to be set.
+						]
 					}
 				}
-			}
-		},
-		'msvs_settings':
-		{
-			'VCCLCompilerTool':
-			{
-				'RuntimeLibrary': 2,		# shared release
-				'ExceptionHandling': 1,		# /EHsc, but doesnt seem to work very well
-				'AdditionalOptions':
-				[
-					'/GR',
-					'/MD',
-					'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
-					'/Ddllimport=dllexport',	# This puppy makes sure to redefine the dllimport flag as dllexport for when we are building the dll on windows
-				]
-			},
-			'VCLibrarianTool':
-			{
-			},
-			'VCLinkerTool':
-			{
-				'GenerateDebugInformation': 'true',
-				'AdditionalOptions':
-				[
-					'/FORCE:MULTIPLE'
-				]
 			}
 		},
 		'conditions':
@@ -95,7 +82,8 @@
 					'boost_dir%': '<!(IF DEFINED BOOST_ROOT (echo %BOOST_ROOT%) ELSE (echo C:/boost/boost_<(boost_version)))',
 					'mysql_dir%': '<!(IF DEFINED MYSQL_DIR (echo %MYSQL_DIR%) ELSE (echo C:/mysql/server/<(mysql_version)))',
 					'cppconn_inc_dir': 'win',
-					'cppconn_inc_dir_for_driver': 'win/cppconn'
+					'cppconn_inc_dir_for_driver': 'win/cppconn',
+					'cppconn_inc_dir_for_nativeapi': 'win/cppconn/nativeapi'
 				},
 				'targets':
 				[
@@ -118,26 +106,20 @@
 							'win/driver/mysql_resultset.cpp',
 							'win/driver/mysql_resultset_metadata.cpp',
 							'win/driver/mysql_statement.cpp',
-							'win/driver/mysql_uri.cpp',
 							'win/driver/mysql_util.cpp',
-							'win/driver/mysql_warning.cpp'
+							'win/driver/mysql_warning.cpp',
+							'win/driver/mysql_uri.cpp',
+							'win/driver/nativeapi/mysql_client_api.cpp',
+							'win/driver/nativeapi/library_loader.cpp',
+							'win/driver/nativeapi/mysql_native_driver_wrapper.cpp',
+							'win/driver/nativeapi/mysql_native_connection_wrapper.cpp',
+							'win/driver/nativeapi/mysql_native_statement_wrapper.cpp',
+							'win/driver/nativeapi/mysql_native_resultset_wrapper.cpp'
 						],
-						'cflags': [ '-std=c++11', '-DBUILD_SHARED=1' ],
-						'include_dirs': [ '<(cppconn_inc_dir)/', '<(cppconn_inc_dir_for_driver)/', '<(mysql_dir)/include/', '<(boost_dir)/' ],
-						'libraries': [ '<(mysql_dir)/lib/libmysql' ]
-					},
-					#{
-					#	'target_name': 'action_after_build',
-					#	'type': 'none',
-					#	'dependencies': [ 'mysqlcppconn' ],
-					#	'copies':
-					#	[
-					#		{
-					#			'files': [ '<(PRODUCT_DIR)/mysqlcppconn.dll', '<(PRODUCT_DIR)/mysqlcppconn.lib' ],
-					#			'destination': 'build/Release'
-					#		}
-					#	]
-					#}
+						'cflags': [ '-std=c++11' ],
+						'include_dirs': [ '<(cppconn_inc_dir)/', '<(cppconn_inc_dir_for_driver)/', '<(cppconn_inc_dir_for_nativeapi)/', '<(mysql_dir)/include/', '<(boost_dir)/' ],
+						'libraries': [ '<(mysql_dir)/lib/libmysql', 'kernel32', 'user32', 'gdi32', 'winspool', 'shell32', 'ole32', 'oleaut32', 'uuid', 'comdlg32', 'advapi32', 'ws2_32' ]
+					}
 				]
       		}
 		],
@@ -148,6 +130,9 @@
 				{
 					'boost_dir%': '<!(if [ -z $BOOST_ROOT ]; then echo \"/opt/boost_<(boost_version)/\"; else echo $BOOST_ROOT; fi)',
 					'mysql_dir%': '<!(if [ -z $MYSQL_DIR ]; then echo \"/opt/mysql/server/<(mysql_version)/\"; else echo $MYSQL_DIR; fi)'
+					'cppconn_inc_dir': 'lin',
+					'cppconn_inc_dir_for_driver': 'lin/cppconn',
+					'cppconn_inc_dir_for_nativeapi': 'lin/cppconn/nativeapi'
 				},
 				'targets':
 				[
@@ -156,40 +141,38 @@
 						'type': 'shared_library',
 						'sources': 
 						[ 
-							'mysql_art_resultset.cpp',
-							'mysql_art_rset_metadata.cpp',
-							'mysql_connection.cpp', 
-							'mysql_debug.cpp',
-							'mysql_driver.cpp',
-							'mysql_metadata.cpp',
-							'mysql_parameter_metadata.cpp',
-							'mysql_prepared_statement.cpp',
-							'mysql_ps_resultset.cpp',
-							'mysql_ps_resultset_metadata.cpp',
-							'mysql_resultbind.cpp',
-							'mysql_resultset.cpp',
-							'mysql_resultset_metadata.cpp',
-							'mysql_statement.cpp',
-							'mysql_uri.cpp',
-							'mysql_util.cpp',
-							'mysql_warning.cpp'
+							'lin/driver/mysql_art_resultset.cpp',
+							'lin/driver/mysql_art_rset_metadata.cpp',
+							'lin/driver/mysql_connection.cpp', 
+							'lin/driver/mysql_debug.cpp',
+							'lin/driver/mysql_driver.cpp',
+							'lin/driver/mysql_metadata.cpp',
+							'lin/driver/mysql_parameter_metadata.cpp',
+							'lin/driver/mysql_prepared_statement.cpp',
+							'lin/driver/mysql_ps_resultset.cpp',
+							'lin/driver/mysql_ps_resultset_metadata.cpp',
+							'lin/driver/mysql_resultbind.cpp',
+							'lin/driver/mysql_resultset.cpp',
+							'lin/driver/mysql_resultset_metadata.cpp',
+							'lin/driver/mysql_statement.cpp',
+							'lin/driver/mysql_util.cpp',
+							'lin/driver/mysql_warning.cpp',
+							'lin/driver/mysql_uri.cpp',
+							'lin/driver/nativeapi/mysql_client_api.cpp',
+							'lin/driver/nativeapi/library_loader.cpp',
+							'lin/driver/nativeapi/mysql_native_driver_wrapper.cpp',
+							'lin/driver/nativeapi/mysql_native_connection_wrapper.cpp',
+							'lin/driver/nativeapi/mysql_native_statement_wrapper.cpp',
+							'lin/driver/nativeapi/mysql_native_resultset_wrapper.cpp'
 						],
-						'cflags': [ '-std=c++11' ],
-						'include_dirs': [ 'includes/mysqlcppconn/include/', 'includes/boost/include/' ],
-						'libraries': [ '../includes/mysqlcppconn/lib/win6481-mysql645619/opt/mysqlcppconn.lib' ]
-		      	 	},
-					{
-						'target_name': 'action_after_build',
-						'type': 'none',
-						'dependencies': [ 'libmysqlcppconn' ],
-						'copies':
-						[
-							{
-								'files': [ ],
-								'destination': ''
-							}
-						]
-					}
+						'cflags': 
+						[ 
+							'-std=c++11',
+							'/Dmysqlcppconn_EXPORTS'	# This needs to be set. 
+						],
+						'include_dirs': [ '<(cppconn_inc_dir)/', '<(cppconn_inc_dir_for_driver)/', '<(cppconn_inc_dir_for_nativeapi)/', '<(mysql_dir)/include/', '<(boost_dir)/' ],
+						'libraries': [ '<(mysql_dir)/lib/libmysql' ]
+		      	 	}
 				]
 			}
 		]

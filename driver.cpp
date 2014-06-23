@@ -44,6 +44,7 @@ Driver::Driver(
 					Persistent<String> user,
 					Persistent<String> password,
 					Persistent<Integer> type,
+					Persistent<Object> model,
 					Persistent<Object> phmap,
 					Handle<Boolean> mapped,
 					Local<String> query,
@@ -55,6 +56,7 @@ Driver::Driver(
 					user_( user ),
 					password_( password ),
 					type_( type ),
+					model_( Persistent<Object>::New( model->ToObject() ) ),
 					phmap_( Persistent<Object>::New( phmap->ToObject() ) ),
 					mapped_( mapped ),
 					query_( query->ToString() ),
@@ -89,7 +91,7 @@ void Driver::Init( Handle<Object> exports )
 	// Prepare constructor template
 	Local<FunctionTemplate> tpl = FunctionTemplate::New( New );
 	tpl->SetClassName( String::NewSymbol( "Driver" ) );
-	tpl->InstanceTemplate()->SetInternalFieldCount( 10 );
+	tpl->InstanceTemplate()->SetInternalFieldCount( 11 );
 
 	// Prepare the accessors for our dynamic variables which are not static
 	//tpl->InstanceTemplate().SetAccessor( String::New( "host" ), GetHost, SetHost );
@@ -131,52 +133,9 @@ Handle<Value> Driver::New( const Arguments& args )
 	if( args.IsConstructCall() )
 	{
 		// Invoked as constructor: 'new nodamysql(...)'
-		Local<String> driver = args[0]->IsUndefined() ? String::New( "mysql" ) : args[0]->ToString();
 		Local<Object> config;
 
-		if( args[1]->IsUndefined() )
-		{
-			config = Object::New();
-
-			if( driver == String::New( "mysql" ) )
-			{
-				config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
-				config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
-				config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
-				config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
-				config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
-			}
-		}
-		else
-		{
-			config = args[1]->ToObject();
-		}
-
-		Driver* dvr = new Driver(
-									Persistent<String>::New( config->Get( String::New( "host" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "port" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "db" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "user" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "password" ) )->ToString() ),
-									Persistent<Integer>::New( Integer::New( 0 ) ),
-									Persistent<Object>::New( Object::New() ),
-									Handle<Boolean>( v8::False() ),
-									String::New( "" ),
-									Handle<Boolean>( v8::False() )
-								);
-
-		dvr->Wrap( args.This() );
-
-		return args.This();
-	}
-	else
-	{
-		// Invoked as plain function 'nodamysql(...)', turn it into a construct call
-		const int argc = 10;
-
-		Local<Object> config;
-
-		if( args[1]->IsUndefined() )
+		if( args[0]->IsUndefined() )
 		{
 			config = Object::New();
 			config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
@@ -187,7 +146,46 @@ Handle<Value> Driver::New( const Arguments& args )
 		}
 		else
 		{
-			config = args[1]->ToObject();
+			config = args[0]->ToObject();
+		}
+
+		Driver* dvr = new Driver(
+									Persistent<String>::New( config->Get( String::New( "host" ) )->ToString() ),
+									Persistent<String>::New( config->Get( String::New( "port" ) )->ToString() ),
+									Persistent<String>::New( config->Get( String::New( "db" ) )->ToString() ),
+									Persistent<String>::New( config->Get( String::New( "user" ) )->ToString() ),
+									Persistent<String>::New( config->Get( String::New( "password" ) )->ToString() ),
+									Persistent<Integer>::New( Integer::New( 0 ) ),
+									Persistent<Object>::New( config->Get( String::New( "model" ) )->ToObject() ),
+									Persistent<Object>::New( Object::New() ),
+									Handle<Boolean>( v8::False() ),
+									String::New( "" ),
+									Handle<Boolean>( v8::False() )
+								);
+
+		dvr->Wrap( args.This() );
+
+		return scope.Close( args.This() );
+	}
+	else
+	{
+		// Invoked as plain function 'nodamysql(...)', turn it into a construct call
+		const int argc = 10;
+
+		Local<Object> config;
+
+		if( args[0]->IsUndefined() )
+		{
+			config = Object::New();
+			config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
+			config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
+			config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
+			config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
+			config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
+		}
+		else
+		{
+			config = args[0]->ToObject();
 		}
 
 		Local<Value> argv[argc] = {
@@ -197,6 +195,7 @@ Handle<Value> Driver::New( const Arguments& args )
 										config->Get( String::New( "user" ) ),
 										config->Get( String::New( "pass" ) ),
 										Integer::New( 0 ),
+										config->Get( String::New( "model" ) ),
 										Object::New(),
 										Local<Boolean>::New( v8::False() ),
 										String::New( "" ),
@@ -209,7 +208,7 @@ Handle<Value> Driver::New( const Arguments& args )
 
 
 /**
- * Executes a supplied query statement (Not prepared!)
+ * Sets a supplied query statement (Not prepared!)
  *
  * @param const Arguments&		Arguments passed during invocation
  *
@@ -238,11 +237,11 @@ Handle<Value> Driver::Query( const Arguments& args )
 
 	// This is how we convert a JavaScript string to a std::string (c++)
 	String::AsciiValue av( args[0] );
-	std::string select = *av;
+	std::string query = *av;
 
 	// Build our query string part
 	std::string qp = std::string( "SELECT " );
-	qp += select;
+	qp += query;
 
 	std::cout << "Prints Part: " << qp << std::endl;
 
@@ -415,11 +414,11 @@ Handle<Value> Driver::Update( const Arguments& args )
 
 	// This is how we convert a JavaScript string to a std::string (c++)
 	String::AsciiValue av( args[0] );
-	std::string select = *av;
+	std::string update = *av;
 
 	// Build our query string part
 	std::string qp = std::string( "SELECT " );
-	qp += select;
+	qp += update;
 
 	std::cout << "Prints Part: " << qp << std::endl;
 
@@ -474,11 +473,11 @@ Handle<Value> Driver::Delete( const Arguments& args )
 
 	// This is how we convert a JavaScript string to a std::string (c++)
 	String::AsciiValue av( args[0] );
-	std::string select = *av;
+	std::string remove = *av;
 
 	// Build our query string part
 	std::string qp = std::string( "SELECT " );
-	qp += select;
+	qp += remove;
 
 	std::cout << "Prints Part: " << qp << std::endl;
 

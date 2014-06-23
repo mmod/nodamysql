@@ -6,7 +6,7 @@
 	
 	'includes':
 	[	# Any GYP include - or .gypi - files
-		'includes/common-mysql.gypi'	
+		'includables/common-mysql.gypi'	
 	],
 	
 	'target_defaults':
@@ -26,7 +26,8 @@
 				{
 					'VCCLCompilerTool':
 					{
-						'RuntimeLibrary': 1		# shared debug
+						'RuntimeLibrary': 3,		# shared debug
+						'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
 					}
 				}
 			},
@@ -37,22 +38,10 @@
 				{
 					'VCCLCompilerTool':
 					{
-						'RuntimeLibrary': 0		# shared release
+						'RuntimeLibrary': 2,		# shared release
+						'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
 					}
 				}
-			}
-		},
-		'msvs_settings':
-		{
-			'VCCLCompilerTool':
-			{
-			},
-			'VCLibrarianTool':
-			{
-			},
-			'VCLinkerTool':
-			{
-				'GenerateDebugInformation': 'true'
 			}
 		},
 		'conditions':
@@ -70,6 +59,17 @@
 	},
   	'targets': 
   	[	# Any 'for sure' targets
+  		{	# This target copies an index.js file for the module that is designed for loading pre-compiled variants of the nodamysql add-on.  This acts as a fall-back if subsequent rebuilding/updates fail. 
+			'target_name': 'action_before_build',
+			'type': 'none',
+			'copies':
+			[
+				{
+					'files': [ 'includables/module/precompiled/index.js' ],
+					'destination': './'
+				}
+			]
+		}
   	],
     'conditions': 
     [	# Conditional targets
@@ -78,17 +78,28 @@
 			{
 				'variables':
 				{
-					'boost_dir%': '<! (IF DEFINED BOOST_ROOT (echo %BOOST_ROOT%) ELSE ( echo <(local_boost_path)/includes/boost_<(boost_version)/include ))'
+					'boost_dir%': '<!(IF DEFINED BOOST_ROOT (echo %BOOST_ROOT%) ELSE (echo C:/boost/boost_<(boost_version)))'
 				},
 				'targets':
 				[
 					{
 						'target_name': 'nodamysql',
 						'sources': [ 'nodamysql.cpp', 'driver.cpp' ], 
-						'dependencies': [ 'library/mysql/cppconn/binding.gyp:mysqlcppconn' ],
+						'dependencies': [ 'action_before_build', 'library/mysql/cppconn/binding.gyp:mysqlcppconn' ],  # The MySQL C++ Connector is automatically linked due to this step
 						'cflags': [ '-std=c++11' ],
 						'include_dirs': [ 'library/mysql/cppconn/win/', 'library/mysql/cppconn/win/driver/', '<(boost_dir)/' ]
-						#'libraries': [ '../includes/mysqlcppconn/lib/win6481-mysql645619/opt/mysqlcppconn.lib' ]
+					},
+					{	# This target copies an index.js file to the root of the module which will load the recently built variant of the add-on/library, replacing the default which loads a pre-compiled variant.
+						'target_name': 'action_after_build',
+						'type': 'none',
+						'dependencies': [ 'nodamysql' ],
+						'copies':
+						[
+							{
+								'files': [ 'includables/module/index.js' ],
+								'destination': './'
+							}
+						]
 					}
 				]
       		}
@@ -96,11 +107,32 @@
 		[
 			'OS=="linux"', 
 			{
-				'sources': [ 'nodamysql.cpp', 'driver.cpp' ],
-				'dependencies': [ 'library/mysql/binding.gyp:mysqlcppconn' ],
-				'cflags': [ '-std=c++11' ],
-				'include_dirs': [ 'includes/mysqlcppconn/include/', 'includes/boost/include/' ],
-				'libraries': [ '../includes/mysqlcppconn/lib/win6481-mysql645619/opt/mysqlcppconn.lib' ]
+				'variables':
+				{
+					'boost_dir%': '<!(if [ -z $BOOST_ROOT ]; then echo \"/opt/boost_<(boost_version)/\"; else echo $BOOST_ROOT; fi)',
+				},
+				'targets':
+				[
+					{
+						'target_name': 'nodamysql',
+						'sources': [ 'nodamysql.cpp', 'driver.cpp' ],
+						'dependencies': [ 'action_before_build', 'library/mysql/cppconn/binding.gyp:mysqlcppconn' ],	# The MySQL C++ Connector is automatically linked due to this step
+						'cflags': [ '-std=c++11' ],
+						'include_dirs': [ 'includables/mysqlcppconn/include/', 'includables/boost/include/' ],
+					},
+					{	# This target copies an index.js file to the root of the module which will load the recently built variant of the add-on/library, replacing the default which loads a pre-compiled variant.
+						'target_name': 'action_after_build',
+						'type': 'none',
+						'dependencies': [ 'nodamysql' ],
+						'copies':
+						[
+							{
+								'files': [ 'includables/module/index.js' ],
+								'destination': './'
+							}
+						]
+					}
+				]
       	 	}
       	 ]
 	]
