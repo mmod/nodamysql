@@ -1,0 +1,26 @@
+{
+  "name": "nk-mysql",
+  "version": "0.0.1",
+  "description": "nodakwaeri MySQL Connector for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mmod/nodamysql.git"
+  },
+  "keywords": [
+    "NodaKwaeri",
+    "nodakwaeri",
+    "nk",
+    "MySQL",
+    "mysql"
+  ],
+  "author": "Richard Winters <rik@mmogp.com> (http://www.mmogp.com)",
+  "license": "Apache V2.0",
+  "bugs": {
+    "url": "https://github.com/mmod/nodamysql/issues"
+  },
+  "homepage": "https://github.com/mmod/nodamysql"
+}

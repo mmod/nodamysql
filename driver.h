@@ -37,6 +37,7 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ),
 							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( v8::String::New( "password" ) ),
 							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( 0 ) ),
+							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New() ),
 							v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ),
 							v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>( v8::False() ),
 							v8::Local<v8::String> query = v8::String::New( "" ),
@@ -68,6 +69,7 @@ class Driver : public node::ObjectWrap
 		v8::Persistent<v8::String> user_;
 		v8::Persistent<v8::String> password_;
 		v8::Persistent<v8::Integer> type_;
+		v8::Persistent<v8::Object> model_;
 		v8::Persistent<v8::Object> phmap_;
 		v8::Handle<v8::Boolean> mapped_;
 		v8::Handle<v8::String> query_;
