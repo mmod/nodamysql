@@ -17,7 +17,7 @@ module.exports = exports = nodamysql = function()
 	{
 		if( process.platform == 'win32' )
 		{
-			nkmysql = require( './includes/precompiled/win/win6481-mysql645619/opt/nodamysql' );	// Release build
+			nkmysql = require( './includables/module/precompiled/win/win6481-mysql645619/opt/nodamysql' );	// Release build
 		}
 		else
 		{

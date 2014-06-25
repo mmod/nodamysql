@@ -1,6 +1,6 @@
 /**
  * package: nodamysql
- * version:  0.0.1
+ * version:  0.0.2-alpha
  * author:  Richard B. Winters <a href="mailto:rik@massivelymodified.com">rik At MMOGP</a>
  * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
@@ -17,7 +17,7 @@ module.exports = exports = nodamysql = function()
 	{
 		if( process.platform == 'win32' )
 		{
-			nkmysql = require( './includes/precompiled/win/win6481-mysql645619/opt/nodamysql' );	// Release build
+			nkmysql = require( './includables/module/precompiled/win/win6481-mysql645619/opt/nodamysql' );	// Release build
 		}
 		else
 		{

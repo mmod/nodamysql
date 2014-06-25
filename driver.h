@@ -1,6 +1,6 @@
 /**
  * package: nodamysql
- * version:  0.0.1
+ * version:  0.0.2-alpha
  * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
  * copyright: 2013-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
@@ -50,6 +50,7 @@ class Driver : public node::ObjectWrap
 		static v8::Handle<v8::Value> Query( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Select( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Insert( const v8::Arguments& args );
+		static v8::Handle<v8::Value> Values( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Update( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Delete( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Where( const v8::Arguments& args );
