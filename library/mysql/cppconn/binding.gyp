@@ -129,7 +129,7 @@
 				'variables':
 				{
 					'boost_dir%': '<!(if [ -z $BOOST_ROOT ]; then echo \"/opt/boost_<(boost_version)/\"; else echo $BOOST_ROOT; fi)',
-					'mysql_dir%': '<!(if [ -z $MYSQL_DIR ]; then echo \"/opt/mysql/server/<(mysql_version)/\"; else echo $MYSQL_DIR; fi)'
+					'mysql_dir%': '<!(if [ -z $MYSQL_DIR ]; then echo \"/opt/mysql/server/<(mysql_version)/\"; else echo $MYSQL_DIR; fi)',
 					'cppconn_inc_dir': 'lin',
 					'cppconn_inc_dir_for_driver': 'lin/cppconn',
 					'cppconn_inc_dir_for_nativeapi': 'lin/cppconn/nativeapi'

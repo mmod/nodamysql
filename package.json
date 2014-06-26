@@ -1,7 +1,7 @@
 {
   "name": "nk-mysql",
-  "version": "0.0.1-alpha",
-  "description": "nodakwaeri MySQL Connector for Node.js",
+  "version": "0.0.3-alpha",
+  "description": "A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or any application which would make use of it.  Featuring the MySQL C++ Connector from Oracle, designed to keep your application secure and efficient.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

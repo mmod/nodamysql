@@ -3,12 +3,10 @@
 	{	# Any variable names we wish to create and define
 	
 	},
-	
 	'includes':
 	[	# Any GYP include - or .gypi - files
 		'includables/common-mysql.gypi'	
 	],
-	
 	'target_defaults':
 	{	# Any default configuration settings
 	
@@ -27,7 +25,11 @@
 					'VCCLCompilerTool':
 					{
 						'RuntimeLibrary': 3,		# shared debug
-						'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+						'ExceptionHandling': 1,		# /EHsc
+						'AdditionalOptions': 
+						[
+							'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+						]
 					}
 				}
 			},
@@ -39,7 +41,11 @@
 					'VCCLCompilerTool':
 					{
 						'RuntimeLibrary': 2,		# shared release
-						'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+						'ExceptionHandling': 1,		# /EHsc
+						'AdditionalOptions': 
+						[
+							'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+						]
 					}
 				}
 			}
