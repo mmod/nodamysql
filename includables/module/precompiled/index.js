@@ -29,7 +29,7 @@ module.exports = exports = nodamysql = function()
 	{	// It's x86
 		if( process.platform == 'win32' )
 		{	// We don't actually have this yet... personally we'll always use 64-bit here at MMod.
-			nkmysql = require( './includes/precompiled/win/win3281-mysql325619/nodamysql' );
+			nkmysql = require( './includables/module/precompiled/win/win327-mysql325619/opt/nodamysql' );
 		}
 		else
 		{
