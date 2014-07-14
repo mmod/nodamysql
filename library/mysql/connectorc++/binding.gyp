@@ -1,9 +1,9 @@
 {
 	'variables':
 	{	# Any variable names we wish to create and define
-		'cppconn_inc_dir': '',
+		'cppconn_inc_dir': './',
 		'cppconn_inc_dir_for_driver': 'cppconn',
-		'cppconn_inc_dir_for_nativeapi': 'cppconn/nativeapi'
+		'cppconn_inc_dir_for_nativeapi': 'driver/nativeapi'
 	},
 	
 	'includes':
@@ -47,6 +47,7 @@
 										'/GR',
 										'/MDd',
 										'/EHsc', # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+										'-Dmysqlcppconn_EXPORTS'	# This must be set in order to build a shared variant
 									]
 								}
 							}
@@ -65,6 +66,7 @@
 										'/GR',
 										'/MD',	# RuntimeLibrary setting above seems to not do anything as the warning makes clear to you during build.
 										'/EHsc',
+										'-Dmysqlcppconn_EXPORTS'	# This must be set in order to build a shared variant
 									]
 								}
 							}
