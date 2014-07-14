@@ -19,60 +19,98 @@
 		{
 			'Debug': 
 			{
-				'defines': [ 'DEBUG', '_DEBUG' ],
-				'msvs_settings':
-				{
-					'VCCLCompilerTool':
-					{
-						'RuntimeLibrary': 3,		# shared debug
-						'ExceptionHandling': 1,		# /EHsc
-						'AdditionalOptions': 
-						[
-							'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
-						]
-					}
-				}
+				'defines': [ 'DEBUG', '_DEBUG' ]
 			},
 			'Release':
 			{
-				'defines': [ 'NDEBUG' ],
-				'msvs_settings':
-				{
-					'VCCLCompilerTool':
-					{
-						'RuntimeLibrary': 2,		# shared release
-						'ExceptionHandling': 1,		# /EHsc
-						'AdditionalOptions': 
-						[
-							'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
-						]
-					}
-				}
+				'defines': [ 'NDEBUG' ]
 			}
 		},
 		'conditions':
 		[
 			[
-				'OS == "win"',
+				'OS=="win"',
 				{
-					'defines':
-					[
-						'WIN32'
-					]
+					'configurations':
+					{
+						'Debug':
+						{
+							'defines': [ 'WIN32' ],
+							'msvs_settings':
+							{
+								'VCCLCompilerTool':
+								{
+									'RuntimeLibrary': 3,		# shared debug
+									'ExceptionHandling': 1,		# /EHsc
+									'AdditionalOptions': 
+									[
+										'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+									]
+								}
+							}
+						},
+						'Release':
+						{
+							'defines': [ 'WIN32' ],
+							'msvs_settings':
+							{
+								'VCCLCompilerTool':
+								{
+									'RuntimeLibrary': 2,		# shared release
+									'ExceptionHandling': 1,		# /EHsc
+									'AdditionalOptions': 
+									[
+										'/EHsc' # Enable unwind semantics for Exception Handling.  This one actually does the trick - and no warning either.
+									]
+								}
+							}
+						}
+					}
+				}
+			],
+			[
+				'OS!="win"',
+				{
+					'configurations':
+					{
+						'Debug':
+						{
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
+							'cflags_cc':
+							[
+								'-std=c++11',
+								'-fexceptions',					# Enable exception handler
+								'-frtti',						# Allow dynamic casting
+								'-Wno-deprecated',				# Remove deprecated warnings
+								'-Wno-unused-variable',			# Remove unused-variable warnings
+								'-Wno-unused-but-set-variable',	# Remove unused-but-set-variable warnings
+								'-Wno-sign-compare',			# Remove sign compare warnings
+								'-Wno-reorder',					# Remove initialize after warnings
+								'-Wno-extra',					# Remove explicit initialization warnings
+								'-Wno-switch',					# Remove switch warnings
+							]
+						},
+						'Release':
+						{
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
+							'cflags_cc': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ]
+						}
+					}
 				}
 			]
 		]
 	},
   	'targets': 
   	[	# Any 'for sure' targets
-  		{	# This target copies an index.js file for the module that is designed for loading pre-compiled variants of the nodamysql add-on.  This acts as a fall-back if subsequent rebuilding/updates fail. 
-			'target_name': 'action_before_build',
+		{
+			'target_name': 'action_after_build',
 			'type': 'none',
+			'dependencies': [ 'nodamysql' ],
 			'copies':
 			[
 				{
-					'files': [ 'includables/module/precompiled/index.js' ],
-					'destination': './'
+					'files': [ 'includables/module/index.js' ],
+					'destination': '<(module_root_dir)'
 				}
 			]
 		}
@@ -91,27 +129,14 @@
 					{
 						'target_name': 'nodamysql',
 						'sources': [ 'nodamysql.cpp', 'driver.cpp' ], 
-						'dependencies': [ 'action_before_build', 'library/mysql/cppconn/binding.gyp:mysqlcppconn' ],  # The MySQL C++ Connector is automatically linked due to this step
-						'cflags': [ '-std=c++11' ],
-						'include_dirs': [ 'library/mysql/cppconn/win/', 'library/mysql/cppconn/win/driver/', '<(boost_dir)/' ]
-					},
-					{	# This target copies an index.js file to the root of the module which will load the recently built variant of the add-on/library, replacing the default which loads a pre-compiled variant.
-						'target_name': 'action_after_build',
-						'type': 'none',
-						'dependencies': [ 'nodamysql' ],
-						'copies':
-						[
-							{
-								'files': [ 'includables/module/index.js' ],
-								'destination': './'
-							}
-						]
+						'dependencies': [ 'library/mysql/connectorc++/binding.gyp:mysqlcppconn' ],  # The MySQL C++ Connector is automatically linked due to this step
+						'include_dirs': [ 'library/mysql/connectorc++/', 'library/mysql/connectorc++/driver/', '<(boost_dir)/' ]
 					}
 				]
       		}
 		],
 		[
-			'OS=="linux"', 
+			'OS!="win"', 
 			{
 				'variables':
 				{
@@ -122,21 +147,8 @@
 					{
 						'target_name': 'nodamysql',
 						'sources': [ 'nodamysql.cpp', 'driver.cpp' ],
-						'dependencies': [ 'action_before_build', 'library/mysql/cppconn/binding.gyp:mysqlcppconn' ],	# The MySQL C++ Connector is automatically linked due to this step
-						'cflags': [ '-std=c++11' ],
-						'include_dirs': [ 'includables/mysqlcppconn/include/', 'includables/boost/include/' ],
-					},
-					{	# This target copies an index.js file to the root of the module which will load the recently built variant of the add-on/library, replacing the default which loads a pre-compiled variant.
-						'target_name': 'action_after_build',
-						'type': 'none',
-						'dependencies': [ 'nodamysql' ],
-						'copies':
-						[
-							{
-								'files': [ 'includables/module/index.js' ],
-								'destination': './'
-							}
-						]
+						'dependencies': [ 'library/mysql/connectorc++/binding.gyp:libmysqlcppconn' ],
+						'include_dirs': [ 'library/mysql/connectorc++/', 'library/mysql/connectorc++/driver/' ],
 					}
 				]
       	 	}

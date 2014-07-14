@@ -1,18 +1,27 @@
 # nodamysql (nk-mysql)
 
-A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or any application which would make use of it.  Featuring the MySQL C++ Connector from Oracle, nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
+A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
+
+Licensed under Apache v2.0, nodamysql features the MySQL C++ Connector from Oracle - which is licensed according to the terms provided 
+under the [FOSS License Exception](http://www.mysql.com/about/legal/licensing/foss-exception/) when used with nodakwaeri (nk) or other 
+Free and Open Source Software sporting acceptable license types. 
+
+nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
 
 
 ##Installation
 
-Installation can go one of two ways <i>(The Debian Linux pre-compiled binaries have not been checked in, nor has the working build script for Linux.  It will be here soon!)</i>:
+Installation can go one of two ways:
 
-1. You are running Windows 64-bit or Debian 7.X Linux 64-bit and do not wish to build (compile).  This would be the absolute easiest method to get going.
+1. You are running Windows (32 & 64-bit) or Debian Wheezy or newer (64-bit), and do not wish to build (compile).  This would be the absolute easiest method to get going.
   
 2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
-  *  The automated build is not available on Mac or SunOS
+  *  The automated build might initialize on Mac or SunOS, but probably won't work.
 
-<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there are typically some pre-requisites but it's really not that bad.  In the end the best compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (As opposed to using Ghost for blogging or an Application built on nodakwaeri or something), you should already have most of what you need prepared already.
+<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there are typically some pre-requisites but it's really not that bad.  In the end the best 
+compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
+host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (as opposed to using Ghost for blogging or 
+an application built on nodakwaeri or something), you should already have most of what you need prepared already.
 
 
 ### Prerequisites
@@ -20,29 +29,29 @@ Installation can go one of two ways <i>(The Debian Linux pre-compiled binaries h
 
 ##### Non-buildage
 
-1. Node.js (x64 until 32-bit binaries are included) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. MySQL Community Server 5.6.x (x64 - until 32 bit binaries are included)
-3. You might need to set a MYSQL_DIR variable on Windows.
+1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
+2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
+3. You might need to set the MYSQL_DIR environment variable on Windows.
 
-Now you're read to skip on down to the section that says 'The actual install' below.
+Now you're ready to skip on down to the section that says 'The actual install' below.
 
 
 ##### Buildage
 1. Node.js (x86 or x64) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. Python (2.7.x x86 or x64)
-3. node-gyp
+3. node-gyp (npm install node-gyp -g)
 4. MYSQL Community Server 5.5+ (if node.js is 64-bit, so should be your mysql server). At this time 5.6.x is recommended, build did not complete properly using 5.7.4-m14 dev release FYI.
 5. Boost headers.  Simply grab the latest boost library from http://boost.org, and extract it someplace.  You are not required to build any boost libraries.
-6. You probably need to set some environment variables:
+6. You probably need to set some environment variables or move some files around:
 
 Windows | Linux | Mac | SunOS
 --------|-------|-----|------
-MYSQL_DIR | Looks for mysql_config instead | NA | NA
-BOOST_ROOT | BOOST_ROOT | NA | NA
+<b>MYSQL_DIR</b> needs to be set in order for the connector to build.  It should point to the directory which contains the '<b>include</b>' and '<b>lib</b>' folders. | Runs mysql_config for information instead.  Make sure to apt-get install libmysql-dev if mysql_config is not present on your system. | Same as Linux | Not sure here..
+<b>BOOST_ROOT</b> needs to be set in order for the connector to build. It should point to the directory which contains the '<b>boost</b>' folder. | Copy the '<b>boost</b>' folder to your <i>/usr/lib</i> or <i>/usr/local/lib</i> directories (dont forget to ldconfig afterwards - and of course, you may have to refer to your favorite flav's documentation).  Alternatively you could apt-get install boost. | NA | NA
 
-  * On Windows, there is no mysql_config file - so we need MYSQL_DIR to be set.
-  * On Debian/Linux, just ensure that mysql_config is present in one of the known locations
-  * On Windows and Linux, we need to know where the boost root is, so set the environment variable on your respective system.
+  * On Windows, there is no mysql_config binary - so we need MYSQL_DIR to be set.
+  * On Debian/Linux or Mac, just ensure that mysql_config is present on your system (try <i>mysql_config</i> right in terminal)
+  * On Windows, you must download the boost library, and set BOOST_ROOT so that we know where to find the boost/ folder containing all of the boost headers.
 
 If it wasn't already apparent:
   * On Windows, you need Visual Studio.  To develop x64 you will need a paid version.  You must use VS201X x64 Native Command Tools in place of Command prompt to build 64-bit.  I recommend using VS201X x86 Native Command Tools even if you are building 32-bit as the Native Command Tools are properly configured for development - unlike Command Prompt.
@@ -57,20 +66,24 @@ Keep in mind that if you're on a 64-bit system and want a 32-bit build; you shou
 
 ### The actual install
 
+Just like with nodakwaeri, unless you are doing something very specific with nodamysql (nk-mysql), it is recommended that you install nodamysql via the [nk-mvc](http://github.com/mmod/nk-mvc) application, as it is a great starting place for any nodakwaeri application, and contains many working examples of usage throughout the project template.
+
+With that said, if you are here to make sure you meet the conditions of the prerequisites as  part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
+
 To install (installing is how we build too!); open a terminal/shell/command tools/prompt and browse to the root of your application. Run the following command:
 
 ```
 path_to_application/> npm install nk-mysql
 ```
 
-If you are building, you should have no problems (If you followed the prerequisites) and other than some potential warnings everything will build properly.
+If you are building, you should have no problems (If you verified that all of the conditions under prerequisites are true for you) and other than some potential warnings everything will build properly.
 
-If you do not have any build tools installed, but are running on Windows or Debian 64-bit, then a fallback configuration to use a pre-compiled variant will be used.  In other words, you can move on to 'Usage'.
+If you do not have any build tools installed, but are running on Windows x86/x64 or Debian Wheezy x64, then a fallback configuration to use a pre-compiled variant will be used.  In other words, you can move on to 'Usage'.
 
 
 ## Usage
 
-At this time, many examples of usage can be found in the [nk-mvc](http://github.com/mmod/nk-mvc) repository on Github - though I'll leave this documentation off with the following:
+At this time, many working examples of usage can be found in the [nk-mvc](http://github.com/mmod/nk-mvc) repository on Github - though I'll leave this documentation off with the following:
 
 
 ### Preparing our DBO
@@ -245,5 +258,3 @@ Feel free to fork the repository and submit pull requests. Browse any of our oth
  ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))
 
 [Node.js](http://nodejs.org)
-
-The above software(s) are all free, open-source projects which grow with each new contribution.
