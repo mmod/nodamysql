@@ -11,14 +11,12 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 ##Installation
 
-Installation can go one of two ways:
+Installation can now only go one way:	(configuration is otherwise a pain)
 
-1. You are running Windows (32 & 64-bit) or Debian Wheezy or newer (64-bit), and do not wish to build (compile).  This would be the absolute easiest method to get going.
-  
-2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
-  *  The automated build might initialize on Mac or SunOS, but probably won't work.
+1. You are running on Windows or Linux (Architecture Independent).
+  *  The automated build might initialize on Mac or SunOS, but probably won't work.  This could be fixed (if it doesn't work) - if you're interested in helping, submit a pull request.  I don't own a Mac (not unfortunately :P), and do not run SunOS.
 
-<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there are typically some pre-requisites but it's really not that bad.  In the end the best 
+<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there may be some pre-requisites but it's really not that bad.  In the end the best 
 compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
 host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (as opposed to using Ghost for blogging or 
 an application built on nodakwaeri or something), you should already have most of what you need prepared already.
@@ -26,17 +24,6 @@ an application built on nodakwaeri or something), you should already have most o
 
 ### Prerequisites
 
-
-##### Non-buildage
-
-1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
-3. You might need to set the MYSQL_DIR environment variable on Windows.
-
-Now you're ready to skip on down to the section that says 'The actual install' below.
-
-
-##### Buildage
 1. Node.js (x86 or x64) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. Python (2.7.x x86 or x64)
 3. node-gyp (npm install node-gyp -g)
@@ -76,9 +63,7 @@ To install (installing is how we build too!); open a terminal/shell/command tool
 path_to_application/> npm install nk-mysql
 ```
 
-If you are building, you should have no problems (If you verified that all of the conditions under prerequisites are true for you) and other than some potential warnings everything will build properly.
-
-If you do not have any build tools installed, but are running on Windows x86/x64 or Debian Wheezy x64, then a fallback configuration to use a pre-compiled variant will be used.  In other words, you can move on to 'Usage'.
+If you are building, you should have no problems (If you verified that all of the requirements under prerequisites are met) and other than some potential warnings everything will build properly.
 
 
 ## Usage
@@ -91,8 +76,9 @@ At this time, many working examples of usage can be found in the [nk-mvc](http:/
 Including nodamysql into your project is relatively simple:
 
 ```node
-// Require our type (lol)
-var driver = require( 'nk-mysql' );
+// Require our type
+var nkmysql = require( 'nk-mysql' ),
+	driver = nkmysql.Driver;
 
 // If you're running a select query or using the WHERE clause, you will need a model
 /*
