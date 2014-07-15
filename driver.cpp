@@ -1,6 +1,6 @@
 /**
  * package: nodamysql
- * version:  0.1.1
+ * version:  0.1.2
  * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
  * copyright: 2013-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
@@ -556,7 +556,7 @@ Handle<Value> Driver::Where( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// The supplied argument should be an object with arrays defining operators, types, and values for each where clause argument
-	if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->type_->IntegerValue() == ( KWAERI_EMPTY || KWAERI_INSERT || KWAERI_NOPREP ) )
+	if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->type_->IntegerValue() == KWAERI_EMPTY || dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_NOPREP )
 	{
 		std::cout << "Error: Escaped" << std::endl;
 		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
@@ -839,7 +839,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() == KWAERI_EMPTY ) )
+	if( dvr->type_->IntegerValue() == KWAERI_EMPTY )
 	{
 		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
@@ -895,7 +895,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 
 				// Get the column definition
 				Local<Array> defarr = Local<Array>::Cast( dvr->model_->Get( k ) );
-				String::AsciiValue cdefav( defarr->Get(KWAERI_COLUMN_TYPE ) );
+				String::AsciiValue cdefav( defarr->Get( KWAERI_COLUMN_TYPE ) );
 				std::string cdef = *cdefav;
 
 				if( cdef == std::string( "int" ) )
@@ -940,7 +940,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 
 					// Set the column data in the record
 					Local<Array> defarr = Local<Array>::Cast( dvr->model_->Get( k ) );
-					String::AsciiValue cdefav( defarr->Get(KWAERI_COLUMN_TYPE ) );
+					String::AsciiValue cdefav( defarr->Get( KWAERI_COLUMN_TYPE ) );
 					std::string cdef = *cdefav;
 
 					String::AsciiValue thekeyav( k );

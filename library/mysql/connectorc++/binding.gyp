@@ -145,9 +145,20 @@
 						]
 					},
 					{
+						'target_name': 'dependency_configuration',
+						'type': 'none',
+						'copies':
+						[
+							{
+								'files': [ '<(mysql_dir)/lib/libmysql.dll', '<(mysql_dir)/lib/libmysql.lib' ],
+								'destination': '../../../'
+							}
+						]
+					},
+					{
 						'target_name': 'mysqlcppconn',
 						'type': 'shared_library',
-						'dependencies': [ 'build_configuration', 'binding_configuration' ],
+						'dependencies': [ 'build_configuration', 'binding_configuration', 'dependency_configuration' ],
 						'sources': 
 						[ 
 							'driver/mysql_art_resultset.cpp',
@@ -213,9 +224,21 @@
 						]
 					},
 					{
+						'target_name': 'dependency_configuration',
+						'type': 'none',
+						'dependencies': [ 'libmysqlcppconn' ],
+						'copies':
+						[
+							{
+								'files': [ '<(mysql_lib_dir)/libmysqlclient.so' ],
+								'destination': '../../../'
+							}
+						]
+					},
+					{
 						'target_name': 'libmysqlcppconn',
 						'type': 'shared_library',
-						'dependencies': [ 'build_configuration', 'binding_configuration' ],
+						'dependencies': [ 'build_configuration', 'binding_configuration', 'dependency_configuration' ],
 						'sources': 
 						[ 
 							'driver/mysql_art_resultset.cpp',
