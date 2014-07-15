@@ -128,7 +128,7 @@
 						'copies':
 						[
 							{
-								'files': [ '../../../includables/build/win/build_config.h', '../../../includables/build/win/config.h' ],
+								'files': [ '../../../includables/buildage/win/build_config.h', '../../../includables/buildage/win/config.h' ],
 								'destination': './cppconn/'
 							}
 						]
@@ -139,7 +139,7 @@
 						'copies':
 						[
 							{
-								'files': [ '../../../includables/build/win/binding_config.h' ],
+								'files': [ '../../../includables/buildage/win/binding_config.h' ],
 								'destination': './driver/nativeapi/'
 							}
 						]
@@ -196,7 +196,7 @@
 						'copies':
 						[
 							{
-								'files': [ '../../../includables/build/lin/build_config.h', '../../../includables/build/lin/config.h' ],
+								'files': [ '../../../includables/buildage/lin/build_config.h', '../../../includables/buildage/lin/config.h' ],
 								'destination': 'cppconn/'
 							}
 						]
@@ -207,7 +207,7 @@
 						'copies':
 						[
 							{
-								'files': [ '../../../includables/build/lin/binding_config.h' ],
+								'files': [ '../../../includables/buildage/lin/binding_config.h' ],
 								'destination': 'driver/nativeapi/'
 							}
 						]
