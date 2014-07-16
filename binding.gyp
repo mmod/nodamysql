@@ -102,7 +102,7 @@
 	},
   	'targets': 
   	[	# Any 'for sure' targets
-		{
+  		{
 			'target_name': 'action_after_build',
 			'type': 'none',
 			'dependencies': [ 'nodamysql' ],

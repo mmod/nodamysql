@@ -11,14 +11,16 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 ##Installation
 
-Installation can go one of two ways:
+Installation can again go one of two ways:
 
-1. You are running Windows (32 & 64-bit) or Debian Wheezy or newer (64-bit), and do not wish to build (compile).  This would be the absolute easiest method to get going.
+1. You are running 64-bit Windows or Debian Wheezy or newer, and do not wish to build (compile).  This could be the slightly quicker method of getting started.
+  * <i>As of now, I have yet to include 32-bit Windows or Linux binaries since the last few changes.</i>
   
 2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
-  *  The automated build might initialize on Mac or SunOS, but probably won't work.
+  * The automated build might initialize on Mac or SunOS, but probably won't work.
+  * If you'd like to help support other systems please submit a pull request.  I do not own a Mac (not unfortunately :P), do not run SunOS, and will not run x86.
 
-<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there are typically some pre-requisites but it's really not that bad.  In the end the best 
+<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there may be some pre-requisites but it's really not that bad.  In the end the best 
 compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
 host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (as opposed to using Ghost for blogging or 
 an application built on nodakwaeri or something), you should already have most of what you need prepared already.
@@ -29,14 +31,16 @@ an application built on nodakwaeri or something), you should already have most o
 
 ##### Non-buildage
 
-1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
-3. You might need to set the MYSQL_DIR environment variable on Windows.
+1. Node.js x64 & Git (Kinda need both to even be able to npm install <mod_name> eh?)
+2. MySQL Community Server 5.6.x (x64).
+3. On Windows <i>ONLY</i> you will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (node index.js) from its respective node_modules/nk-mysql directory.
+4. You might need to set the MYSQL_DIR environment variable on Windows.
 
 Now you're ready to skip on down to the section that says 'The actual install' below.
 
 
 ##### Buildage
+
 1. Node.js (x86 or x64) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. Python (2.7.x x86 or x64)
 3. node-gyp (npm install node-gyp -g)
@@ -68,7 +72,7 @@ Keep in mind that if you're on a 64-bit system and want a 32-bit build; you shou
 
 Just like with nodakwaeri, unless you are doing something very specific with nodamysql (nk-mysql), it is recommended that you install nodamysql via the [nk-mvc](http://github.com/mmod/nk-mvc) application, as it is a great starting place for any nodakwaeri application, and contains many working examples of usage throughout the project template.
 
-With that said, if you are here to make sure you meet the conditions of the prerequisites as  part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
+With that said, if you are here to make sure you meet the requirements of the prerequisites as part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
 
 To install (installing is how we build too!); open a terminal/shell/command tools/prompt and browse to the root of your application. Run the following command:
 
@@ -76,9 +80,7 @@ To install (installing is how we build too!); open a terminal/shell/command tool
 path_to_application/> npm install nk-mysql
 ```
 
-If you are building, you should have no problems (If you verified that all of the conditions under prerequisites are true for you) and other than some potential warnings everything will build properly.
-
-If you do not have any build tools installed, but are running on Windows x86/x64 or Debian Wheezy x64, then a fallback configuration to use a pre-compiled variant will be used.  In other words, you can move on to 'Usage'.
+If you are building, you should have no problems (If you verified that all of the requirements under prerequisites are met) and other than some potential warnings everything will build properly.
 
 
 ## Usage
@@ -91,8 +93,9 @@ At this time, many working examples of usage can be found in the [nk-mvc](http:/
 Including nodamysql into your project is relatively simple:
 
 ```node
-// Require our type (lol)
-var driver = require( 'nk-mysql' );
+// Require our type
+var nkmysql = require( 'nk-mysql' ),
+	driver = nkmysql.Driver;
 
 // If you're running a select query or using the WHERE clause, you will need a model
 /*
@@ -245,14 +248,14 @@ var records = dbo.Delete( 'tableName' )				// Records contains the number of row
 As you've seen thus far, models are important because they help to automate much of the process.  They are needed for mapping types of values to MySQL, and by other tools like nk.html - for generating labels for form fields, and much more.
 
 
-## Development
+## Development 
 
 Feel free to fork the repository and submit pull requests. Browse any of our other repositories as well http://github.com/mmod.
 
 
 ### Created with:
 
-[Eclipse Kepler](https://www.eclipse.org/downloads/)
+[Eclipse Luna](https://www.eclipse.org/downloads/)
 
 [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
  ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))
