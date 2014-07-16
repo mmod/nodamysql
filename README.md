@@ -31,9 +31,9 @@ an application built on nodakwaeri or something), you should already have most o
 
 ##### Non-buildage
 
-1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
-3. You will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (node index.js) from its respective node_modules/nk-mysql directory.
+1. Node.js x64 & Git (Kinda need both to even be able to npm install <mod_name> eh?)
+2. MySQL Community Server 5.6.x (x64).
+3. On Windows <i>ONLY</i> you will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (node index.js) from its respective node_modules/nk-mysql directory.
 4. You might need to set the MYSQL_DIR environment variable on Windows.
 
 Now you're ready to skip on down to the section that says 'The actual install' below.
@@ -72,7 +72,7 @@ Keep in mind that if you're on a 64-bit system and want a 32-bit build; you shou
 
 Just like with nodakwaeri, unless you are doing something very specific with nodamysql (nk-mysql), it is recommended that you install nodamysql via the [nk-mvc](http://github.com/mmod/nk-mvc) application, as it is a great starting place for any nodakwaeri application, and contains many working examples of usage throughout the project template.
 
-With that said, if you are here to make sure you meet the conditions of the prerequisites as  part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
+With that said, if you are here to make sure you meet the requirements of the prerequisites as part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
 
 To install (installing is how we build too!); open a terminal/shell/command tools/prompt and browse to the root of your application. Run the following command:
 
