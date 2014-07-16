@@ -13,8 +13,8 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 Installation can again go one of two ways:
 
-1. You are running Windows (32 or 64-bit) or Debian Wheezy or newer (64-bit), and do not wish to build (compile).  This could be the slightly quicker method of getting started.
-  * <i>As of now, I have yet to include 32-bit Windows, or Debian binaries since the last few changes.</i>
+1. You are running 64-bit Windows or Debian Wheezy or newer, and do not wish to build (compile).  This could be the slightly quicker method of getting started.
+  * <i>As of now, I have yet to include 32-bit Windows or Linux binaries since the last few changes.</i>
   
 2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
   * The automated build might initialize on Mac or SunOS, but probably won't work.
