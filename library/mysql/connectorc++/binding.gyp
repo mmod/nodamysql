@@ -151,7 +151,7 @@
 						[
 							{
 								'files': [ '<(mysql_dir)/lib/libmysql.dll', '<(mysql_dir)/lib/libmysql.lib' ],
-								'destination': '../../../'
+								'destination': '../../../../../'	# This puts a copy of libmysql.lib and libmysql.dll files into the root of the actual project (where node looks for dependencies) depending on nk-mysql.
 							}
 						]
 					},
@@ -224,21 +224,9 @@
 						]
 					},
 					{
-						'target_name': 'dependency_configuration',
-						'type': 'none',
-						'dependencies': [ 'libmysqlcppconn' ],
-						'copies':
-						[
-							{
-								'files': [ '<(mysql_lib_dir)/libmysqlclient.so' ],
-								'destination': '../../../'
-							}
-						]
-					},
-					{
 						'target_name': 'libmysqlcppconn',
 						'type': 'shared_library',
-						'dependencies': [ 'build_configuration', 'binding_configuration', 'dependency_configuration' ],
+						'dependencies': [ 'build_configuration', 'binding_configuration' ],
 						'sources': 
 						[ 
 							'driver/mysql_art_resultset.cpp',

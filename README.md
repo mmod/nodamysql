@@ -11,10 +11,14 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 ##Installation
 
-Installation can now only go one way:	(configuration is otherwise a pain)
+Installation can again go one of two ways:
 
-1. You are running on Windows or Linux (Architecture Independent).
-  *  The automated build might initialize on Mac or SunOS, but probably won't work.  This could be fixed (if it doesn't work) - if you're interested in helping, submit a pull request.  I don't own a Mac (not unfortunately :P), and do not run SunOS.
+1. You are running Windows (32 or 64-bit) or Debian Wheezy or newer (64-bit), and do not wish to build (compile).  This could be the slightly quicker method of getting started.
+  * <i>As of now, I have yet to include 32-bit Windows, or Debian binaries since the last few changes.</i>
+  
+2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
+  * The automated build might initialize on Mac or SunOS, but probably won't work.
+  * If you'd like to help support other systems please submit a pull request.  I do not own a Mac (not unfortunately :P), do not run SunOS, and will not run x86.
 
 <b>Just a note:</b> Building is not difficult what-so-ever.  Yes there may be some pre-requisites but it's really not that bad.  In the end the best 
 compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
@@ -23,6 +27,19 @@ an application built on nodakwaeri or something), you should already have most o
 
 
 ### Prerequisites
+
+
+##### Non-buildage
+
+1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
+2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
+3. You will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application from its respective node_modules/nk-mysql directory.
+4. You might need to set the MYSQL_DIR environment variable on Windows.
+
+Now you're ready to skip on down to the section that says 'The actual install' below.
+
+
+##### Buildage
 
 1. Node.js (x86 or x64) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. Python (2.7.x x86 or x64)
@@ -231,14 +248,14 @@ var records = dbo.Delete( 'tableName' )				// Records contains the number of row
 As you've seen thus far, models are important because they help to automate much of the process.  They are needed for mapping types of values to MySQL, and by other tools like nk.html - for generating labels for form fields, and much more.
 
 
-## Development
+## Development 
 
 Feel free to fork the repository and submit pull requests. Browse any of our other repositories as well http://github.com/mmod.
 
 
 ### Created with:
 
-[Eclipse Kepler](https://www.eclipse.org/downloads/)
+[Eclipse Luna](https://www.eclipse.org/downloads/)
 
 [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
  ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))
