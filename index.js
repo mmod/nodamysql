@@ -20,7 +20,7 @@ var nodamysql = null;
 		else
 		{
 			// Must be linux
-			nodamysql = require( './includes/precompiled/lin/deb7564-mysql561964/opt/nodamysql' );
+			nodamysql = require( './includables/module/precompiled/lin/deb7564-mysql561964/opt/nodamysql' );
 		}
 	}
 	else
@@ -32,7 +32,7 @@ var nodamysql = null;
 		else
 		{
 			// Must be linux
-			nodamysql = require( './includes/precompiled/lin/deb7532-mysql561932/opt/nodamysql' );
+			nodamysql = require( './includables/module/precompiled/lin/deb7532-mysql561932/opt/nodamysql' );
 		}
 	}
 

@@ -33,7 +33,7 @@ an application built on nodakwaeri or something), you should already have most o
 
 1. Node.js x64 (Windows and Linux) or x86 (Windows) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. MySQL Community Server 5.6.x (x64 or x32).  If you're running Node.js x64, install MySQL Community Server x64, and so on.
-3. You will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application from its respective node_modules/nk-mysql directory.
+3. You will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (node index.js) from its respective node_modules/nk-mysql directory.
 4. You might need to set the MYSQL_DIR environment variable on Windows.
 
 Now you're ready to skip on down to the section that says 'The actual install' below.
