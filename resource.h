@@ -1,8 +1,8 @@
 /**
  * package: nodamysql
- * version:  0.1.3
- * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
- * copyright: 2013-2014 Massively Modified, Inc.
+ * sub-package: resources
+ * author:  Richard B. Winters <a href='mailto:rik@mmogp.com'>Rik At MMOGP</a>
+ * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
  */
 
