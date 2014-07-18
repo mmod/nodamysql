@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql v0.1.6 )
+# nodamysql ( nk-mysql v0.1.7 )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -10,7 +10,7 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 
 <b>Notice:</b>
-Please keep in mind that while the version is '0'.<anything> ( the key part being '0' in front ), this package should be considered - and used as if it were - a pre-release.  Things should work, but you may find issues.  I would encourage you to please report them [here](https://github.com/mmod/nodakwaeri/issues).
+Please keep in mind that while the version is '0'.<anything> ( the key part being '0' in front ), this package should be considered - and used as if it were - a pre-release.  Things should work, but you may find issues.  I would encourage you to please report them [here](https://github.com/mmod/nodamysql/issues).
 
 
 ##Installation

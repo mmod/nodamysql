@@ -1,6 +1,6 @@
 /**
  * package: nodamysql
- * version: 0.1.6
+ * version: 0.1.7
  * author:  Richard B. Winters <a href='mailto:rik@mmogp.com'>Rik At MMOGP</a>
  * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
