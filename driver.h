@@ -1,8 +1,8 @@
 /**
  * package: nodamysql
- * version:  0.1.5
- * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
- * copyright: 2013-2014 Massively Modified, Inc.
+ * sub-package: driver/header
+ * author:  Richard B. Winters <a href='mailto:rik@mmogp.com'>Rik At MMOGP</a>
+ * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
  */
 
@@ -40,7 +40,7 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New() ),
 							v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ),
 							v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>( v8::False() ),
-							v8::Local<v8::String> query = v8::String::New( "" ),
+							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( v8::String::New( "" ) ),
 							v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>( v8::False() )
 						);
 		~Driver();
@@ -73,7 +73,7 @@ class Driver : public node::ObjectWrap
 		v8::Persistent<v8::Object> model_;
 		v8::Persistent<v8::Object> phmap_;
 		v8::Handle<v8::Boolean> mapped_;
-		v8::Handle<v8::String> query_;
+		v8::Persistent<v8::String> query_;
 		v8::Handle<v8::Boolean> prepared_;
 };
 

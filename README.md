@@ -1,4 +1,4 @@
-# nodamysql (nk-mysql)
+# nodamysql ( nk-mysql v0.1.7 )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -7,6 +7,10 @@ under the [FOSS License Exception](http://www.mysql.com/about/legal/licensing/fo
 Free and Open Source Software sporting acceptable license types. 
 
 nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
+
+
+<b>Notice:</b>
+Please keep in mind that while the version is '0'.<anything> ( the key part being '0' in front ), this package should be considered - and used as if it were - a pre-release.  Things should work, but you may find issues.  I would encourage you to please report them [here](https://github.com/mmod/nodamysql/issues).
 
 
 ##Installation
@@ -23,7 +27,7 @@ Installation can again go one of two ways:
 <b>Just a note:</b> Building is not difficult what-so-ever.  Yes there may be some pre-requisites but it's really not that bad.  In the end the best 
 compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
 host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (as opposed to using Ghost for blogging or 
-an application built on nodakwaeri or something), you should already have most of what you need prepared already.
+an application built on nodakwaeri for something), you should already have most of what you need prepared already.
 
 
 ### Prerequisites
@@ -33,7 +37,7 @@ an application built on nodakwaeri or something), you should already have most o
 
 1. Node.js x64 & Git (Kinda need both to even be able to npm install <mod_name> eh?)
 2. MySQL Community Server 5.6.x (x64).
-3. On Windows <i>ONLY</i> you will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (node index.js) from its respective node_modules/nk-mysql directory.
+3. On Windows <i>ONLY</i> you will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (i.e. />node index.js) from its respective node_modules/nk-mysql directory. Alternatively, you can copy the files mentioned, to the root of the application that is depending upon nk/nk-mysql.
 4. You might need to set the MYSQL_DIR environment variable on Windows.
 
 Now you're ready to skip on down to the section that says 'The actual install' below.
@@ -53,6 +57,7 @@ Windows | Linux | Mac | SunOS
 <b>MYSQL_DIR</b> needs to be set in order for the connector to build.  It should point to the directory which contains the '<b>include</b>' and '<b>lib</b>' folders. | Runs mysql_config for information instead.  Make sure to apt-get install libmysql-dev if mysql_config is not present on your system. | Same as Linux | Not sure here..
 <b>BOOST_ROOT</b> needs to be set in order for the connector to build. It should point to the directory which contains the '<b>boost</b>' folder. | Copy the '<b>boost</b>' folder to your <i>/usr/lib</i> or <i>/usr/local/lib</i> directories (dont forget to ldconfig afterwards - and of course, you may have to refer to your favorite flav's documentation).  Alternatively you could apt-get install boost. | NA | NA
 
+<i>Recap</i>:
   * On Windows, there is no mysql_config binary - so we need MYSQL_DIR to be set.
   * On Debian/Linux or Mac, just ensure that mysql_config is present on your system (try <i>mysql_config</i> right in terminal)
   * On Windows, you must download the boost library, and set BOOST_ROOT so that we know where to find the boost/ folder containing all of the boost headers.
@@ -81,6 +86,8 @@ path_to_application/> npm install nk-mysql
 ```
 
 If you are building, you should have no problems (If you verified that all of the requirements under prerequisites are met) and other than some potential warnings everything will build properly.
+
+If you're not building, but meet the requirements for a precompiled add-on; a fall-back solution will be loaded for you.
 
 
 ## Usage

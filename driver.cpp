@@ -1,8 +1,8 @@
 /**
  * package: nodamysql
- * version:  0.1.5
- * author:  Richard B. Winters <a href="mailto:rik@mmogp.com">rik At MassivelyModified</a>
- * copyright: 2013-2014 Massively Modified, Inc.
+ * sub-package: driver/code
+ * author:  Richard B. Winters <a href='mailto:rik@mmogp.com'>Rik At MMOGP</a>
+ * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
  */
 
@@ -37,8 +37,8 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Integer> type, Persistent<Object> model, Persistent<Object> phmap, Handle<Boolean> mapped, Local<String> query, Handle<Boolean> prepared )
-			: host_( host ), port_( port ), db_( db ), user_( user ), password_( password ), type_( type ), model_( Persistent<Object>::New( model->ToObject() ) ), phmap_( Persistent<Object>::New( phmap->ToObject() ) ), mapped_( mapped ), query_( query->ToString() ), prepared_( prepared )
+Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Integer> type, Persistent<Object> model, Persistent<Object> phmap, Handle<Boolean> mapped, Persistent<String> query, Handle<Boolean> prepared )
+			: host_( host ), port_( port ), db_( db ), user_( user ), password_( password ), type_( type ), model_( Persistent<Object>::New( model->ToObject() ) ), phmap_( Persistent<Object>::New( phmap->ToObject() ) ), mapped_( mapped ), query_( query ), prepared_( prepared )
 {
 }
 
@@ -135,7 +135,7 @@ Handle<Value> Driver::New( const Arguments& args )
 									Persistent<Object>::New( config->Get( String::New( "model" ) )->ToObject() ),
 									Persistent<Object>::New( Object::New() ),
 									Handle<Boolean>( v8::False() ),
-									String::New( "" ),
+									Persistent<String>::New( String::New( "" ) ),
 									Handle<Boolean>( v8::False() )
 								);
 
@@ -200,15 +200,16 @@ Handle<Value> Driver::Query( const Arguments& args )
 
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), args[0]->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
+	//dvr->query_ = String::Concat( dvr->query_->ToString(), args[0]->ToString() );
 	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_NOPREP ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -234,7 +235,7 @@ Handle<Value> Driver::Select( const Arguments& args )
 	// Fetch our arguments and define default behavior for incorrect arguments or no arguments
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -274,19 +275,20 @@ Handle<Value> Driver::Select( const Arguments& args )
 	// This is how we convert an std::string back to a v8::Handle<v8::Value>. Just like with Concat,
 	// all of the suggested methods for converting a std::string to v8::Local<v8::String> were
 	// ineffective for me.  This is the only way I've gotten it to work properly without error(s).
-	Handle<Value> qph = String::New( qp.c_str() );
+	//Handle<Value> qph = String::New( qp.c_str() );
 
-	// Convert the v8::Handle<v8::Value> to a v8::String::AsciiValue
-	String::AsciiValue qpav( qph );
+	//String::AsciiValue qpav( qph );
 
-	// Now we can use the v8::String::AsciiValue to properly instantiate a new v8::Local<v8::String>
-	Local<String> qps = String::New( *qpav );
+	//Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	//dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::New( qp.c_str() ) );
 	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_SELECT ) );
 
+	//std::cout << "Prints: " << dvr->query_->ToString() << std::endl;
+
 	// Return the entire object to allow chaining, results can be checked there
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -309,7 +311,7 @@ Handle<Value> Driver::Insert( const Arguments& args )
 
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -349,11 +351,11 @@ Handle<Value> Driver::Insert( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_INSERT ) );
 
 	// Return the entire object to allow chaining, results can be checked there
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -376,7 +378,7 @@ Handle<Value> Driver::Values( const Arguments& args )
 
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != ( KWAERI_INSERT || KWAERI_UPDATE ) ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -442,9 +444,9 @@ Handle<Value> Driver::Values( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -467,7 +469,7 @@ Handle<Value> Driver::Update( const Arguments& args )
 
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -486,10 +488,10 @@ Handle<Value> Driver::Update( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_UPDATE ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -512,7 +514,7 @@ Handle<Value> Driver::Delete( const Arguments& args )
 
 	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -531,10 +533,10 @@ Handle<Value> Driver::Delete( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_DELETE ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -559,14 +561,14 @@ Handle<Value> Driver::Where( const Arguments& args )
 	if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->type_->IntegerValue() == KWAERI_EMPTY || dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_NOPREP )
 	{
 		std::cout << "Error: Escaped" << std::endl;
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
 
-	// We need to fetch the current query string, and store it for use later on.
-	String::AsciiValue av( dvr->query_ );
-	std::string eqs = *av;
+	// Get the existing query part
+	//String::AsciiValue av( dvr->query_->ToString() );
+	//std::string eqs = std::string( *av );
 
 	// Begin building our where clause
 	std::string qp = " WHERE ( ";
@@ -617,20 +619,26 @@ Handle<Value> Driver::Where( const Arguments& args )
 		}
 	}
 
+	// add on the new part.
 	qp += " )";
 
+	// We need to fetch the current query string, and store it for later
+
+
 	std::cout << "Prints Part: " << qp << std::endl;
-
-	// Attach the new query part to the existing query string which we stored for later use
-	eqs += qp;
-
-	Handle<Value> qph = String::New( eqs.c_str() );
-	String::AsciiValue qpav( qph );
+	//std::cout << "Prints Full: " << eqs << std::endl;
+	//Handle<Value> qph = String::New( qp.c_str() );
+	//String::AsciiValue qpav( qph );
+	//Local<String> qps = String::New( *qpav );
+	//Local<String> qps = String::New(  );
+	//eqs = eqs + qp;
 
 	// Reset the value of query_ ... Concatenating doesn't work here because we'd have to concatenate more than 1 time...
-	dvr->query_ = String::New( *qpav );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), String::New( qp.c_str() ) ) );
+	//dvr->query_ = Handle<String>::Cast( qps );
+	//dvr->query_ = String::New( *qpav );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -653,7 +661,7 @@ Handle<Value> Driver::Join( const Arguments& args )
 
 	if( args[0]->IsUndefined() )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -672,9 +680,9 @@ Handle<Value> Driver::Join( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -697,7 +705,7 @@ Handle<Value> Driver::On( const Arguments& args )
 
 	if( args[0]->IsUndefined() )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -716,9 +724,9 @@ Handle<Value> Driver::On( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 
 	return scope.Close( args.This() );
@@ -742,7 +750,7 @@ Handle<Value> Driver::Limit( const Arguments& args )
 
 	if( args[0]->IsUndefined() )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -775,9 +783,9 @@ Handle<Value> Driver::Limit( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -800,7 +808,7 @@ Handle<Value> Driver::Order( const Arguments& args )
 
 	if( args[0]->IsUndefined() )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -820,9 +828,9 @@ Handle<Value> Driver::Order( const Arguments& args )
 	String::AsciiValue qpav( qph );
 	Local<String> qps = String::New( *qpav );
 
-	dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
+	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 	rdvr->Wrap( args.This() );
 	return scope.Close( args.This() );
 }
@@ -841,7 +849,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 
 	if( dvr->type_->IntegerValue() == KWAERI_EMPTY )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), dvr->query_->ToString(), Handle<Boolean>( dvr->prepared_ ) );
+		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
 		rdvre->Wrap( args.This() );
 		return scope.Close( args.This() );
 	}
@@ -866,7 +874,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 		con = driver->connect( host, user, pass );
 		std::cout << "Success!" << std::endl;
 
-		std::cout << "Connecting to database \"mmod\"...";
+		std::cout << "Connecting to database...";
 		con->setSchema( db );
 		std::cout << "Success!" << std::endl;
 
@@ -910,7 +918,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 				else
 				{
 					// Error, unrecognized type
-					std::cout << "Error: Unrecognized type, driver.cpp | 916" << std::endl;
+					std::cout << "Error: Unrecognized type, driver.cpp | 921" << std::endl;
 				}
 			}
 		}
@@ -929,6 +937,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 			int rec = 0;
 			while( rset->next() )
 			{
+				std::cout << "We gots results!" << std::endl;
 				// Each iteration brings another record, or set of columns present in the model which were specified to be selected.  What
 				// we want to do is allocate an array, each index containing an object which holds all the columns of this record.
 				Local<Object> record = Object::New();
@@ -948,7 +957,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
 
 					if( cdef == std::string( "int" ) )
 					{
-						record->Set( k, Integer::New( rset->getInt( atoi( thekey.c_str() ) ) ) );
+						record->Set( k, Integer::New( rset->getInt( thekey.c_str() ) ) );
 					}
 					else if( cdef == std::string( "text" ) )
 					{
@@ -966,17 +975,20 @@ Handle<Value> Driver::Execute( const Arguments& args )
 				rec++;
 			}
 
+			std::cout << "We should have got a message about getting results.." << rec << " of them" << std::endl;
+
 			// Don't forget to release memory not under the management of Node
 			delete con;
 			delete pstmt;
 
 			// Return the resulting array
-			return scope.Close( records );
+			return scope.Close( Handle<Array>::Cast( records ) );
 		}
 		else
 		{
 			Local<Integer> affected = Integer::New( pstmt->getUpdateCount() );
 
+			std::cout << "We didn't gets no results" << std::endl;
 			// Don't forget to release memory not under the management of Node
 			delete con;
 			delete pstmt;
@@ -1070,7 +1082,7 @@ Handle<Value> Driver::Reset( const Arguments& args )
 	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
 	// Reset the query string
-	dvr->query_ = String::New("");
+	dvr->query_ = Persistent<String>::New( String::New("") );
 
 	// Reset the model
 	dvr->model_ = Persistent<Object>::New( Object::New() );
