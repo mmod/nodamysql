@@ -41,7 +41,8 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ),
 							v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>( v8::False() ),
 							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( v8::String::New( "" ) ),
-							v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>( v8::False() )
+							v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>( v8::False() ),
+							v8::Handle<v8::Boolean> modeled = v8::Handle<v8::Boolean>( v8::False() )
 						);
 		~Driver();
 
@@ -75,6 +76,7 @@ class Driver : public node::ObjectWrap
 		v8::Handle<v8::Boolean> mapped_;
 		v8::Persistent<v8::String> query_;
 		v8::Handle<v8::Boolean> prepared_;
+		v8::Handle<v8::Boolean> modeled_;
 };
 
 #endif

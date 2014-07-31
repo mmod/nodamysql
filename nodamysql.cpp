@@ -24,11 +24,11 @@ using namespace v8;
  *
  * @since 0.0.1
  */
-void InitAll( Handle<Object> exports )
+void Initialize( Handle<Object> exports )
 {
 	Driver::Init( exports );
 }
 
 
 // REQUIRED MACRO
-NODE_MODULE( nodamysql, InitAll )
+NODE_MODULE( nodamysql, Initialize )
