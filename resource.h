@@ -8,12 +8,12 @@
 
 
 // DEFINES
-#define KWAERI_EMPTY	0
-#define	KWAERI_SELECT	1
-#define KWAERI_INSERT	2
-#define KWAERI_UPDATE	3
-#define KWAERI_DELETE	4
-#define KWAERI_NOPREP	5
+#define KWAERI_EMPTY			0
+#define	KWAERI_SELECT			1
+#define KWAERI_INSERT			2
+#define KWAERI_UPDATE			3
+#define KWAERI_DELETE			4
+#define KWAERI_NOPREP			5
 
 #define KWAERI_TABLE_KEY		0
 #define KWAERI_COLUMN_TYPE		1
