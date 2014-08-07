@@ -81,7 +81,7 @@
 					{
 						'Debug':
 						{
-							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ],
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ],
 							'cflags_cc':
 							[
 								'-std=c++11',
@@ -90,6 +90,7 @@
 								'-Wno-deprecated',				# Remove deprecated warnings
 								'-Wno-unused-variable',			# Remove unused-variable warnings
 								'-Wno-unused-but-set-variable',	# Remove unused-but-set-variable warnings
+								'-Wno-maybe-uninitialized',		# Remove may be used uninitialized warnings (Many false positives in GCC 4.7)
 								'-Wno-sign-compare',			# Remove sign compare warnings
 								'-Wno-reorder',					# Remove initialize after warnings
 								'-Wno-extra',					# Remove explicit initialization warnings
@@ -99,8 +100,8 @@
 						},
 						'Release':
 						{
-							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ],
-							'cflags_cc': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ]
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ],
+							'cflags_cc': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch', '-Dmysqlcppconn_EXPORTS' ]
 						}
 					}
 				}

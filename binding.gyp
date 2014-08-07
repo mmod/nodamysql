@@ -75,7 +75,7 @@
 					{
 						'Debug':
 						{
-							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
 							'cflags_cc':
 							[
 								'-std=c++11',
@@ -84,6 +84,7 @@
 								'-Wno-deprecated',				# Remove deprecated warnings
 								'-Wno-unused-variable',			# Remove unused-variable warnings
 								'-Wno-unused-but-set-variable',	# Remove unused-but-set-variable warnings
+								'-Wno-maybe-uninitialized',		# Remove maybe me used uninitialized warnings (Many false positives in GCC 4.7)
 								'-Wno-sign-compare',			# Remove sign compare warnings
 								'-Wno-reorder',					# Remove initialize after warnings
 								'-Wno-extra',					# Remove explicit initialization warnings
@@ -92,8 +93,8 @@
 						},
 						'Release':
 						{
-							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
-							'cflags_cc': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ]
+							'cflags': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ],
+							'cflags_cc': [ '-std=c++11', '-fexceptions', '-frtti', '-Wno-deprecated', '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-Wno-maybe-uninitialized', '-Wno-sign-compare', '-Wno-reorder', '-Wno-extra', '-Wno-switch' ]
 						}
 					}
 				}
@@ -149,6 +150,13 @@
 						'sources': [ 'nodamysql.cpp', 'driver.cpp' ],
 						'dependencies': [ 'library/mysql/connectorc++/binding.gyp:libmysqlcppconn' ],
 						'include_dirs': [ 'library/mysql/connectorc++/', 'library/mysql/connectorc++/driver/' ],
+						'link_settings':
+						{
+							'ldflags':
+							[
+								'-Wl,-rpath=<(module_root_dir)/build/Release'	# An issue with shared libraries and GYP require us to set this for runtime linking
+							]
+						}
 					}
 				]
       	 	}
