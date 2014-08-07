@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql v0.1.7 )
+# nodamysql ( nk-mysql v0.2.0 )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -9,75 +9,14 @@ Free and Open Source Software sporting acceptable license types.
 nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
 
 
-<b>Notice:</b>
-Please keep in mind that while the version is '0'.<anything> ( the key part being '0' in front ), this package should be considered - and used as if it were - a pre-release.  Things should work, but you may find issues.  I would encourage you to please report them [here](https://github.com/mmod/nodamysql/issues).
 
+## Installation
 
-##Installation
+Full and complete installation documentation can be found at the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki)
 
-Installation can again go one of two ways:
+#### The Quick Version
 
-1. You are running 64-bit Windows or Debian Wheezy or newer, and do not wish to build (compile).  This could be the slightly quicker method of getting started.
-  * <i>As of now, I have yet to include 32-bit Windows or Linux binaries since the last few changes.</i>
-  
-2. You are running on Windows or Linux (Architecture Independent) and would like to maximize efficiency/performance and build yourself.
-  * The automated build might initialize on Mac or SunOS, but probably won't work.
-  * If you'd like to help support other systems please submit a pull request.  I do not own a Mac (not unfortunately :P), do not run SunOS, and will not run x86.
-
-<b>Just a note:</b> Building is not difficult what-so-ever.  Yes there may be some pre-requisites but it's really not that bad.  In the end the best 
-compatibility and performance can be reached on your machine (that you will be serving on) by letting all the tools be built by that system.  Furthermore, any 
-host provider should support common build tools (especially Node hosting providers).  If you're developing yourself (as opposed to using Ghost for blogging or 
-an application built on nodakwaeri for something), you should already have most of what you need prepared already.
-
-
-### Prerequisites
-
-
-##### Non-buildage
-
-1. Node.js x64 & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. MySQL Community Server 5.6.x (x64).
-3. On Windows <i>ONLY</i> you will need to add the path to the libmysql.lib & libmysql.dll files included with your MySQL distribution to your system PATH variable if not already set. If you do not do this, you will need to start your application (i.e. />node index.js) from its respective node_modules/nk-mysql directory. Alternatively, you can copy the files mentioned, to the root of the application that is depending upon nk/nk-mysql.
-4. You might need to set the MYSQL_DIR environment variable on Windows.
-
-Now you're ready to skip on down to the section that says 'The actual install' below.
-
-
-##### Buildage
-
-1. Node.js (x86 or x64) & Git (Kinda need both to even be able to npm install <mod_name> eh?)
-2. Python (2.7.x x86 or x64)
-3. node-gyp (npm install node-gyp -g)
-4. MYSQL Community Server 5.5+ (if node.js is 64-bit, so should be your mysql server). At this time 5.6.x is recommended, build did not complete properly using 5.7.4-m14 dev release FYI.
-5. Boost headers.  Simply grab the latest boost library from http://boost.org, and extract it someplace.  You are not required to build any boost libraries.
-6. You probably need to set some environment variables or move some files around:
-
-Windows | Linux | Mac | SunOS
---------|-------|-----|------
-<b>MYSQL_DIR</b> needs to be set in order for the connector to build.  It should point to the directory which contains the '<b>include</b>' and '<b>lib</b>' folders. | Runs mysql_config for information instead.  Make sure to apt-get install libmysql-dev if mysql_config is not present on your system. | Same as Linux | Not sure here..
-<b>BOOST_ROOT</b> needs to be set in order for the connector to build. It should point to the directory which contains the '<b>boost</b>' folder. | Copy the '<b>boost</b>' folder to your <i>/usr/lib</i> or <i>/usr/local/lib</i> directories (dont forget to ldconfig afterwards - and of course, you may have to refer to your favorite flav's documentation).  Alternatively you could apt-get install boost. | NA | NA
-
-<i>Recap</i>:
-  * On Windows, there is no mysql_config binary - so we need MYSQL_DIR to be set.
-  * On Debian/Linux or Mac, just ensure that mysql_config is present on your system (try <i>mysql_config</i> right in terminal)
-  * On Windows, you must download the boost library, and set BOOST_ROOT so that we know where to find the boost/ folder containing all of the boost headers.
-
-If it wasn't already apparent:
-  * On Windows, you need Visual Studio.  To develop x64 you will need a paid version.  You must use VS201X x64 Native Command Tools in place of Command prompt to build 64-bit.  I recommend using VS201X x86 Native Command Tools even if you are building 32-bit as the Native Command Tools are properly configured for development - unlike Command Prompt.
-  * On Debian/Linux, you need the build tools.  There are so many guides out there for how to install the build bundles I won't get into it. Start by searching how to install g++ on Linux. 
-
-If you meet the above requirements, you're ready to build, and should move ahead to 'The actual install'.  That wasn't bad at all huh?
-
-
-##### Some pre-emptive input
-Keep in mind that if you're on a 64-bit system and want a 32-bit build; you should install node.js x86 and mysql x86.  If you want a 64-bit build, but do not have 64-bit build tools or are on a 32-bit system, then you're out of luck; install node.js x86 and mysql x86.  If you want a 64-bit build, are on a 64-bit system, and have the 64-bit build tools; install node.js x64 and mysql x64.
-
-
-### The actual install
-
-Just like with nodakwaeri, unless you are doing something very specific with nodamysql (nk-mysql), it is recommended that you install nodamysql via the [nk-mvc](http://github.com/mmod/nk-mvc) application, as it is a great starting place for any nodakwaeri application, and contains many working examples of usage throughout the project template.
-
-With that said, if you are here to make sure you meet the requirements of the prerequisites as part of the nk-mvc installation, then you should now return to the [nk-mvc documentation](http://github.com/mmod/nk-mvc) and continue from 'The actual install' on that page instead of continuing below.
+There are a few  prerequisites that need to be in place in order to properly build nodamysql.  On Windows, a precompiled binary is usually available but not always at this point.  If you are familiar with nodakwaeri, and are sure you meet the requirements to build then:
 
 To install (installing is how we build too!); open a terminal/shell/command tools/prompt and browse to the root of your application. Run the following command:
 
@@ -85,14 +24,14 @@ To install (installing is how we build too!); open a terminal/shell/command tool
 path_to_application/> npm install nk-mysql
 ```
 
-If you are building, you should have no problems (If you verified that all of the requirements under prerequisites are met) and other than some potential warnings everything will build properly.
+If you are building, you should have no problems (If you verified that all of the prerequisites are met) and other than some potential warnings everything will build properly.
 
-If you're not building, but meet the requirements for a precompiled add-on; a fall-back solution will be loaded for you.
+If you're not building (meaning node-gyp and python are not installed), but meet the requirements for a precompiled add-on; a fall-back solution should be loaded for you.
 
 
 ## Usage
 
-At this time, many working examples of usage can be found in the [nk-mvc](http://github.com/mmod/nk-mvc) repository on Github - though I'll leave this documentation off with the following:
+At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/test/features.sql), though I'll leave this documentation with a copy of the wiki content:
 
 
 ### Preparing our DBO
@@ -102,48 +41,55 @@ Including nodamysql into your project is relatively simple:
 ```node
 // Require our type
 var nkmysql = require( 'nk-mysql' ),
-	driver = nkmysql.Driver;
+	driver = nkmysql.driver;
+...
+```
 
-// If you're running a select query or using the WHERE clause, you will need a model
+nodamysql supports the use of models when using prepared statements.  Models help to automate select and insert clause statement creation, and are most commonly used with - and provided by - [nk-mvc](http://github.com/mmod/nk-mvc)'s model system. Models cannot be used with regular statements (unprepared), or with UPDATE, DELETE, CREATE, and advanced SELECT queries when using prepared statements.
+
+```node
 /*
-	var model = 
-	{
-		schema: 	// This is the table schema, if its a viewModel it may not have all fields in here - keep that in mind when running unprepared queries.
-		{
-			id: [ 'key', 'int', 'Record Id' ],
-			title: [ false, 'text', 'Record Title' ],
-			description: [ false, 'text', 'Record Description' ]
-		}
-	};
-*/
+If you are opting to use a model, you would define one like the one below.  
 
-// Create a config, which contains our connection details and/or model if needed.
+Models are not required at all. The purpose of specifying the type and whether 
+a column is a key or required, is to provide necessary information to some 
+advanced tools coming soon, such as the migration and code-first support tools 
+for nodamysql and nk-mvc.
+*/
+var fakeModel = 
+{
+	id: [ 'key', 'type', 'Record Id' ],
+	title: [ false, 'type', 'Record Title' ],
+	description: [ false,'type', 'Record Description' ]
+};
+
+// Create a config, which contains our connection details and/or model if needed 
+// (you can leave the model property out altogether).
 var config =
 {
   host: 'localhost',
   port: '3306',
-  database: 'test',
-  username: 'test',
-  password: 'test',
-  //'model': model
+  database: 'nktest',
+  username: 'nktestadm',
+  password: '^NKTestPass777$',
+  //model: fakeModel
 };
 
 // And get us a dbo
-var dbo = new driver( config );
-
+var db = new driver( config );
+...
 ```
 
-### Unprepared Statements (Directly Executed Queries)
+### Regular Statements (Unprepared)
 
 Unprepared Statements are Directly Executed Queries.  This is not recommended for situations where queries are reused with the same parameters containing only differing values.  There are several good reasons for this, all can be read up on here:  http://dev.mysql.com/doc/refman/5.7/en/c-api-prepared-statements.html
 
-#### Simple Select
+#### Select
 ```node
-// If you are running a select query, you must have passed a model to the DBO's constructor, so that we know how to interpret the returned datas
 ...
 
 // Let's run a simple query then
-var records = dbo.Query( 'SELECT * FROM tableName' ).Execute();
+var records = db.query( 'SELECT * FROM tableName' ).execute();
 
 // And view our results.
 for( var recs in records )
@@ -152,18 +98,50 @@ for( var recs in records )
 }
 ```
 
-### Prepared Statements (Recommended)
+#### Insert, Update, Delete (No resultsets)
+```node
+// If we do not want to instantiate another db object after running a query, we can reset the one we have once 
+// we're done so that we can reuse it:
+db.reset();
+...
+// Let's run another simple query then
+var affected = db.query( "UPDATE tableName SET columnName='value' WHERE id='1'" ).execute();
 
-Prepared statements are the recommended way to execute queries in any application where queries are reused over and over.  The link given above to MySQL explains why this is.
+// And view our results.
+console.log( 'Affected Rows: ' + affected );
+}
+```
 
+Keep in mind that Create and Drop queries will always return 0, unless - and only in the case of a Drop query - there are records in the table at the time it is dropped, you may see the number of rows instead as a return result.
+
+More examples of regular statements can be seen in the test file [here](http://github.com/mmod/nodamysql/blob/test/features.js).
+
+### Prepared Statements
+
+Prepared statements are the recommended way to execute queries in any application when queries are reused over and over as they may provide a performance benefit as well as a security benefit.  The link given above under Regular Statements to MySQL explains why this is.
 
 #### Select
+
+##### Simple Select
 ```node
-// If you are running a select query, you must have passed a model to the DBO's constructor, so that we know not only what to select, but how to interpret the returned datas as well.
+/* 
+If you are running a select query, you might have passed a model to the driver's constructor, so that we know
+ahead of time what to select. You can set a new model at any time by invoking .reset( newModel );  
+Alternatively, you can invoke .reset( false ) to clear the currently set model, or .reset() to leave the model
+situation as is.
+*/
+db.reset( modelForExample );
 ...
 
 // Let's run a simple select query
-var records = dbo.Select( 'tableName' ).Execute();
+var records = db.select( 'tableName' ).execute();
+```
+
+Otherwise, if no model we would specify the selection
+```node
+db.reset( false );
+...
+var records = dbo.select( 'col1, col2, col3 from tableName' ).execute();
 
 // And view our results
 for( var recs in records )
@@ -172,88 +150,174 @@ for( var recs in records )
 }
 ```
 
-#### Advanced Select
+##### A more involved Select
 ```node
-// Let's run an advanced select query, but first we need to set some bindings for our WHERE clause, and we can't forget a model is required here for 2 reasons
-// 1.  Its a select query
-// 2.  We're using a WHERE clause
+// Let's run a more involved select query, we're going to use a model so we do not need to write out the full
+// selection, and add a join and where clause as well.
+db.reset( modelForExample );
 ...
 
 var whereVals = 
 {
-	title: [ '=', 'text', '<titleValue>' ]	// You have to replace <titleValue>....
+	title: [ '=', '<titleValue>' ]	// You can replace the operator and <titleValue>....
 };
 
-var records = dbo.Select( 'tableName' )
-				.Join( 'table2Name' )
-				.On( 'table2Name.id = tableName.id' )
-				.Where( whereVals )
-				.Execute();
-				
+var records = db.select( 'tableName' )
+		.join( 'table2Name' )
+		.on( 'table2Name.id = tableName.id' )
+		.where( whereVals )
+		.execute();		
+...
+```
+
+##### An advanced example
+```node
+// Let's run an advanced select query, we're not going to use a model so we do need to write out the full
+// selection
+db.reset( false );
+...
+
+var whereVals = 
+{
+	title: [ '=', '<titleValue>' ]
+};
+
+var records = db.select( 'col1, col2, col3, table2Name.col1 as fakeCol from tableName' )
+		.join( 'table2Name' )
+		.on( 'table2Name.id = tableName.id' )
+		.where( whereVals )
+		.execute();		
 ...
 ```
 
 #### Update
+
+##### The basic example
 ```node
-// Let's run an update query, but first we need to set some bindings for our WHERE clause, and we cannot forget that a model is required here.
+// Let's run an update query, no model is used here
+db.reset( false );
 ...
 
 var updateVals = 
 {
-	description: 'Updating the description.'		// Our model tells the connector how to map the values.
+        accessLevel: 3,
+        description: 'Updating the description.'
 },whereVals = 
 {
-	title: [ '=', 'text', '<titleValue>' ]			// You have to replace <titleValue>....
+	title: [ '=', '<titleValue>' ]		// You should replace the operator and <titleValue>....
 };
 
-var records = dbo.Update( 'tableName' )				// Records contains the number of rows affected.
-				.Values( insertVals )
-				.Where( whereVals )
-				.Execute();
-				
+var records = db.update( 'tableName' )		// Records contains the number of rows affected.
+		.values( updateVals )
+		.where( whereVals )
+		.execute();						
 ...
 ```
 
 #### Insert:
+
+##### The simple example
 ```node
-// Let's run an insert query, but first we need to set some bindings for the values we will be inserting, and we cannot forget that a model is required here.
+// Let's run an insert query, no model is used here
 ...
 
 var insertVals = 
 {
 	title: 'titleVal',								
-	description: 'Description.'						// Our model tells the connector how to map the values, and will ignore the id column, since we set it as primary key it auto-increments.
+	description: 'Description.'
 };
 
-var records = dbo.Insert( 'tableName' )				// Records contains the number of rows affected.
-				.Values( insertVals )
-				.Where( whereVals )
-				.Execute();
-				
+var records = dbo.insert( 'tableName' )		// Records contains the number of rows affected.
+		.values( insertVals )
+		.execute();			
+...
+```
+
+##### The advanced example
+```node
+// Let's run an insert query, no model is used here and we're inserting multiple values at once
+db.reset( false );
+...
+
+var records = db.insert( 'tableName' )		// Records contains the number of rows affected.
+		.values
+                ([
+                    { accessLevel: 3, description: 'Inserting value 1' },
+                    { accessLevel: 3, description: 'Inserting value 2' },
+                    { accessLevel: 3, description: 'Inserting value 3' },
+                ])
+		.execute();
+
+// The query was just sent to the server once, and we sent all the sets of parameters separately 
+// in a loop via binary transfer to be executed.  This is part of the beauty of prepared statements.
+...
+```
+
+##### The alternate advanced example
+```node
+// Let's run an insert query, no model is used here and we're inserting multiple values at once, but doing so
+// in a way that if not for fun; would otherwise seem pointless and counter-productive
+db.reset( false );
+...
+
+var records = db.insert( 'tableName' )		// Records contains the number of rows affected.
+		.values( { accessLevel: 3, description: 'Inserting value 1' } )
+		.values( { accessLevel: 3, description: 'Inserting value 2' } )
+		.values( { accessLevel: 3, description: 'Inserting value 3' } )
+		.execute();
+
+// Although not as efficient with the entire process as the last example, like above we only sent the query to 
+// the server once - and then sent all the sets of parameters separately one at a time in a loop via
+// binary transfer to be executed. This is part of the beauty of prepared statements.
 ...
 ```
 
 #### Delete:
+
+##### The simple example
 ```node
-// Let's run an delete query, but first we must set some bindings for our WHERE clause, and we cannot forget that a model is required here.
+// Let's run an delete query, no model is used here.
+db.reset( false );
 ...
 
 var whereVals = 
 {
-	title: [ '=', 'text', '<titleValue>' ]			// You have to replace <titleValue>....	
+	title: [ '=', '<titleValue>' ]		// You should replace the operator and  <titleValue>....	
 };
 
-var records = dbo.Delete( 'tableName' )				// Records contains the number of rows affected.
-				.Where( whereVals )
-				.Execute();
+var records = db.delete( 'tableName' )		// Records contains the number of rows affected.
+			.where( whereVals )
+			.execute();
 				
 ...
 ```
 
 ### Models
 
-As you've seen thus far, models are important because they help to automate much of the process.  They are needed for mapping types of values to MySQL, and by other tools like nk.html - for generating labels for form fields, and much more.
+As you've seen thus far, models are used only to automate <b><i>select</i></b> and <b><i>insert</i></b> clause creation as far as nk-mysql is concerned - and are never required.  They are used a bit more extensively by nodakwaeri, and are planned to be used for more advanced data tools as well.
 
+### Additional Notes & Troubleshooting
+
+Aside from keeping in mind that Limit clauses should always be at the end of a query statement, and that you should invoke members of the database object in the order you would typically write out a query manually; there are some tools in place to help out:
+
+##### Logical Implementation
+
+For example, you cannot invoke.join() before setting a clause (such as .select, .insert, or .delete)
+* .on(), .where(), .values(), .order(), .limit(), .execute(), .executeQuery() all follow similar common-sense rules as .join() to help avoid SQL errors.
+
+##### Getting Connection Info
+```node
+...
+console.log( db.getConnection() );
+...
+```
+
+##### Reviewing the Query
+```node
+...
+console.log( db.getQuery() );
+...
+```
 
 ## Development 
 

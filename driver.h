@@ -36,12 +36,13 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ),
 							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( v8::String::New( "test" ) ),
 							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( v8::String::New( "password" ) ),
-							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( 0 ) ),
 							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New() ),
-							v8::Persistent<v8::Object> phmap = v8::Persistent<v8::Object>::New( v8::Object::New() ),
-							v8::Handle<v8::Boolean> mapped = v8::Handle<v8::Boolean>( v8::False() ),
-							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( v8::String::New( "" ) ),
-							v8::Handle<v8::Boolean> prepared = v8::Handle<v8::Boolean>( v8::False() )
+							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( v8::False() ),
+							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( 0 ) ),
+							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( v8::Integer::New( 0 ) ),
+							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( v8::Array::New() ),
+							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( v8::False() ),
+							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( v8::String::New( "" ) )
 						);
 		~Driver();
 
@@ -59,6 +60,7 @@ class Driver : public node::ObjectWrap
 		static v8::Handle<v8::Value> Limit( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Order( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Execute( const v8::Arguments& args );
+		static v8::Handle<v8::Value> ExecuteQuery( const v8::Arguments& args );
 		static v8::Handle<v8::Value> GetConnection( const v8::Arguments& args );
 		static v8::Handle<v8::Value> GetQuery( const v8::Arguments& args );
 		static v8::Handle<v8::Value> Reset( const v8::Arguments& args );
@@ -69,12 +71,13 @@ class Driver : public node::ObjectWrap
 		v8::Persistent<v8::String> db_;
 		v8::Persistent<v8::String> user_;
 		v8::Persistent<v8::String> password_;
-		v8::Persistent<v8::Integer> type_;
 		v8::Persistent<v8::Object> model_;
-		v8::Persistent<v8::Object> phmap_;
-		v8::Handle<v8::Boolean> mapped_;
+		v8::Persistent<v8::Boolean> modeled_;
+		v8::Persistent<v8::Integer> type_;
+		v8::Persistent<v8::Integer> prepared_;
+		v8::Persistent<v8::Array> phmap_;
+		v8::Persistent<v8::Boolean> mapped_;
 		v8::Persistent<v8::String> query_;
-		v8::Handle<v8::Boolean> prepared_;
 };
 
 #endif

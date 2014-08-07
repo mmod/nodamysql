@@ -1,10 +1,10 @@
 {
   "name": "nk-mysql",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or any application which would make use of it.  Featuring the MySQL C++ Connector from Oracle, designed to keep your application secure and efficient.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/features.js"
   },
   "repository": {
     "type": "git",

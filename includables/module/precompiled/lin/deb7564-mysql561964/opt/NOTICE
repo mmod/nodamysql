@@ -1,0 +1,4 @@
+At times, due to the runtime-linkage on linux, it is not very plausible to precompile any binaries.  At the same time, however, linux provides free access to everything needed to build,
+and Node-js host providers should have any and all of the prerequisites already in place for consumers.
+
+For while we are not providing precompiled binaries, this file will ensure the place-holder directory remains intact.

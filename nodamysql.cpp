@@ -1,6 +1,6 @@
 /**
  * package: nodamysql
- * version: 0.1.7
+ * version: 0.2.0
  * author:  Richard B. Winters <a href='mailto:rik@mmogp.com'>Rik At MMOGP</a>
  * copyright: 2011-2014 Massively Modified, Inc.
  * license: Apache, Version 2.0 <http://www.apache.org/licenses/LICENSE-2.0>
@@ -24,11 +24,11 @@ using namespace v8;
  *
  * @since 0.0.1
  */
-void InitAll( Handle<Object> exports )
+void Initialize( Handle<Object> exports )
 {
 	Driver::Init( exports );
 }
 
 
 // REQUIRED MACRO
-NODE_MODULE( nodamysql, InitAll )
+NODE_MODULE( nodamysql, Initialize )

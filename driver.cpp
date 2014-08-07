@@ -12,6 +12,7 @@
 #include <node.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include "resource.h"
 #include "driver.h"
 
@@ -22,6 +23,7 @@
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
+#include <cppconn/parameter_metadata.h>
 
 using namespace v8;
 
@@ -37,8 +39,8 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Integer> type, Persistent<Object> model, Persistent<Object> phmap, Handle<Boolean> mapped, Persistent<String> query, Handle<Boolean> prepared )
-			: host_( host ), port_( port ), db_( db ), user_( user ), password_( password ), type_( type ), model_( Persistent<Object>::New( model->ToObject() ) ), phmap_( Persistent<Object>::New( phmap->ToObject() ) ), mapped_( mapped ), query_( query ), prepared_( prepared )
+Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Object> model, Persistent<Boolean> modeled, Persistent<Integer> type, Persistent<Integer> prepared, Persistent<Array> phmap, Persistent<Boolean> mapped, Persistent<String> query )
+			: host_( host ), port_( port ), db_( db ), user_( user ), password_( password ), model_( model ), modeled_( modeled ), type_( type ), prepared_( prepared ), phmap_( phmap ), mapped_( mapped ), query_( query )
 {
 }
 
@@ -66,30 +68,31 @@ Driver::~Driver()
  */
 void Driver::Init( Handle<Object> exports )
 {
-	// Prepare constructor template
-	Local<FunctionTemplate> tpl = FunctionTemplate::New( New );
-	tpl->SetClassName( String::NewSymbol( "Driver" ) );
-	tpl->InstanceTemplate()->SetInternalFieldCount( 11 );
+    // Prepare constructor template
+    Local<FunctionTemplate> tpl = FunctionTemplate::New( New );
+    tpl->SetClassName( String::NewSymbol( "driver" ) );
+    tpl->InstanceTemplate()->SetInternalFieldCount( 12 );
 
-	// Prototype(s) of our methods for v8
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Query" ), FunctionTemplate::New( Query )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Select" ), FunctionTemplate::New( Select )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Insert" ), FunctionTemplate::New( Insert )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Values" ), FunctionTemplate::New( Values )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Update" ), FunctionTemplate::New( Update )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Delete" ), FunctionTemplate::New( Delete )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Where" ), FunctionTemplate::New( Where )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Join" ), FunctionTemplate::New( Join )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "On" ), FunctionTemplate::New( On )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Limit" ), FunctionTemplate::New( Limit )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Order" ), FunctionTemplate::New( Order )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Execute" ), FunctionTemplate::New( Execute )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "GetConnection" ), FunctionTemplate::New( GetConnection )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "GetQuery" ), FunctionTemplate::New( GetQuery )->GetFunction() );
-	tpl->PrototypeTemplate()->Set( String::NewSymbol( "Reset" ), FunctionTemplate::New( Reset )->GetFunction() );
+    // Prototype(s) of our methods for v8
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "query" ), FunctionTemplate::New( Query )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "select" ), FunctionTemplate::New( Select )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "insert" ), FunctionTemplate::New( Insert )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "values" ), FunctionTemplate::New( Values )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "update" ), FunctionTemplate::New( Update )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "delete" ), FunctionTemplate::New( Delete )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "where" ), FunctionTemplate::New( Where )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "join" ), FunctionTemplate::New( Join )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "on" ), FunctionTemplate::New( On )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "limit" ), FunctionTemplate::New( Limit )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "order" ), FunctionTemplate::New( Order )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "execute" ), FunctionTemplate::New( Execute )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "executeQuery" ), FunctionTemplate::New( ExecuteQuery )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "getConnection" ), FunctionTemplate::New( GetConnection )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "getQuery" ), FunctionTemplate::New( GetQuery )->GetFunction() );
+    tpl->PrototypeTemplate()->Set( String::NewSymbol( "reset" ), FunctionTemplate::New( Reset )->GetFunction() );
 
-	constructor = Persistent<Function>::New( tpl->GetFunction() );
-	exports->Set( String::NewSymbol( "Driver" ), constructor );
+    constructor = Persistent<Function>::New( tpl->GetFunction() );
+    exports->Set( String::NewSymbol( "driver" ), constructor );
 }
 
 
@@ -104,82 +107,117 @@ void Driver::Init( Handle<Object> exports )
  */
 Handle<Value> Driver::New( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	if( args.IsConstructCall() )
+    if( args.IsConstructCall() )
+    {
+	// Invoked as constructor: 'new nodamysql(...)'
+	Local<Object> config;
+
+	if( args[0]->IsUndefined() )
 	{
-		// Invoked as constructor: 'new nodamysql(...)'
-		Local<Object> config;
-
-		if( args[0]->IsUndefined() )
-		{
-			config = Object::New();
-			config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
-			config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
-			config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
-			config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
-			config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
-		}
-		else
-		{
-			config = args[0]->ToObject();
-		}
-
-		Driver* dvr = new Driver(
-									Persistent<String>::New( config->Get( String::New( "host" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "port" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "db" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "user" ) )->ToString() ),
-									Persistent<String>::New( config->Get( String::New( "password" ) )->ToString() ),
-									Persistent<Integer>::New( Integer::New( 0 ) ),
-									Persistent<Object>::New( config->Get( String::New( "model" ) )->ToObject() ),
-									Persistent<Object>::New( Object::New() ),
-									Handle<Boolean>( v8::False() ),
-									Persistent<String>::New( String::New( "" ) ),
-									Handle<Boolean>( v8::False() )
-								);
-
-		dvr->Wrap( args.This() );
-
-		return scope.Close( args.This() );
+	    config = Object::New();
+	    config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
+	    config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
+	    config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
+	    config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
+	    config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
 	}
 	else
 	{
-		// Invoked as plain function 'nodamysql(...)', turn it into a construct call
-		const int argc = 11;
-
-		Local<Object> config;
-
-		if( args[0]->IsUndefined() )
-		{
-			config = Object::New();
-			config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
-			config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
-			config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
-			config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
-			config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
-		}
-		else
-		{
-			config = args[0]->ToObject();
-		}
-
-		Local<Value> argv[argc] = {
-										config->Get( String::New( "host" ) ),
-										config->Get( String::New( "port" ) ),
-										config->Get( String::New( "db" ) ),
-										config->Get( String::New( "user" ) ),
-										config->Get( String::New( "pass" ) ),
-										Integer::New( 0 ),
-										config->Get( String::New( "model" ) ),
-										Object::New(),
-										Local<Boolean>::New( v8::False() ),
-										String::New( "" ),
-										Local<Boolean>::New( v8::False() )
-								  };
-
-		return scope.Close( constructor->NewInstance( argc, argv ) );
+	    config = args[0]->ToObject();
 	}
+
+	Driver* dvr;
+	Local<Array> phspec = Array::New();
+	phspec->Set( 0, Integer::New( 0 ) );
+	phspec->Set( 1, Integer::New( 0 ) );
+
+	// A model doesn't have to be passed or used
+	if( config->Get( String::New( "model" ) )->IsUndefined() )
+	{
+
+	    dvr = new Driver(
+		Persistent<String>::New( config->Get( String::New( "host" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "port" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "db" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "user" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "password" ) )->ToString() ),
+		Persistent<Object>::New( Object::New() ),
+		Persistent<Boolean>::New( v8::False() ),
+		Persistent<Integer>::New( Integer::New( 0 ) ),
+		Persistent<Integer>::New( Integer::New( 0 ) ),
+		Persistent<Array>::New( Array::New() ),
+		Persistent<Boolean>::New( v8::False() ),
+		Persistent<String>::New( String::New( "" ) )
+	    );
+	}
+	else
+	{
+	    dvr = new Driver(
+		Persistent<String>::New( config->Get( String::New( "host" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "port" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "db" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "user" ) )->ToString() ),
+		Persistent<String>::New( config->Get( String::New( "password" ) )->ToString() ),
+		Persistent<Object>::New( config->Get( String::New( "model" ) )->ToObject() ),
+		Persistent<Boolean>::New( v8::True() ),
+		Persistent<Integer>::New( Integer::New( 0 ) ),
+		Persistent<Integer>::New( Integer::New( 0 ) ),
+		Persistent<Array>::New( Array::New() ),
+		Persistent<Boolean>::New( v8::False() ),
+		Persistent<String>::New( String::New( "" ) )
+	    );
+	}
+
+	dvr->phmap_->Set( 0, phspec );
+
+	dvr->Wrap( args.This() );
+
+	return scope.Close( args.This() );
+    }
+    else
+    {
+	// Invoked as plain function 'nodamysql(...)', turn it into a construct call
+	const int argc = 12;
+
+	Local<Object> config;
+
+	if( args[0]->IsUndefined() )
+	{
+	    config = Object::New();
+	    config->Set( String::NewSymbol( "host" ), String::New( "localhost" ) );
+	    config->Set( String::NewSymbol( "port" ), String::New( "3306" ) );
+	    config->Set( String::NewSymbol( "db" ), String::New( "test" ) );
+	    config->Set( String::NewSymbol( "user" ), String::New( "test" ) );
+	    config->Set( String::NewSymbol( "password" ), String::New( "testpass" ) );
+	}
+	else
+	{
+		config = args[0]->ToObject();
+	}
+
+	Local<Array> phspec = Array::New();
+	phspec->Set( 0, Integer::New( 0 ) );
+	phspec->Set( 1, Integer::New( 0 ) );
+
+	Local<Value> argv[argc] = {
+	    config->Get( String::New( "host" ) ),
+	    config->Get( String::New( "port" ) ),
+	    config->Get( String::New( "db" ) ),
+	    config->Get( String::New( "user" ) ),
+	    config->Get( String::New( "pass" ) ),
+	    config->Get( String::New( "model" ) ),
+	    Local<Boolean>::New( v8::False() ),
+	    Integer::New( 0 ),
+	    Integer::New( 0 ),
+	    phspec,
+	    Local<Boolean>::New( v8::False() ),
+	    String::New( "" )
+	};
+
+	return scope.Close( constructor->NewInstance( argc, argv ) );
+    }
 }
 
 
@@ -194,24 +232,25 @@ Handle<Value> Driver::New( const Arguments& args )
  */
 Handle<Value> Driver::Query( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
-	//dvr->query_ = String::Concat( dvr->query_->ToString(), args[0]->ToString() );
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_NOPREP ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != ( KWAERI_EMPTY || KWAERI_NOPREP ) && dvr->prepared_->IntegerValue() != KWAERI_NOT_PREP ) )
+    {
+	std::cout << "Error: Escaped .Query" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_NOPREP ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_NOT_PREP ) );
+
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -226,30 +265,31 @@ Handle<Value> Driver::Query( const Arguments& args )
  */
 Handle<Value> Driver::Select( const Arguments& args )
 {
-	// Always declare the HandleScope
-	HandleScope scope;
+    // Always declare the HandleScope
+    HandleScope scope;
 
-	// Unwrap the object
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    // Unwrap the object
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	// Fetch our arguments and define default behavior for incorrect arguments or no arguments
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
+    // Fetch our arguments and define default behavior for incorrect arguments or no arguments
+    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    {
+	std::cout << "Error: Escaped .Select" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
+	return scope.Close( args.This() );
+    }
 
-	// Local<String> XXX = String::Concat() only let's me concat twice, I do not understand why
-	// but because of this we will use alternate means in order to avoid any issues.
+    // This is how we convert a JavaScript string to a std::string (c++)
+    String::AsciiValue av( args[0] );
+    std::string select = *av;
 
-	// This is how we convert a JavaScript string to a std::string (c++)
-	String::AsciiValue av( args[0] );
-	std::string select = *av;
+    // Build our query string part
+    std::string qp = std::string( "SELECT " );
 
-	// Build our query string part
-	std::string qp = std::string( "SELECT " );
-
+    // If we're using models, we build our select in the proper manner
+    if( dvr->modeled_->BooleanValue() )
+    {
 	// The supplied model let's us know which columns to select - let's write it out
 	Local<Array> keys = dvr->model_->GetOwnPropertyNames();		// Gets us all the keys in an array
 	for( int i = 0, l = keys->Length(); i < l; i++ )
@@ -269,28 +309,21 @@ Handle<Value> Driver::Select( const Arguments& args )
 	}
 
 	qp += " FROM " + select;
+    }
+    else
+    {	// Otherwise we tack on the user provided string to the query part to build the select clause
+	qp += select;
+    }
 
-	std::cout << "Prints Part: " << qp << std::endl;
+    // Set our query type and the query string.
+    dvr->query_ = Persistent<String>::New( String::New( qp.c_str() ) );
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_SELECT ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_CLAUSE_PREP ) );
 
-	// This is how we convert an std::string back to a v8::Handle<v8::Value>. Just like with Concat,
-	// all of the suggested methods for converting a std::string to v8::Local<v8::String> were
-	// ineffective for me.  This is the only way I've gotten it to work properly without error(s).
-	//Handle<Value> qph = String::New( qp.c_str() );
-
-	//String::AsciiValue qpav( qph );
-
-	//Local<String> qps = String::New( *qpav );
-
-	//dvr->query_ = String::Concat( dvr->query_->ToString(), qps->ToString() );
-	dvr->query_ = Persistent<String>::New( String::New( qp.c_str() ) );
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_SELECT ) );
-
-	//std::cout << "Prints: " << dvr->query_->ToString() << std::endl;
-
-	// Return the entire object to allow chaining, results can be checked there
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
-	return scope.Close( args.This() );
+    // Return the entire object to allow chaining, results can be checked there
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+       rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -305,59 +338,69 @@ Handle<Value> Driver::Select( const Arguments& args )
  */
 Handle<Value> Driver::Insert( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
+    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    {
+	std::cout << "Error: Escaped .Insert" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
+	return scope.Close( args.This() );
+    }
 
-	String::AsciiValue av( args[0] );
-	std::string insert = *av;
+    // Fetch the user input
+    String::AsciiValue av( args[0] );
+    std::string insert = *av;
+    std::string qp;
 
+    // If we're using models, the supplied model let's us know which columns to provide values for
+    if( dvr->modeled_->BooleanValue() )
+    {
 	// Build our query string part
-	std::string qp = std::string( "INSERT INTO " );
+	qp = std::string( "INSERT INTO " );
 	qp += insert;
-
-	// The supplied model let's us know which columns to provide values for - let's write it out
 	qp += " ( ";
 
 	Local<Array> keys = dvr->model_->GetOwnPropertyNames();		// Gets us all the keys in an array
 	for( int i = 0, l = keys->Length(); i < l; i++ )
 	{
-		// Get the keys to build the select clause
-		Local<String> k = keys->Get( i )->ToString();
+	    // Get the keys to build the select clause
+	    Local<String> k = keys->Get( i )->ToString();
 
-		String::AsciiValue kav( k );
-		std::string kv = *kav;
+	    String::AsciiValue kav( k );
+	    std::string kv = *kav;
 
-		if( i != 0 )
-		{
-			qp += ", ";
-		}
+	    if( i != 0 )
+	    {
+		    qp += ", ";
+	    }
 
-		qp += kv;
+	    qp += kv;
 	}
 
 	qp += " ) ";
+    }
+    else
+    {	// Otherwise it's in the user supplied string
+	qp = "INSERT " + insert;
+    }
 
-	std::cout << "Prints Part: " << qp << std::endl;
+    // Convert the std string to a v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
 
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
+    // And concatenate it with the existing query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_INSERT ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_CLAUSE_PREP ) );
 
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_INSERT ) );
-
-	// Return the entire object to allow chaining, results can be checked there
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
-	return scope.Close( args.This() );
+    // Return the entire object to allow chaining, results can be checked there
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -372,83 +415,224 @@ Handle<Value> Driver::Insert( const Arguments& args )
  */
 Handle<Value> Driver::Values( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != ( KWAERI_INSERT || KWAERI_UPDATE ) ) )
+    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() == KWAERI_VALS_PREP_END || ( dvr->prepared_->IntegerValue() != KWAERI_CLAUSE_PREP && dvr->prepared_->IntegerValue() != KWAERI_VALS_PREP_START ) || ( dvr->type_->IntegerValue() != KWAERI_INSERT && dvr->type_->IntegerValue() != KWAERI_UPDATE ) )
+    {
+	std::cout << "Error: Escaped .Values" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
+	return scope.Close( args.This() );
+    }
+
+    // Get some controls in place
+    std::string qp;
+    bool multi = false, adding = false;
+    if( args[0]->IsArray() )
+    {
+	multi = true;
+    }
+    else if( dvr->prepared_->IntegerValue() == KWAERI_VALS_PREP_START )
+    {
+	adding = true;
+    }
+
+    // If it's an insert query:
+    if( dvr->type_->IntegerValue() == KWAERI_INSERT )
+    {	// We could pass an array of objects which contain values for multiple records to be inserted
+	if( !adding )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
+	    qp = std::string( "VALUES ( " );
 	}
 
-	std::string qp;
-	if( dvr->type_->IntegerValue() == KWAERI_INSERT )
-	{
-		// Add on to the insert clause, providing values
-		qp = std::string( "VALUES ( " );
+	// If the argument is an array, we're inserting multiple records
+	if( multi )
+	{   // Add on to the insert clause, providing values
+	    Local<Array> mvals = Local<Array>::Cast( args[0] );
+	    Local<Array> phspec = Array::New();
 
-		Handle<Object> vals = args[0]->ToObject();
+	    // We'll set the phspec index to an empty array so that the length is 1 :)
+	    dvr->phmap_->Set( 0, Array::New() );
+
+	    // This tells us how many times to loop when executing the prepared statement (we only need to do this once once);
+	    phspec->Set( 0, Integer::New( mvals->Length() ) );
+	    bool prepped = false;
+	    for( int i = 0, l = mvals->Length(); i < l; i++ )
+	    {	//  Here we take each object in our array and create the parenthesized record
+		Handle<Object> vals = mvals->Get( i )->ToObject();
 		Local<Array> keys = vals->GetOwnPropertyNames();		// Gets us all the keys in an array
-		for( int i = 0, l = keys->Length(); i < l; i++ )
+		for( int ii = 0, ll = keys->Length(); ii < ll; ii++ )
 		{
-			// Get the keys to build the where clause, and replace values with question mark
-			Local<String> k = keys->Get( i )->ToString();
+		    // Get the keys to build the VALUES clause, and replace values with question mark
+		    Local<String> k = keys->Get( ii )->ToString();
+		    Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
 
-			// Store the values and conditions for the placeholders in the order they are added to the clause
-			dvr->phmap_->Set( k, vals->Get( k )->ToString() );
+		    // Because we need all place-holder values to contain a key and value to work with, and because we cannot allow place-holders to be overwritten;
+		    kvpair->Set( 0, k );
+		    kvpair->Set( 1, vals->Get( k )->ToString() );
 
-			if( i != 0 )
+		    // Store the key/value pair for the place-holder in the order they are added to the clause.
+		    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );		// Using the Length() property ensures that we always set the next index in the array.
+
+		    if( !prepped )
+		    {
+			if( ii != 0 )
 			{
-				qp += ", ";
+			    qp += ", ";
 			}
 
 			qp += "?";
+		    }
+
 		}
 
-		qp += " );";
-	}
-	else if( dvr->type_->IntegerValue() == KWAERI_UPDATE )
-	{
-		// Add on to the insert clause, providing values
-		qp = std::string( "SET " );
-
-		Handle<Object> vals = args[0]->ToObject();
-		Local<Array> keys = vals->GetOwnPropertyNames();		// Gets us all the keys in an array
-		for( int i = 0, l = keys->Length(); i < l; i++ )
+		if( !prepped )
 		{
-			// Get the keys to build the where clause, and replace values with question mark
-			Local<String> k = keys->Get( i )->ToString();
+		    qp += " ) ";
 
-			// Store the values and conditions for the placeholders in the order they are added to the clause
-			dvr->phmap_->Set( k, vals->Get( k )->ToString() );
-
-			String::AsciiValue kav( k );
-			std::string kv = *kav;
-
-			if( i != 0 )
-			{
-				qp += ", ";
-			}
-
-			qp += kv + "=?";
+		    prepped = true;
 		}
 
-		qp += " ) ";
+		if( i == 0 )
+		{
+		    // This tells us how many parameters are included in each loop (again, only need to do this once)
+		    phspec->Set( 1, Integer::New( keys->Length() ) );
+		}
+	    }
+
+	    // Set the phmap metadata in the first index
+	    dvr->phmap_->Set( 0, phspec );
+	}
+	else
+	{   // Add on to the insert clause, providing values
+	    Handle<Object> vals = args[0]->ToObject();
+	    Local<Array> keys = vals->GetOwnPropertyNames();		// Gets us all the keys in an array
+	    Local<Array> phspec = Array::New();
+
+	    // This tells us how many times to loop when executing the prepared statement (we only need to do this once once);
+	    int lcount = 1;
+	    if( adding )
+	    {
+		phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+		lcount += phspec->Get( 0 )->IntegerValue();
+
+		phspec->Set( 0, Integer::New( lcount ) );
+	    }
+	    else
+	    {
+		phspec->Set( 0, Integer::New( lcount ) );
+		phspec->Set( 1, Integer::New( keys->Length() ) );	// We only need this the first time on an insert statement that's being looped
+	    }
+
+	    dvr->phmap_->Set( 0, phspec );
+
+	    for( int i = 0, l = keys->Length(); i < l; i++ )
+	    {
+		// Get the keys to build the VALUES clause, and replace values with question mark
+		Local<String> k = keys->Get( i )->ToString();
+		Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
+
+		// Create the key/value pair
+		kvpair->Set( 0, k );
+		kvpair->Set( 1, vals->Get( k )->ToString() );
+
+		// Store the key/value pair for the place-holder in the order they are added to the clause.
+		dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );		// Using the Length() property ensures that we always set the next index in the array.
+
+		if( !adding )
+		{
+		    if( i != 0 )
+		    {
+			    qp += ", ";
+		    }
+
+		    qp += "?";
+		}
+
+	    }
+
+	    if( !adding )
+	    {
+		qp += " )";
+	    }
+	}
+    }
+    else if( dvr->type_->IntegerValue() == KWAERI_UPDATE )
+    {
+	// Add on to the update clause, providing values
+	Handle<Object> vals = args[0]->ToObject();
+	Local<Array> keys = vals->GetOwnPropertyNames();		// Gets us all the keys in an array
+	Local<Array> phspec = Array::New();
+
+	// This tells us how many times to loop when executing the prepared statement (we only need to do this once once);
+	int lcount = 1;
+	if( adding )
+	{
+	    phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+	    lcount += phspec->Get( 0 )->IntegerValue();
+
+	    phspec->Set( KWAERI_PH_KEY, Integer::New( lcount ) );
+	}
+	else
+	{
+	    phspec->Set( KWAERI_PH_KEY, Integer::New( lcount ) );
+	    phspec->Set( KWAERI_PH_VALUE, Integer::New( keys->Length() ) );	// We only need this the first time on an insert statement that's being looped
+	    qp = std::string( "SET " );
 	}
 
-	std::cout << "Prints Part: " << qp << std::endl;
+	dvr->phmap_->Set( KWAERI_PH_KEY, phspec );
 
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
+	for( int i = 0, l = keys->Length(); i < l; i++ )
+	{
+	    // Get the keys to build the where clause, and replace values with question mark
+	    Local<String> k = keys->Get( i )->ToString();
+	    Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
 
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+	    // Create the key/value pair
+	    kvpair->Set( KWAERI_PH_KEY, k );
+	    kvpair->Set( KWAERI_PH_VALUE, vals->Get( k ) );
 
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
-	return scope.Close( args.This() );
+	    // Store the values and conditions for the placeholders in the order they are added to the clause
+	    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+
+	    String::AsciiValue kav( k );
+	    std::string kv = *kav;
+
+	    if( !adding )
+	    {
+		if( i != 0 )
+		{
+			qp += ", ";
+		}
+
+		qp += kv + "=? ";
+	    }
+	}
+    }
+
+    // Convert the std string to a v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Concatenate the new query part with the existing query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+
+    if( !multi )
+    {
+	dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_VALS_PREP_START ) );
+    }
+    else
+    {
+	dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_VALS_PREP_END ) );
+    }
+
+    // Return the entire object to allow chaining.
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -463,37 +647,40 @@ Handle<Value> Driver::Values( const Arguments& args )
  */
 Handle<Value> Driver::Update( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	String::AsciiValue av( args[0] );
-	std::string update = *av;
-
-	// Build our query string part
-	std::string qp = std::string( "UPDATE " );
-	qp += update + " ";
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	// Update the query string
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_UPDATE ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
+    {
+	std::cout << "Error: Escaped .Update" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // Get the name of the database to update and convert it to a std string
+    String::AsciiValue av( args[0] );
+    std::string update = *av;
+
+    // Build our query string part
+    std::string qp = std::string( "UPDATE " );
+    qp += update + " ";
+
+    // Convert the query part from std string to v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Update the query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_UPDATE ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_CLAUSE_PREP ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -508,37 +695,40 @@ Handle<Value> Driver::Update( const Arguments& args )
  */
 Handle<Value> Driver::Delete( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	String::AsciiValue av( args[0] );
-	std::string remove = *av;
-
-	// Build our query string part
-	std::string qp = std::string( "DELETE FROM " );
-	qp += remove;
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	// Update the query string
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_DELETE ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    {
+	std::cout << "Error: Escaped .Delete" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // Fetch the user input (database name) and convert it to a std string
+    String::AsciiValue av( args[0] );
+    std::string remove = *av;
+
+    // Build our query string part
+    std::string qp = std::string( "DELETE FROM " );
+    qp += remove;
+
+    // Convert the std string to a v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Update the query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_DELETE ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_CLAUSE_PREP ) );
+
+    // Return the entire object to allow for chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -553,94 +743,165 @@ Handle<Value> Driver::Delete( const Arguments& args )
  */
 Handle<Value> Driver::Where( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	// The supplied argument should be an object with arrays defining operators, types, and values for each where clause argument
-	if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->type_->IntegerValue() == KWAERI_EMPTY || dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_NOPREP )
-	{
-		std::cout << "Error: Escaped" << std::endl;
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	// Get the existing query part
-	//String::AsciiValue av( dvr->query_->ToString() );
-	//std::string eqs = std::string( *av );
-
-	// Begin building our where clause
-	std::string qp = " WHERE ( ";
-
-	Handle<Object> where = args[0]->ToObject();
-	Local<Array> keys = where->GetOwnPropertyNames();		// Gets us all the keys for an object inside of an array
-	for( int i = 0, l = keys->Length(); i < l; i++ )
-	{
-		// Get the key for this where clause argument, as well as the data array which defines the operator to use, the type to set, and the value to set.
-		Local<String> k = keys->Get( i )->ToString();
-		Local<Array> data = Local<Array>::Cast( where->Get( k ) );
-
-		// Store the values in the placeholder in the order they are added to the clause
-		dvr->phmap_->Set( k, data->Get( KWAERI_COLUMN_VALUE ) );
-
-		// Convert the key and the operator to std:string
-		String::AsciiValue kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
-		std::string kv = *kav, ov = *oav;
-
-		// Build upon the query string
-		if( i != 0 )
-		{
-			qp += " AND ";
-		}
-
-		// Add the key and operator value to the query string
-		qp += kv + ov;
-
-		// The 'where' array could have more than 3 elements if - for instance - they are using a BETWEEN operator.
-		if( int acount = data->Length() > 3 )
-		{
-			for( int ii = 2; ii < acount; ii++ )
-			{
-				// In which case we need to set multiple placeholders
-				dvr->phmap_->Set( k, data->Get( ii ) );
-				if( ii > 2 )
-				{
-					qp += " AND ";
-				}
-				qp += "?";
-			}
-		}
-		else
-		{
-			// Otherwise we set a single placeholder
-			dvr->phmap_->Set( k, data->Get( KWAERI_COLUMN_VALUE ) );
-			qp += "?";
-		}
-	}
-
-	// add on the new part.
-	qp += " )";
-
-	// We need to fetch the current query string, and store it for later
-
-
-	std::cout << "Prints Part: " << qp << std::endl;
-	//std::cout << "Prints Full: " << eqs << std::endl;
-	//Handle<Value> qph = String::New( qp.c_str() );
-	//String::AsciiValue qpav( qph );
-	//Local<String> qps = String::New( *qpav );
-	//Local<String> qps = String::New(  );
-	//eqs = eqs + qp;
-
-	// Reset the value of query_ ... Concatenating doesn't work here because we'd have to concatenate more than 1 time...
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), String::New( qp.c_str() ) ) );
-	//dvr->query_ = Handle<String>::Cast( qps );
-	//dvr->query_ = String::New( *qpav );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    // The supplied argument should be an object with arrays defining operators, types, and values for each where clause argument
+    if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->prepared_->IntegerValue() < KWAERI_CLAUSE_PREP || dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_NOPREP )
+    {
+	std::cout << "Error: Escaped .Where" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // We'll need to make sure that the phmap has its specs set so Length() returns at least 1
+    if( dvr->phmap_->Length() < 1 )
+    {
+	Local<Array> phspec = Array::New();
+	phspec->Set( 0, Integer::New( 1 ) );
+	phspec->Set( 1, Integer::New( 0 ) );
+	dvr->phmap_->Set( 0, phspec );
+    }
+
+    // Now prepare to modify the phspec array as needed
+    Local<Array> ophspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+    Local<Array> phspec = Array::New();
+    phspec->Set( 0, ophspec->Get( 0 ) );	// This flag could sometimes increase from the use of this method, such as from a DELETE statement, but we won't mess with that quite yet
+    int cindex = 0;				// Holds the total number of parameters that are being added to the phmap for this clause
+
+    // Begin building our where clause
+    std::string qp = " WHERE ( ";
+
+    // We loop through the where object instead of setting it as the value of phmap_ because Update/Set/Where also uses the placeholder map in Set and Where at times.
+    Handle<Object> where = args[0]->ToObject();
+    Local<Array> keys = where->GetOwnPropertyNames();		// Gets us all the keys for an object inside of an array
+    bool prevor = false;					// A flag for determining if additional where clause arguments should be and'd or or'd
+    for( int i = 0, l = keys->Length(); i < l; i++ )
+    {
+	// Get the key for this where clause argument, as well as the data array which defines the operator to use, the type to set, and the value to set.
+	Local<String> k = keys->Get( i )->ToString();
+	Local<Array> data = Local<Array>::Cast( where->Get( k ) );
+
+	// Convert the key and the operator to std:string
+	String::AsciiValue kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
+	std::string kv = *kav, ov = *oav;
+
+	// Build upon the query string
+	if( i != 0 && !prevor )
+	{
+	    qp += " AND ";
+	}
+	else if( i != 0 && prevor )
+	{
+	    qp += " OR ";
+	    prevor = false;					// Don't forget to reset this flag!
+	}
+
+	// Add the key and operator value to the query string
+	qp += kv + " " + ov;
+
+	int acount = data->Length();
+	// The 'where' array could have more than 2 elements if - for instance - they are using a BETWEEN or providing an OR operator.
+	if( acount > 2 )
+	{   // We need to know our operator to determine how to build the string
+	    if( ov == std::string( "BETWEEN" ) )
+	    {   // Fancy up our string
+		qp += "( ";
+		// Start with 1 (cuz 0 is the operator)
+		for( int ii = KWAERI_WHERE_VALUE; ii < acount; ii++ )
+		{   // After the first iteration we'll need to AND or OR the additional values, respectively
+		    if( ii > 1 )
+		    {
+			qp += " AND ";
+		    }
+
+		    Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
+
+		    // Create the key/value pair
+		    kvpair->Set( KWAERI_PH_KEY, k );
+		    kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
+
+		    // Store the values and conditions for the placeholders in the order they are added to the clause
+		    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+		    cindex++;
+
+		    qp += "?";
+		}
+
+		// Finish fancying up our string
+		qp += " ) ";
+	    }
+	    else
+	    {   // If there are more than two elements, but it's not BETWEEN for the operator, the user is adding an OR statement for the current condition, or an OR statement for the next condition
+		String::AsciiValue waav( data->Get( KWAERI_WHERE_ADD ) );
+		std::string wav = *waav;
+		if( wav == std::string( "OR" ) || wav == std::string( "or" ) )
+		{   // If the user is OR'ing for the current condition, they'll have actually supplied 4 or more elements..
+		    if( acount > 3 )
+		    {   // Fancy up our string
+			qp += "( ";
+			for( int ii = 1; ii < acount; ii++ )
+			{
+			    if( ii > 1 )
+			    {
+				qp += " OR ";
+			    }
+
+			    Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
+
+			    // Create the key/value pair
+			    kvpair->Set( KWAERI_PH_KEY, k );
+			    kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
+
+			    // Store the values and conditions for the placeholders in the order they are added to the clause
+			    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+			    cindex++;
+			    qp += "?";
+			}
+
+			// Finish fancying up our string
+			qp += " ) ";
+		    }
+		    else
+		    {	// If the user is OR'ing for the next condition, we just need to set prevor to true
+			prevor = true;
+		    }
+		}
+	    }
+	}
+	else
+	{
+	    // Otherwise we set a single placeholder
+	    Local<Array> kvpair = Array::New();				// Stores the key value pair for the place-holder map
+
+	    // Create the key/value pair
+	    kvpair->Set( KWAERI_PH_KEY, k );
+	    kvpair->Set( KWAERI_PH_VALUE, data->Get( KWAERI_WHERE_VALUE ) );
+
+	    // Store the values and conditions for the placeholders in the order they are added to the clause
+	    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+	    cindex++;
+	    qp += "?";
+	}
+    }
+
+    // Add on the new part.
+    qp += " )";
+
+    // Let's set the new parameter count to be that of the existing plus the new amount from this clause.  Remember we are not allowing chaining yet.
+    phspec->Set( 1, Integer::New( ophspec->Get( 1 )->IntegerValue() + cindex ) );
+    dvr->phmap_->Set( 0, phspec );
+
+    // Concatenate the new query part with the existing query
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), String::New( qp.c_str() ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_WHERE_PREP_START ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -655,36 +916,39 @@ Handle<Value> Driver::Where( const Arguments& args )
  */
 Handle<Value> Driver::Join( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	// Get the database name for which we are joining
-	String::AsciiValue av( args[0] );
-	std::string db = *av;
-
-	// Build our query string part
-	std::string qp = std::string( " JOIN " );
-	qp += db;
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() < KWAERI_CLAUSE_PREP )
+    {
+	std::cout << "Error: Escaped .Join" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // Get the database name for which we are joining
+    String::AsciiValue av( args[0] );
+    std::string db = *av;
+
+    // Build our query string part
+    std::string qp = std::string( " JOIN " );
+    qp += db;
+
+    // Convert the query string part from std string to v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Concatenate the new query part with the existing query
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_JOIN_PREP ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -699,37 +963,39 @@ Handle<Value> Driver::Join( const Arguments& args )
  */
 Handle<Value> Driver::On( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	String::AsciiValue av( args[0] );
-	std::string on = *av;
-
-	// Build our query string part
-	std::string qp = std::string( " ON ( " );
-	qp += on;
-	qp += std::string( " )" );
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
-
+    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() != KWAERI_JOIN_PREP )
+    {
+	std::cout << "Error: Escaped .On" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // Get user input and convert it to a std string
+    String::AsciiValue av( args[0] );
+    std::string on = *av;
+
+    // Build our query string part
+    std::string qp = std::string( " ON ( " );
+    qp += on;
+    qp += std::string( " )" );
+
+    // Convert the query string part from std string to v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Concatenate the new query part with the existing query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -744,50 +1010,53 @@ Handle<Value> Driver::On( const Arguments& args )
  */
 Handle<Value> Driver::Limit( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	// We allow the invoker to specify 1 or two arguments for ease of use
-	std::string from, to;
-	if( args[1]->IsUndefined() )
-	{
-		// This is how we convert a JavaScript string to a std::string (c++)
-		String::AsciiValue avto( args[0] );
-		from = "0";
-		to = *avto;
-	}
-	else
-	{
-		String::AsciiValue avfrom( args[0] ), avto( args[1] );
-		from = *avfrom;
-		to = *avto;
-	}
-
-	// Build our query string part
-	std::string qp = std::string( " LIMIT " );
-	qp += from;
-	qp += std::string( ", " );
-	qp += to;
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() )
+    {
+	std::cout << "Error: Escaped .Limit" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // We allow the invoker to specify 1 or two arguments for ease of use
+    std::string from, to;
+    if( args[1]->IsUndefined() )
+    {
+	// This is how we convert a JavaScript string to a std::string (c++)
+	String::AsciiValue avto( args[0] );
+	from = "0";
+	to = *avto;
+    }
+    else
+    {
+	String::AsciiValue avfrom( args[0] ), avto( args[1] );
+	from = *avfrom;
+	to = *avto;
+    }
+
+    // Build our query string part
+    std::string qp = std::string( " LIMIT " );
+    qp += from;
+    qp += std::string( ", " );
+    qp += to;
+
+    // Convert the query string part from std string to v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Concatenate the query part with the existing query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_LIMIT_PREP ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -802,37 +1071,39 @@ Handle<Value> Driver::Limit( const Arguments& args )
  */
 Handle<Value> Driver::Order( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( args[0]->IsUndefined() )
-	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
-
-	std::string order;
-	String::AsciiValue avorder( args[0] );
-	order = *avorder;
-
-	// Build our query string part
-	std::string qp = std::string( " ORDER BY " );
-	qp += order;
-
-	std::cout << "Prints Part: " << qp << std::endl;
-
-	// Update the driver's query string
-	Handle<Value> qph = String::New( qp.c_str() );
-	String::AsciiValue qpav( qph );
-	Local<String> qps = String::New( *qpav );
-
-	dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-
-	Driver* rdvr = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-	rdvr->Wrap( args.This() );
+    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() == KWAERI_LIMIT_PREP )
+    {
+	std::cout << "Error: Escaped .Order" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
 	return scope.Close( args.This() );
+    }
+
+    // Fetch user input and convert it to a std string
+    std::string order;
+    String::AsciiValue avorder( args[0] );
+    order = *avorder;
+
+    // Build our query string part
+    std::string qp = std::string( " ORDER BY " );
+    qp += order;
+
+    // Convert the query string part from std string to v8 string
+    Handle<Value> qph = String::New( qp.c_str() );
+    String::AsciiValue qpav( qph );
+    Local<String> qps = String::New( *qpav );
+
+    // Concatenate the query part with the existing query string
+    dvr->query_ = Persistent<String>::New( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
 
 
@@ -843,173 +1114,398 @@ Handle<Value> Driver::Order( const Arguments& args )
  */
 Handle<Value> Driver::Execute( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	if( dvr->type_->IntegerValue() == KWAERI_EMPTY )
+    if( dvr->type_->IntegerValue() == KWAERI_EMPTY )
+    {
+	std::cout << "Error: Escaped .Execute" << std::endl;
+	Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	rdvre->Wrap( args.This() );
+	return scope.Close( args.This() );
+    }
+
+    if( dvr->type_->IntegerValue() == KWAERI_NOPREP /* && dvr->prepared_->IntegerValue() == KWAERI_NOT_PREP */ )
+    {
+	return scope.Close( Driver::ExecuteQuery( args ) );
+    }
+
+    sql::Driver* driver;
+    sql::Connection* con;
+    sql::ResultSet* rset;
+    sql::ResultSetMetaData* rsmeta;
+    sql::PreparedStatement* pstmt;
+    sql::ParameterMetaData* pmeta;
+
+    try
+    {
+	String::AsciiValue hav( dvr->host_ ), dbav( dvr->db_ ), userav( dvr->user_ ), passav( dvr->password_ ), queryav( dvr->query_ );
+	std::string db = *dbav, host = *hav, user = *userav, pass = *passav, query = *queryav, tresult;
+	bool result = true;
+	int affectedRows = 0;
+
+	// Create a connection
+	driver = get_driver_instance();
+	con = driver->connect( host, user, pass );
+	con->setSchema( db );
+	pstmt = con->prepareStatement( query );
+
+	// If any values are set in the placeholder map we need to prepare them.
+	if( dvr->phmap_->Length() > 1 )
 	{
-		Driver* rdvre = new Driver( Persistent<String>::New( dvr->host_->ToString() ), Persistent<String>::New( dvr->port_->ToString() ), Persistent<String>::New( dvr->db_->ToString() ), Persistent<String>::New( dvr->user_->ToString() ), Persistent<String>::New( dvr->password_->ToString() ), dvr->type_, dvr->model_, dvr->phmap_, Handle<Boolean>( dvr->mapped_ ), Persistent<String>::New( dvr->query_->ToString() ), Handle<Boolean>( dvr->prepared_ ) );
-		rdvre->Wrap( args.This() );
-		return scope.Close( args.This() );
-	}
+	    // Let's see how many loops we'll need to do
+	    Local<Array> phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+	    int loops = phspec->Get( 0 )->IntegerValue();
+	    int acount = phspec->Get( 1 )->IntegerValue();
 
-	try
-	{
-		sql::Driver* driver;
-		sql::Connection* con;
-		sql::ResultSet* rset;
-		sql::PreparedStatement* pstmt;
+	    //std::cout << "Loops: " << loops << " - Params per loop: " << acount << std::endl;
 
-		String::AsciiValue hav( dvr->host_ ), dbav( dvr->db_ ), userav( dvr->user_ ), passav( dvr->password_ ), queryav( dvr->query_ );
-		std::string db = *dbav, host = *hav, user = *userav, pass = *passav, query = *queryav, tresult;
-		bool result = true;
-
-		// Create a connection
-		std::cout << "Creating database driver...";
-		driver = get_driver_instance();
-		std::cout << "Success!" << std::endl;
-
-		std::cout << "Connecting to database server...";
-		con = driver->connect( host, user, pass );
-		std::cout << "Success!" << std::endl;
-
-		std::cout << "Connecting to database...";
-		con->setSchema( db );
-		std::cout << "Success!" << std::endl;
-
-		std::cout << "Preparing query...";
-		pstmt = con->prepareStatement( query );
-
-		// Now we have to dynamically set placeholder values.  We'll have to know the type, and the order they exist in the query.  Thanks to the
-		// model and the placeholder map we have everything we need.  If we do not use a where clause, this loop will not run.
-		Local<Array> keys = dvr->phmap_->GetOwnPropertyNames();		// Gets us all the keys in an array
-
-		// If any values are set we need to prepare them.
-		if( keys->Length() > 0 )
+	    if( loops > 1 && ( dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_UPDATE ) )
+	    {
+		int cindex = 1;
+		for( int c = 0; c < loops; c++ )
 		{
-			for( int i = 0, l = keys->Length(); i < l; i++ )
+		    for( int i = 1, l = acount + 1; i < l; i++ )
+		    {
+			// Get the key/value pair for which to set the place-holder's values
+			Local<Array> kvp = Local<Array>::Cast( dvr->phmap_->Get( cindex )->ToObject() );
+
+			// Now discern the type of the place-holder's value so we can set it
+			if( !kvp->Get( KWAERI_PH_VALUE )->IsUndefined() )
 			{
-				int ti = ( i + 1 );
-
-				// Get the keys for which to set the placeholders values
-				Local<String> k = keys->Get( i )->ToString();
-
-				// Set the placeholder's values
-				String::AsciiValue phav( dvr->phmap_->Get( k ) );
-
-				// Convert the AsciiValue to a String
-				std::string ph = *phav;
-
-				// Get the column definition
-				Local<Array> defarr = Local<Array>::Cast( dvr->model_->Get( k ) );
-				String::AsciiValue cdefav( defarr->Get( KWAERI_COLUMN_TYPE ) );
-				std::string cdef = *cdefav;
-
-				if( cdef == std::string( "int" ) )
-				{
-					int ival = atoi( ph.c_str() );
-					pstmt->setInt( ti, ival );
+			    if( kvp->Get( KWAERI_PH_VALUE )->IsString() || kvp->Get( KWAERI_PH_VALUE )->IsDate() || kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+			    {
+				String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+				std::string strval = *strvalav;
+				if( strval.length() > 255 )
+				{   // We'll set this using setBlob
+				    std::istringstream stream( strval );
+				    pstmt->setBlob( i, &stream );
 				}
-				else if( cdef == std::string( "text" ) )
+				else
+				{   // Set using set string
+				    if( kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+				    {
+					pstmt->setString( i, std::string( "" ) );
+				    }
+				    else
+				    {
+					pstmt->setString( i, strval );
+				    }
+				}
+			    }
+			    else if( kvp->Get( KWAERI_PH_VALUE )->IsNumber() )	//
+			    {
+				if( kvp->Get( KWAERI_PH_VALUE )->IsInt32() )	// int32_t (probably checks if is 64-bit on 64-bit systems)
 				{
-					pstmt->setString( ti, ph.c_str() );
+				    pstmt->setInt( i, kvp->Get( KWAERI_PH_VALUE )->ToInteger()->Value() );
+				}
+				else if( kvp->Get( KWAERI_PH_VALUE )->IsUint32() )	// uint32_t (same as above)
+				{
+				    pstmt->setUInt( i, kvp->Get( KWAERI_PH_VALUE )->ToUint32()->Value() );
 				}
 				else
 				{
-					// Error, unrecognized type
-					std::cout << "Error: Unrecognized type, driver.cpp | 921" << std::endl;
+				    pstmt->setDouble( i, kvp->Get( KWAERI_PH_VALUE )->ToNumber()->Value() );
 				}
+			    }
+			    else if( kvp->Get( KWAERI_PH_VALUE )->IsBoolean() )
+			    {
+				pstmt->setBoolean( i, kvp->Get( KWAERI_PH_VALUE )->ToBoolean()->Value() );
+			    }
+			    else
+			    {
+				String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+				std::string strval = *strvalav;
+				std::cout << "Error: Unrecongnized or unsupported type:" << strval << std::endl;
+			    }
 			}
+			cindex++;
+		    }
+
+		    // Now we run our looped prepared statement
+		    affectedRows += pstmt->executeUpdate();
 		}
 
-		std::cout << "Everything is set with no errors..." << std::endl;
+		//std::cout << "We affected " << affectedRows << " rows.  It was an INSERT UPDATE or DELETE" << std::endl;
 
-		std::cout << "Executing prepared statement...";
-		bool res = pstmt->execute();
+		delete con;
+		delete pstmt;
 
-		// Fetch our results
-		if( res )
+		return scope.Close( Integer::New( affectedRows ) );
+	    }
+	    else
+	    {
+		for( int i = 1, l = acount + 1; i < l; i++ )
 		{
-			rset = pstmt->getResultSet();
-			Local<Array> records = Array::New();
-			Local<Array> keys = dvr->model_->GetOwnPropertyNames();		// Gets us all the keys in an array
-			int rec = 0;
-			while( rset->next() )
+		    // Get the key/value pair for which to set the place-holder's values
+		    Local<Array> kvp = Local<Array>::Cast( dvr->phmap_->Get( i ) );
+		    // Local<String> k = kvp->Get( KWAERI_PH_KEY )->ToString();
+
+		    // Now discern the type of the place-holder's value so we can set it
+		    if( !kvp->Get( KWAERI_PH_VALUE )->IsUndefined() )
+		    {
+			if( kvp->Get( KWAERI_PH_VALUE )->IsString() || kvp->Get( KWAERI_PH_VALUE )->IsDate() || kvp->Get( KWAERI_PH_VALUE )->IsNull() )
 			{
-				std::cout << "We gots results!" << std::endl;
-				// Each iteration brings another record, or set of columns present in the model which were specified to be selected.  What
-				// we want to do is allocate an array, each index containing an object which holds all the columns of this record.
-				Local<Object> record = Object::New();
-
-				for( int cc = 0, l = keys->Length(); cc < l; cc++ )
+			    String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+			    std::string strval = *strvalav;
+			    if( strval.length() > 255 )
+			    {	// We'll set this using setBlob
+				std::istringstream stream( strval );
+				pstmt->setBlob( i, &stream );
+			    }
+			    else
+			    {	// Set using set string
+				if( kvp->Get( KWAERI_PH_VALUE )->IsNull() )
 				{
-					// Get the column name
-					Local<String> k = keys->Get( cc )->ToString();
-
-					// Set the column data in the record
-					Local<Array> defarr = Local<Array>::Cast( dvr->model_->Get( k ) );
-					String::AsciiValue cdefav( defarr->Get( KWAERI_COLUMN_TYPE ) );
-					std::string cdef = *cdefav;
-
-					String::AsciiValue thekeyav( k );
-					std::string thekey = *thekeyav;
-
-					if( cdef == std::string( "int" ) )
-					{
-						record->Set( k, Integer::New( rset->getInt( thekey.c_str() ) ) );
-					}
-					else if( cdef == std::string( "text" ) )
-					{
-						Handle<Value> svh = String::New( rset->getString( thekey.c_str() ).c_str() );
-						String::AsciiValue sav( svh );
-						record->Set( k, String::New( *sav ) );
-					}
-					else
-					{
-						record->Set( k, String::New( "Error: Invalid column type." ) );
-					}
+				    pstmt->setString( i, std::string( "" ) );
 				}
-
-				records->Set( rec, record );
-				rec++;
+				else
+				{
+				    pstmt->setString( i, strval );
+				}
+			    }
 			}
-
-			std::cout << "We should have got a message about getting results.." << rec << " of them" << std::endl;
-
-			// Don't forget to release memory not under the management of Node
-			delete con;
-			delete pstmt;
-
-			// Return the resulting array
-			return scope.Close( Handle<Array>::Cast( records ) );
+			else if( kvp->Get( KWAERI_PH_VALUE )->IsNumber() )	//
+			{
+			    if( kvp->Get( KWAERI_PH_VALUE )->IsInt32() )	// int32_t (probably checks if is 64-bit on 64-bit systems)
+			    {
+				pstmt->setInt( i, kvp->Get( KWAERI_PH_VALUE )->ToInteger()->Value() );
+			    }
+			    else if( kvp->Get( KWAERI_PH_VALUE )->IsUint32() )	// uint32_t (same as above)
+			    {
+				pstmt->setUInt( i, kvp->Get( KWAERI_PH_VALUE )->ToUint32()->Value() );
+			    }
+			    else
+			    {
+				pstmt->setDouble( i, kvp->Get( KWAERI_PH_VALUE )->ToNumber()->Value() );
+			    }
+			}
+			else if( kvp->Get( KWAERI_PH_VALUE )->IsBoolean() )
+			{
+			    pstmt->setBoolean( i, kvp->Get( KWAERI_PH_VALUE )->ToBoolean()->Value() );
+			}
+			else
+			{
+			    String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+			    std::string strval = *strvalav;
+			    std::cout << "Error: Unrecongnized or unsupported type:" << strval << std::endl;
+			}
+		    }
 		}
-		else
-		{
-			Local<Integer> affected = Integer::New( pstmt->getUpdateCount() );
-
-			std::cout << "We didn't gets no results" << std::endl;
-			// Don't forget to release memory not under the management of Node
-			delete con;
-			delete pstmt;
-
-			// And return the count
-			return scope.Close( affected );
-		}
-
-		// Otherwise something wen't wrong let's let it be known in case an error wasn't thrown by the connector or mysql
-		std::cout << "Failed" << std::endl;
-		return scope.Close( String::New( "Failed" ) );
-
-	}catch( sql::SQLException &e )
-	{
-		std::cout << "Failed" << std::endl << "# ERR: SQLException in " << __FILE__ << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n" << std::endl;
-		std::cout << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState " << e.getSQLState() << " )" << std::endl;
+	    }
 	}
 
-	// Otherwise something wen't wrong let's let it be known in case an error wasn't thrown by the connector or mysql
-	std::cout << "Failed" << std::endl;
-	return scope.Close( String::New( "Failed" ) );
+	if( dvr->type_->IntegerValue() != KWAERI_SELECT )
+	{
+	    // Let's execute the query and return how many rows were affected
+	    affectedRows += pstmt->executeUpdate();
+
+	    //std::cout << "We affected " << affectedRows << " rows.  It was an INSERT UPDATE or DELETE" << std::endl;
+
+	    delete con;
+	    delete pstmt;
+
+	    return scope.Close( Integer::New( affectedRows ) );
+	}
+	else
+	{	// We're fetching a resultset
+	    // Let's go ahead and execute our prepared statement
+	    bool res = false;
+	    res = pstmt->execute();
+
+	    // Fetch our results
+	    if( res )
+	    {
+		rset = pstmt->getResultSet();
+		rsmeta = rset->getMetaData();
+		int colcount = rsmeta->getColumnCount();
+		Local<Array> records = Array::New();
+		int rec = 0;
+
+		while( rset->next() )
+		{
+		    //std::cout << "We gots results! It was a SELECT." << std::endl;
+		    // Each iteration brings another record, or set of columns present in the model which were specified to be selected.  What
+		    // we want to do is allocate an array, each index containing an object which holds all the columns of this record.
+		    Local<Object> record = Object::New();
+
+		    for( int cc = 0, l = colcount; cc < l; cc++ )
+		    {
+			// Get the column name
+			Local<String> k = String::New( rsmeta->getColumnLabel( cc + 1 ).c_str() );
+			//std::cout << "Column Label: " << k->ToString() << std::endl;
+
+			// Set the column data in the record
+			std::string ctype = rsmeta->getColumnTypeName( cc + 1 ).c_str();
+			if( ctype == std::string( "INT" ) )
+			{
+			    Handle<Value> svh = String::New( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
+			    record->Set( k, Integer::New( svh->IntegerValue() ) );
+			}
+			else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
+			{
+			    Handle<Value> svh = String::New( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
+			    String::AsciiValue sav( svh );
+			    record->Set( k, String::New( *sav ) );
+			}
+			else
+			{
+			    std::string eret = "Error: Unknown column type [" + ctype + "].\n";
+			    record->Set( k, String::New( eret.c_str() ) );
+			}
+		    }
+
+		    records->Set( rec, record );
+		    rec++;
+		}
+
+		// Don't forget to release memory not under the management of Node
+		delete con;
+		delete pstmt;
+
+		// Return the resulting array
+		return scope.Close( Handle<Array>::Cast( records ) );
+	    }else
+	    {
+		return scope.Close( String::New( "We somehow fail horribly..." ) );
+	    }
+	}
+    }catch( sql::SQLException &e )
+    {
+	// Don't forget to release memory not under the management of node
+	delete con;
+	delete pstmt;
+
+	std::cout << "MySQLCPPCONN Failed" << std::endl << "# ERR: SQLException in " << __FILE__ << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n" << std::endl;
+	std::cout << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState " << e.getSQLState() << " )" << std::endl;
+
+	return scope.Close( String::New( "Catch Failed" ) );
+    }
+}
+
+
+/**
+ * Executes the unprepared query
+ *
+ * @since 0.2.0
+ */
+Handle<Value> Driver::ExecuteQuery( const Arguments& args )
+{
+    HandleScope scope;
+
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+
+    if( dvr->type_->IntegerValue() == KWAERI_EMPTY || dvr->type_->IntegerValue() != KWAERI_NOPREP )
+    {
+	  std::cout << "Error: Escaped .ExecuteQuery" << std::endl;
+	  Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+	  rdvre->Wrap( args.This() );
+	  return scope.Close( args.This() );
+    }
+
+    // It's important to keep these here, so we can <b>delete</b> if an exception is caught.
+    sql::Driver* driver;
+    sql::Connection* con;
+    sql::ResultSet* rset;
+    sql::ResultSetMetaData* rsmeta;
+    sql::Statement* stmt;
+    try
+    {
+	String::AsciiValue hav( dvr->host_ ), dbav( dvr->db_ ), userav( dvr->user_ ), passav( dvr->password_ ), queryav( dvr->query_ );
+	std::string db = *dbav, host = *hav, user = *userav, pass = *passav, query = *queryav, tresult;
+	bool result = true;
+
+	// Create a connection
+	driver = get_driver_instance();
+	con = driver->connect( host, user, pass );
+	con->setSchema( db );
+	stmt = con->createStatement();
+
+	bool res = false;
+	res = stmt->execute( query );
+
+	// Fetch our results
+	if( res )
+	{
+	    rset = stmt->getResultSet();
+	    rsmeta = rset->getMetaData();
+	    Local<Array> records = Array::New();
+
+	    // Now let's figure out how many columns are in the resultset
+	    int colcount = rsmeta->getColumnCount();
+
+	    int rec = 0;
+	    //std::cout << "We gots results from the noprep query!  It's a SELECT - spewing column info for each result..." << std::endl;
+	    while( rset->next() )
+	    {
+		// Each iteration brings another record, or set of columns present in the model which were specified to be selected.  What
+		// we want to do is allocate an array, each index containing an object which holds all the columns of this record.
+		Local<Object> record = Object::New();
+
+		for( int cc = 0, l = colcount; cc < l; cc++ )
+		{
+		    // Get the column name
+		    //Local<String> k = keys->Get( cc )->ToString();
+		    Local<String> k = String::New( rsmeta->getColumnLabel( cc + 1 ).c_str() );
+
+		    // Set the column data in the record
+		    std::string ctype = rsmeta->getColumnTypeName( cc + 1 ).c_str();
+		    //std::cout << "Column: " << rsmeta->getColumnLabel( cc + 1 ) << " Type: " << ctype << std::endl;
+		    if( ctype == std::string( "INT" ) )
+		    {
+			Handle<Value> svh = String::New( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
+			record->Set( k, Integer::New( svh->IntegerValue() ) );
+		    }
+		    else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
+		    {
+			Handle<Value> svh = String::New( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
+			String::AsciiValue sav( svh );
+			record->Set( k, String::New( *sav ) );
+		    }
+		    else
+		    {
+			std::string eret = "Error: Unknown column type [" + ctype + "].\n";
+			record->Set( k, String::New( eret.c_str() ) );
+		    }
+		}
+
+		records->Set( rec, record );
+		rec++;
+	    }
+	    //std::cout << "End of spewing..." << std::endl << std::endl;
+
+	    // Don't forget to release memory not under the management of Node
+	    delete con;
+	    delete stmt;
+
+	    // Return the resulting array
+	    return scope.Close( Handle<Array>::Cast( records ) );
+	}
+	else
+	{
+	    Local<Integer> affected = Integer::New( stmt->getUpdateCount() );
+
+	    //std::cout << "We affected " << stmt->getUpdateCount() << " records. It was an INSERT UPDATE or DELETE" << std::endl;
+	    // Don't forget to release memory not under the management of Node
+	    delete con;
+	    delete stmt;
+
+	    // And return the count
+	    return scope.Close( affected );
+	}
+    }catch( sql::SQLException &e )
+    {
+	// Don't forget to release memory not under the management of node
+	delete con;
+	delete stmt;
+
+	std::cout << "MySQLCPPCONN Failed" << std::endl << "# ERR: SQLException in " << __FILE__ << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n" << std::endl;
+	std::cout << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState " << e.getSQLState() << " )" << std::endl;
+
+	return scope.Close( String::New( "Catch Failed" ) );
+    }
 }
 
 
@@ -1024,25 +1520,25 @@ Handle<Value> Driver::Execute( const Arguments& args )
  */
 Handle<Value> Driver::GetConnection( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	// Convert the v8::Persistent<v8::String> to std::string
-	String::AsciiValue hostav( dvr->host_->ToString() ), portav( dvr->port_->ToString() ), dbav( dvr->db_->ToString() ), userav( dvr->user_->ToString() ), passav( dvr->password_->ToString() );
-	std::string host = *hostav, port = *portav, db = *dbav, user = *userav, password = *passav;
+    // Convert the v8::Persistent<v8::String> to std::string
+    String::AsciiValue hostav( dvr->host_->ToString() ), portav( dvr->port_->ToString() ), dbav( dvr->db_->ToString() ), userav( dvr->user_->ToString() ), passav( dvr->password_->ToString() );
+    std::string host = *hostav, port = *portav, db = *dbav, user = *userav, password = *passav;
 
-	std::string conn = "Connection: \nHost: " + host + ",\nPort: " + port + ",\nDatabase: " + db + ",\nUser: " + user + ",\nPassword: " + password + "\n";
-	std::cout << conn << std::endl;
+    std::string conn = "Connection: \nHost: " + host + ",\nPort: " + port + ",\nDatabase: " + db + ",\nUser: " + user + ",\nPassword: " + password + "\n";
+    std::cout << conn << std::endl;
 
-	// Convert the new std::string back to a v8::String of sorts
-	Handle<Value> connh = String::New( conn.c_str() );
+    // Convert the new std::string back to a v8::String of sorts
+    Handle<Value> connh = String::New( conn.c_str() );
 
-	// Convert the v8::Handle<v8::Value> to a v8::String::AsciiValue
-	String::AsciiValue connav( connh );
+    // Convert the v8::Handle<v8::Value> to a v8::String::AsciiValue
+    String::AsciiValue connav( connh );
 
-	// Return a string containing all the connection info for this driver instance
-	return scope.Close( String::New( *connav ) );
+    // Return a string containing all the connection info for this Driver instance
+    return scope.Close( String::New( *connav ) );
 }
 
 
@@ -1057,12 +1553,12 @@ Handle<Value> Driver::GetConnection( const Arguments& args )
  */
 Handle<Value> Driver::GetQuery( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	// Return the full query string to JavaScript
-	return scope.Close( dvr->query_->ToString() );
+    // Return the full query string to JavaScript
+    return scope.Close( dvr->query_->ToString() );
 }
 
 
@@ -1077,22 +1573,36 @@ Handle<Value> Driver::GetQuery( const Arguments& args )
  */
 Handle<Value> Driver::Reset( const Arguments& args )
 {
-	HandleScope scope;
+    HandleScope scope;
 
-	Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
-	// Reset the query string
-	dvr->query_ = Persistent<String>::New( String::New("") );
+    // Reset the query string
+    dvr->query_ = Persistent<String>::New( String::New("") );
 
-	// Reset the model
+    // Reset the model
+    if( !args[0]->IsUndefined() && args[0]->IsObject() )
+    {	// If an object is passed, we replace the model
+	dvr->model_ = Persistent<Object>::New( args[0]->ToObject() );
+	dvr->modeled_ = Persistent<Boolean>::New( v8::True() );
+    }
+    else if( !args[0]->IsUndefined() )
+    {	// If anything other than an object is passed, we clear the model
 	dvr->model_ = Persistent<Object>::New( Object::New() );
+	dvr->modeled_ = Persistent<Boolean>::New( v8::False() );
+    }// Otherwise we leave the model situation as-is
 
-	// Reset the place holder map
-	dvr->phmap_ = Persistent<Object>::New( Object::New() );
+    // Reset the place holder map
+    dvr->phmap_ = Persistent<Array>::New( Array::New() );
 
-	// Reset the type flag
-	dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_EMPTY ) );
+    // Reset the type flag
+    dvr->type_ = Persistent<Integer>::New( Integer::New( KWAERI_EMPTY ) );
 
-	// Return the query string to JavaScript
-	return scope.Close( dvr->query_->ToString() );
+    // Reset the prepared flag
+    dvr->prepared_ = Persistent<Integer>::New( Integer::New( KWAERI_NOT_PREP ) );
+
+    // Return the entire object to allow chaining
+    Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
+    rdvr->Wrap( args.This() );
+    return scope.Close( args.This() );
 }
