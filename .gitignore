@@ -20,6 +20,10 @@
 *.out
 *.app
 
+# Tool specific files
+.README.md.html
+.gitignore~
+
 # Build directories in root
 build
 node_modules

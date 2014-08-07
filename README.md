@@ -31,7 +31,7 @@ If you're not building (meaning node-gyp and python are not installed), but meet
 
 ## Usage
 
-At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/test/features.sql), though I'll leave this documentation with a copy of the wiki content:
+At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
 
 
 ### Preparing our DBO
