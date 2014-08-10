@@ -3,7 +3,8 @@ node_js:
  - "0.11"
  - "0.10"
 before_install:
- - sudo apt-get update && apt-get upgrade
+ - sudo apt-get update -qq 
+  - sudo apt-get upgrade
  - sudo apt-get install build-essential zlib-dev zlib libbz2-dev bzip2 python-dev libmysqlclient-dev mysql-client
  - sudo mkdir boosted
  - cd boosted
