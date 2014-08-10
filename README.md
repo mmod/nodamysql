@@ -6,7 +6,11 @@ Licensed under Apache v2.0, nodamysql features the MySQL C++ Connector from Orac
 under the [FOSS License Exception](http://www.mysql.com/about/legal/licensing/foss-exception/) when used with nodakwaeri (nk) or other 
 Free and Open Source Software sporting acceptable license types. 
 
-nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
+nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient. 
+
+
+#### Continuous Integration
+[![Build Status](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
 
 
 

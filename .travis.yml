@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+ - "0.11"
+ - "0.10"
+before_install:
+ - sudo apt-get update && apt-get upgrade
+ - sudo apt-get install build-essential zlib-dev zlib libbz2-dev bzip2 python-dev libmysqlclient-dev mysql-client
+ - curl -sL https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true > boost_headers_1_56_0.zip
+ - unzip boost_headers_1_56_0.zip
+ - rm boost_headers_1_56_0.zip
+ - sudo cp -R boost /usr/include
