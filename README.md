@@ -10,7 +10,10 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 
 #### Continuous Integration
+
 [![Build Status](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
+
+Regular builds and testing provided by https://travis-ci.org.
 
 
 
