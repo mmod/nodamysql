@@ -31,6 +31,7 @@
 #define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkNewV8ValuePtr( original ) original
+#define nkTestArgument , CopyablePersistentTraits<*v8::String>>
 #define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -49,6 +50,7 @@
 #define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkNewV8ValuePtr( original ) original
+#define nkTestArgument( var ) , CopyablePersistentTraits<*v8::var>>
 #define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -67,6 +69,7 @@
 #define nkNewV8StringOS( var ) v8::String::New( var )
 #define nkNewV8String( var ) nkNewV8StringOS( var )
 #define nkNewV8ValuePtr( original ) original
+#define nkTestArgument( var )
 #define nkException( str ) return v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::Arguments
 #define nkReturnType v8::Handle<v8::Value>
@@ -89,18 +92,18 @@ class Driver : public node::ObjectWrap
 
 	private:
 		explicit Driver(
-							v8::Persistent<v8::String> host = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "localhost" ) ) ),
-							v8::Persistent<v8::String> port = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "3306" ) ) ),
-							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "test" ) ) ),
-							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "test" ) ) ),
-							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "password" ) ) ),
-							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Object::New( nkIsolateOS ) ) ),
-							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::False( nkIsolateOS ) ) ),
-							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Integer::New( nkPreIsolatedOS 0 ) ) ),
-							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( nkPreIsolatedOS nkNewV8ValuePtr( v8::Integer::New( nkPreIsolatedOS 0 ) ) ),
-							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Array::New( nkIsolateOS ) ) ),
-							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::False( nkIsolateOS ) ) ),
-							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "" ) ) )
+							v8::Persistent<v8::String> host = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "localhost" ) ) ),
+							v8::Persistent<v8::String> port = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "3306" ) ) ),
+							v8::Persistent<v8::String> db = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "test" ) ) ),
+							v8::Persistent<v8::String> user = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "test" ) ) ),
+							v8::Persistent<v8::String> password = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "password" ) ) ),
+							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object nkTestArgument( v8::Object )>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Object::New( nkIsolateOS ) ) ),
+							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean nkTestArgument( v8::Boolean )>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::False( nkIsolateOS ) ) ),
+							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer nkTestArgument( v8::Integer )>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Integer::New( nkPreIsolatedOS 0 ) ) ),
+							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer nkTestArgument( v8::Integer )>( nkPreIsolatedOS nkNewV8ValuePtr( v8::Integer::New( nkPreIsolatedOS 0 ) ) ),
+							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array nkTestArgument( v8::Array )>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::Array::New( nkIsolateOS ) ) ),
+							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean nkTestArgument( v8::Boolean )>::New( nkPreIsolatedOS nkNewV8ValuePtr( v8::False( nkIsolateOS ) ) ),
+							v8::Persistent<v8::String> query = v8::Persistent<v8::String nkTestArgument( v8::String )>::New( nkPreIsolatedOS nkNewV8ValuePtr( nkNewV8StringOS( "" ) ) )
 						);
 		~Driver();
 
