@@ -68,6 +68,8 @@ Driver::~Driver()
  */
 void Driver::Init( Handle<Object> exports )
 {
+	nkIsolation
+
     // Prepare constructor template
     Local<FunctionTemplate> tpl = FunctionTemplate::New( New );
     tpl->SetClassName( String::NewSymbol( "driver" ) );
@@ -91,7 +93,7 @@ void Driver::Init( Handle<Object> exports )
     tpl->PrototypeTemplate()->Set( String::NewSymbol( "getQuery" ), FunctionTemplate::New( GetQuery )->GetFunction() );
     tpl->PrototypeTemplate()->Set( String::NewSymbol( "reset" ), FunctionTemplate::New( Reset )->GetFunction() );
 
-    constructor = Persistent<Function>::New( tpl->GetFunction() );
+    constructor = Persistent<Function>::New( nkPreIsolated tpl->GetFunction() );
     exports->Set( String::NewSymbol( "driver" ), constructor );
 }
 

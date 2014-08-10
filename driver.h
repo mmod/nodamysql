@@ -20,32 +20,40 @@
 
 // Node 0.11.8 etc
 #if( NODE_MODULE_VERSION == 13 )
-#define nkScope v8::Isolate* isolate = v8::Isolate::GetCurrent(); \
-              v8::HandleScope scope( isolate )
+#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent;
+#define nkScope v8::HandleScope scope( isolate )
+#define nkIsolate isolate
+#define nkPreIsolated isolate,
+#define nkPostIsolated , isolate
 #define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
-#define nkReturn
+#define nkReturn( var ) return scope.Close( var )
 
 // Node 0.11.13 etc
 #elif( NODE_MODULE_VERSION > 13 )
-#define nkScope v8::Isolate* isolate = v8::Isolate::GetCurrent(); \
-              v8::HandleScope scope( isolate )
-#define nkException( str ) isolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( isolate, str ) ) )
+#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent;
+#define nkScope v8::HandleScope scope( isolate )
+#define nkIsolate isolate
+#define nkPreIsolated isolate,
+#define nkPostIsolated , isolate
+#define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
-#define nkReturn
+#define nkReturn( var ) return scope.Close( var )
 
 // Node 0.10.x and below
 #else
+#define nkIsolation
 #define nkScope v8::HandleScope scope
+#define nkIsolate
+#define nkPreIsolated
+#define nkPostIsolated
 #define nkException( str ) return v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::Arguments
 #define nkReturnType v8::Handle<v8::Value>
 #define nkReturn( var ) return scope.Close( var )
 #endif
-
-
 
 
 /**
