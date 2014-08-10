@@ -16,33 +16,36 @@
 #include <node.h>
 
 
-// Here we borrow some code for now from another repository, which will help us build across multiple node[v8] versions
+// Here we define macros soley for supporting different versions of node-js and v8.  Eventually we may move this to a custom namespace.
+
 // Node 0.11.8 etc
 #if( NODE_MODULE_VERSION == 13 )
-#define SCOPE Isolate* isolate = Isolate::GetCurrent(); \
-              HandleScope scope( isolate )
-#define EXCEPTION( str ) ThrowException( Exception::TypeError( String::New( str ) ) )
-#define ARGUMENTS v8::FunctionCallbackInfo<Value>
-#define RETURNTYPE void
-#define RETURN
+#define nkScope v8::Isolate* isolate = v8::Isolate::GetCurrent(); \
+              v8::HandleScope scope( isolate )
+#define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
+#define nkArguments v8::FunctionCallbackInfo<v8::Value>
+#define nkReturnType void
+#define nkReturn
 
 // Node 0.11.13 etc
 #elif( NODE_MODULE_VERSION > 13 )
-#define SCOPE Isolate* isolate = Isolate::GetCurrent(); \
-              HandleScope scope( isolate )
-#define EXCEPTION( str ) isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, str ) ) )
-#define ARGUMENTS v8::FunctionCallbackInfo<Value>
-#define RETURNTYPE void
-#define RETURN
+#define nkScope v8::Isolate* isolate = v8::Isolate::GetCurrent(); \
+              v8::HandleScope scope( isolate )
+#define nkException( str ) isolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( isolate, str ) ) )
+#define nkArguments v8::FunctionCallbackInfo<v8::Value>
+#define nkReturnType void
+#define nkReturn
 
-// Node 0.12 and below
+// Node 0.10.x and below
 #else
-#define SCOPE HandleScope scope
-#define EXCEPTION( str ) return ThrowException( Exception::TypeError( String::New( str ) ) )
-#define ARGUMENTS v8::Arguments
-#define RETURNTYPE Handle<Value>
-#define RETURN return scope.Close( Undefined() )
+#define nkScope v8::HandleScope scope
+#define nkException( str ) return v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
+#define nkArguments v8::Arguments
+#define nkReturnType v8::Handle<v8::Value>
+#define nkReturn( var ) return scope.Close( var )
 #endif
+
+
 
 
 /**
@@ -76,23 +79,23 @@ class Driver : public node::ObjectWrap
 		~Driver();
 
 		static v8::Persistent<v8::Function> constructor;
-		static v8::Handle<v8::Value> New( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Query( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Select( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Insert( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Values( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Update( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Delete( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Where( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Join( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> On( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Limit( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Order( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Execute( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> ExecuteQuery( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> GetConnection( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> GetQuery( const ARGUMENTS& args );
-		static v8::Handle<v8::Value> Reset( const ARGUMENTS& args );
+		static nkReturnType New( const nkArguments& args );
+		static nkReturnType Query( const nkArguments& args );
+		static nkReturnType Select( const nkArguments& args );
+		static nkReturnType Insert( const nkArguments& args );
+		static nkReturnType Values( const nkArguments& args );
+		static nkReturnType Update( const nkArguments& args );
+		static nkReturnType Delete( const nkArguments& args );
+		static nkReturnType Where( const nkArguments& args );
+		static nkReturnType Join( const nkArguments& args );
+		static nkReturnType On( const nkArguments& args );
+		static nkReturnType Limit( const nkArguments& args );
+		static nkReturnType Order( const nkArguments& args );
+		static nkReturnType Execute( const nkArguments& args );
+		static nkReturnType ExecuteQuery( const nkArguments& args );
+		static nkReturnType GetConnection( const nkArguments& args );
+		static nkReturnType GetQuery( const nkArguments& args );
+		static nkReturnType Reset( const nkArguments& args );
 
 	public:
 		v8::Persistent<v8::String> host_;
