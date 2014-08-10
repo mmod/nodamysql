@@ -16,6 +16,35 @@
 #include <node.h>
 
 
+// Here we borrow some code for now from another repository, which will help us build across multiple node[v8] versions
+// Node 0.11.8 etc
+#if( NODE_MODULE_VERSION == 13 )
+#define SCOPE Isolate* isolate = Isolate::GetCurrent(); \
+              HandleScope scope( isolate )
+#define EXCEPTION( str ) ThrowException( Exception::TypeError( String::New( str ) ) )
+#define ARGUMENTS v8::FunctionCallbackInfo<Value>
+#define RETURNTYPE void
+#define RETURN
+
+// Node 0.11.13 etc
+#elif( NODE_MODULE_VERSION > 13 )
+#define SCOPE Isolate* isolate = Isolate::GetCurrent(); \
+              HandleScope scope( isolate )
+#define EXCEPTION( str ) isolate->ThrowException( Exception::TypeError( String::NewFromUtf8( isolate, str ) ) )
+#define ARGUMENTS v8::FunctionCallbackInfo<Value>
+#define RETURNTYPE void
+#define RETURN
+
+// Node 0.12 and below
+#else
+#define SCOPE HandleScope scope
+#define EXCEPTION( str ) return ThrowException( Exception::TypeError( String::New( str ) ) )
+#define ARGUMENTS v8::Arguments
+#define RETURNTYPE Handle<Value>
+#define RETURN return scope.Close( Undefined() )
+#endif
+
+
 /**
  * MySQL C++ Connector Driver
  *
@@ -47,23 +76,23 @@ class Driver : public node::ObjectWrap
 		~Driver();
 
 		static v8::Persistent<v8::Function> constructor;
-		static v8::Handle<v8::Value> New( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Query( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Select( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Insert( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Values( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Update( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Delete( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Where( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Join( const v8::Arguments& args );
-		static v8::Handle<v8::Value> On( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Limit( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Order( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Execute( const v8::Arguments& args );
-		static v8::Handle<v8::Value> ExecuteQuery( const v8::Arguments& args );
-		static v8::Handle<v8::Value> GetConnection( const v8::Arguments& args );
-		static v8::Handle<v8::Value> GetQuery( const v8::Arguments& args );
-		static v8::Handle<v8::Value> Reset( const v8::Arguments& args );
+		static v8::Handle<v8::Value> New( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Query( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Select( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Insert( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Values( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Update( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Delete( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Where( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Join( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> On( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Limit( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Order( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Execute( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> ExecuteQuery( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> GetConnection( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> GetQuery( const ARGUMENTS& args );
+		static v8::Handle<v8::Value> Reset( const ARGUMENTS& args );
 
 	public:
 		v8::Persistent<v8::String> host_;

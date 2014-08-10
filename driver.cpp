@@ -99,13 +99,13 @@ void Driver::Init( Handle<Object> exports )
 /**
  * Returns a new instance of the Driver object
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return		Driver		New instance of a Driver object
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::New( const Arguments& args )
+Handle<Value> Driver::New( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -224,13 +224,13 @@ Handle<Value> Driver::New( const Arguments& args )
 /**
  * Sets a supplied query statement (Not prepared!)
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Query( const Arguments& args )
+Handle<Value> Driver::Query( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -257,13 +257,13 @@ Handle<Value> Driver::Query( const Arguments& args )
 /**
  * Builds a SELECT clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Select( const Arguments& args )
+Handle<Value> Driver::Select( const ARGUMENTS& args )
 {
     // Always declare the HandleScope
     HandleScope scope;
@@ -330,13 +330,13 @@ Handle<Value> Driver::Select( const Arguments& args )
 /**
  * Builds an INSERT clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Insert( const Arguments& args )
+Handle<Value> Driver::Insert( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -407,13 +407,13 @@ Handle<Value> Driver::Insert( const Arguments& args )
 /**
  * Builds upon an INSERT or UPDATE clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Values( const Arguments& args )
+Handle<Value> Driver::Values( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -639,13 +639,13 @@ Handle<Value> Driver::Values( const Arguments& args )
 /**
  * Builds a UPDATE clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Update( const Arguments& args )
+Handle<Value> Driver::Update( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -687,13 +687,13 @@ Handle<Value> Driver::Update( const Arguments& args )
 /**
  * Builds a DELETE clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Delete( const Arguments& args )
+Handle<Value> Driver::Delete( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -735,13 +735,13 @@ Handle<Value> Driver::Delete( const Arguments& args )
 /**
  * Builds a WHERE clause
  *
- * @param const Arguments&		Arguments passed during invocation
+ * @param const ARGUMENTS&		ARGUMENTS passed during invocation
  *
  * @return String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Where( const Arguments& args )
+Handle<Value> Driver::Where( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -908,13 +908,13 @@ Handle<Value> Driver::Where( const Arguments& args )
 /**
  * Sets tables to join to the query
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Join( const Arguments& args )
+Handle<Value> Driver::Join( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -955,13 +955,13 @@ Handle<Value> Driver::Join( const Arguments& args )
 /**
  * Sets the 'ON' clause for joining tables
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::On( const Arguments& args )
+Handle<Value> Driver::On( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1002,13 +1002,13 @@ Handle<Value> Driver::On( const Arguments& args )
 /**
  * Sets the LIMIT clause
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Limit( const Arguments& args )
+Handle<Value> Driver::Limit( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1063,13 +1063,13 @@ Handle<Value> Driver::Limit( const Arguments& args )
 /**
  * Sets the ORDERBY clause
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Order( const Arguments& args )
+Handle<Value> Driver::Order( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1112,7 +1112,7 @@ Handle<Value> Driver::Order( const Arguments& args )
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Execute( const Arguments& args )
+Handle<Value> Driver::Execute( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1391,7 +1391,7 @@ Handle<Value> Driver::Execute( const Arguments& args )
  *
  * @since 0.2.0
  */
-Handle<Value> Driver::ExecuteQuery( const Arguments& args )
+Handle<Value> Driver::ExecuteQuery( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1512,13 +1512,13 @@ Handle<Value> Driver::ExecuteQuery( const Arguments& args )
 /**
  * Gets the host_ string
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::GetConnection( const Arguments& args )
+Handle<Value> Driver::GetConnection( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1545,13 +1545,13 @@ Handle<Value> Driver::GetConnection( const Arguments& args )
 /**
  * Gets the query_ string
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::GetQuery( const Arguments& args )
+Handle<Value> Driver::GetQuery( const ARGUMENTS& args )
 {
     HandleScope scope;
 
@@ -1565,13 +1565,13 @@ Handle<Value> Driver::GetQuery( const Arguments& args )
 /**
  * Resets the query_ string, phmap_ registry, and all flags
  *
- * @param const Arguments&		args		Arguments passed during invocation
+ * @param const ARGUMENTS&		args		ARGUMENTS passed during invocation
  *
  * @return	String		The current query string
  *
  * @since 0.0.1
  */
-Handle<Value> Driver::Reset( const Arguments& args )
+Handle<Value> Driver::Reset( const ARGUMENTS& args )
 {
     HandleScope scope;
 
