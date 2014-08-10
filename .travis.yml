@@ -4,11 +4,11 @@ node_js:
  - "0.10"
 before_install:
  - sudo apt-get update -qq 
- - sudo apt-get install build-essential libmysqlclient-dev mysql-client
+ - sudo apt-get install -qq build-essential libmysqlclient-dev mysql-client
  - mkdir boosted
  - cd boosted
  - wget -O boost_headers_1_56_0.zip https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
- - unzip boost_headers_1_56_0.zip
+ - unzip -qq boost_headers_1_56_0.zip
  - sudo cp -R boost /usr/include
  - cd ..
  - sudo rm -r boosted
