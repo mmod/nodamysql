@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql v0.2.0 )
+# nodamysql ( nk-mysql v0.2.1 )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -6,7 +6,11 @@ Licensed under Apache v2.0, nodamysql features the MySQL C++ Connector from Orac
 under the [FOSS License Exception](http://www.mysql.com/about/legal/licensing/foss-exception/) when used with nodakwaeri (nk) or other 
 Free and Open Source Software sporting acceptable license types. 
 
-nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient.  
+nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient. 
+
+
+#### Continuous Integration
+[![Build Status](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
 
 
 
@@ -31,7 +35,7 @@ If you're not building (meaning node-gyp and python are not installed), but meet
 
 ## Usage
 
-At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/test/features.sql), though I'll leave this documentation with a copy of the wiki content:
+At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
 
 
 ### Preparing our DBO
