@@ -3,8 +3,10 @@ node_js:
  - "0.11"
  - "0.10"
 before_install:
+ - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
  - sudo apt-get update -qq 
- - sudo apt-get install -qq build-essential libmysqlclient-dev mysql-client
+ - sudo apt-get install -qq build-essential libmysqlclient-dev mysql-client g++-4.8
+ - export CXX="g++-4.8" CC="gcc-4.8"
  - mkdir boosted
  - cd boosted
  - wget -O boost_headers_1_56_0.zip https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
