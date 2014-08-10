@@ -5,7 +5,7 @@ node_js:
 before_install:
  - sudo apt-get update -qq 
  - sudo apt-get install build-essential libmysqlclient-dev mysql-client
- - sudo mkdir boosted
+ - mkdir boosted
  - cd boosted
  - wget https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
  - mv boost_headers_1_56_0.zip?raw=true boost_headers_1_56.0.zip
