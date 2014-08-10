@@ -28,9 +28,9 @@
 #define nkPreIsolated  isolate,
 #define nkPostIsolatedOS  , v8::Isolate::GetCurrent()
 #define nkPostIsolated  , isolate
-#define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
+#define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
-#define nkNewV8ValuePtr( original ) *( original->ToString() )
+#define nkNewV8ValuePtr( original ) original
 #define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -46,9 +46,9 @@
 #define nkPreIsolated  isolate,
 #define nkPostIsolatedOS  , v8::Isolate::GetCurrent()
 #define nkPostIsolated  , isolate
-#define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
+#define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
-#define nkNewV8ValuePtr( original ) *( original->ToString() )
+#define nkNewV8ValuePtr( original ) original
 #define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
