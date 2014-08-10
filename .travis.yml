@@ -7,9 +7,9 @@ before_install:
  - sudo apt-get install build-essential libmysqlclient-dev mysql-client
  - sudo mkdir boosted
  - cd boosted
- - curl -sL https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true > boost_headers_1_56_0.zip
+ - wget https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
+ - mv boost_headers_1_56_0.zip?raw=true boost_headers_1_56.0.zip
  - unzip boost_headers_1_56_0.zip
- - rm boost_headers_1_56_0.zip
  - sudo cp -R boost /usr/include
  - cd ..
  - sudo rm -r boosted
