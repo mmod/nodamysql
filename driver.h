@@ -86,18 +86,18 @@ class Driver : public node::ObjectWrap
 
 	private:
 		explicit Driver(
-							v8::Persistent<v8::String> host = v8::Persistent<v8::String>::New( nkNewV8StringOS( "localhost" ) ),
-							v8::Persistent<v8::String> port = v8::Persistent<v8::String>::New( nkNewV8StringOS( "3306" ) ),
-							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( nkNewV8StringOS( "test" ) ),
-							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( nkNewV8StringOS( "test" ) ),
-							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( nkNewV8StringOS( "password" ) ),
-							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New( nkIsolateOS ) ),
-							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolateOS ) ),
-							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( v8::Array::New( nkIsolateOS ) ),
-							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolateOS ) ),
-							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( nkNewV8StringOS( "" ) )
+							v8::Persistent<v8::String> host = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "localhost" ) ),
+							v8::Persistent<v8::String> port = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "3306" ) ),
+							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "test" ) ),
+							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "test" ) ),
+							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "password" ) ),
+							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( nkPreIsolatedOS v8::Object::New( nkIsolateOS ) ),
+							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( nkPreIsolatedOS v8::False( nkIsolateOS ) ),
+							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( nkPreIsolatedOS v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( nkPreIsolatedOS v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( nkPreIsolatedOS v8::Array::New( nkIsolateOS ) ),
+							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( nkPreIsolatedOS v8::False( nkIsolateOS ) ),
+							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( nkPreIsolatedOS nkNewV8StringOS( "" ) )
 						);
 		~Driver();
 
