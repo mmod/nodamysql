@@ -20,11 +20,16 @@
 
 // Node 0.11.8 etc
 #if( NODE_MODULE_VERSION == 13 )
-#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent;
+#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent();
 #define nkScope v8::HandleScope scope( isolate )
+#define nkIsolateOS v8::Isolate::GetCurrent()
 #define nkIsolate isolate
-#define nkPreIsolated isolate,
-#define nkPostIsolated , isolate
+#define nkPreIsolatedOS  v8::Isolate::GetCurrent(),
+#define nkPreIsolated  isolate,
+#define nkPostIsolatedOS  , v8::Isolate::GetCurrent()
+#define nkPostIsolated  , isolate
+#define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
+#define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -32,13 +37,16 @@
 
 // Node 0.11.13 etc
 #elif( NODE_MODULE_VERSION > 13 )
-#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent;
+#define nkIsolation v8::Isolate* isolate = v8::Isolate::GetCurrent();
 #define nkScope v8::HandleScope scope( isolate )
+#define nkIsolateOS v8::Isolate::GetCurrent()
 #define nkIsolate isolate
-#define nkPreIsolated isolate,
-#define nkPostIsolated , isolate
-#define nkNewV8StringOS( var ) v8::String::NewFromUTF8( v8::Isolate::GetCurrent(), var )
-#define nkNewV8String( var ) v8::String::NewFromUTF8( nkIsolate, var )
+#define nkPreIsolatedOS  v8::Isolate::GetCurrent(),
+#define nkPreIsolated  isolate,
+#define nkPostIsolatedOS  , v8::Isolate::GetCurrent()
+#define nkPostIsolated  , isolate
+#define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
+#define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -49,8 +57,11 @@
 #define nkIsolation
 #define nkScope v8::HandleScope scope
 #define nkIsolate
+#define nkIsolateOS
 #define nkPreIsolated
+#define nkPreIsolatedOS
 #define nkPostIsolated
+#define nkPostIsolatedOS
 #define nkNewV8StringOS( var ) v8::String::New( var )
 #define nkNewV8String( var ) nkNewV8StringOS( var )
 #define nkException( str ) return v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
@@ -80,12 +91,12 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::String> db = v8::Persistent<v8::String>::New( nkNewV8StringOS( "test" ) ),
 							v8::Persistent<v8::String> user = v8::Persistent<v8::String>::New( nkNewV8StringOS( "test" ) ),
 							v8::Persistent<v8::String> password = v8::Persistent<v8::String>::New( nkNewV8StringOS( "password" ) ),
-							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New( nkIsolate ) ),
-							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolate ) ),
-							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( nkPreIsolated 0 ) ),
-							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( v8::Integer::New( nkPreIsolated 0 ) ),
-							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( v8::Array::New( nkIsolate ) ),
-							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolate ) ),
+							v8::Persistent<v8::Object> model = v8::Persistent<v8::Object>::New( v8::Object::New( nkIsolateOS ) ),
+							v8::Persistent<v8::Boolean> modeled = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolateOS ) ),
+							v8::Persistent<v8::Integer> type = v8::Persistent<v8::Integer>::New( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							v8::Persistent<v8::Integer> prepared = v8::Persistent<v8::Integer>( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							v8::Persistent<v8::Array> phmap = v8::Persistent<v8::Array>::New( v8::Array::New( nkIsolateOS ) ),
+							v8::Persistent<v8::Boolean> mapped = v8::Persistent<v8::Boolean>::New( v8::False( nkIsolateOS ) ),
 							v8::Persistent<v8::String> query = v8::Persistent<v8::String>::New( nkNewV8StringOS( "" ) )
 						);
 		~Driver();
