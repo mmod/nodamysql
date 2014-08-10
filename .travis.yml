@@ -14,4 +14,4 @@ before_install:
  - sudo rm -r boosted
  - mysql -e "create database nktest;" -u root
  - mysql -e "create user 'nktestadm'@'localhost' identified by '^NKTestPass777$';" -u root
- - mysql -e "grant all privileges on 'nktest'.* to 'nktestadm'@'localhost';" -u root
+ - mysql -e "grant all privileges on nktest.* to 'nktestadm'@'localhost';" -u root
