@@ -140,35 +140,35 @@ nkReturnType Driver::New( const nkArguments& args )
 		{
 
 			dvr = new Driver(
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "host" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "port" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "db" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "user" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "password" ) )->ToString() ),
-			Persistent<Object>::New( nkPreIsolatedOS  Object::New( nkIsolate )  ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  v8::False( nkIsolate )  ),
-			Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  0 ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  0 ) ),
-			Persistent<Array>::New( nkPreIsolatedOS  Array::New( nkIsolate ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  v8::False( nkIsolate )  ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8String( "" ) )
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "host" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "port" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "db" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "user" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "password" ) )->ToString() ) ),
+			Persistent<Object>::New( nkPreIsolatedOS  nkNewV8HandleValue( Object::New( nkIsolate ) ) ),
+			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::False( nkIsolate ) ) ),
+			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  0 ) ) ),
+			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  0 ) ) ),
+			Persistent<Array>::New( nkPreIsolatedOS  nkNewV8HandleValue( Array::New( nkIsolate ) ) ),
+			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::False( nkIsolate ) )  ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( nkNewV8String( "" ) ) )
 			);
 		}
 		else
 		{
 			dvr = new Driver(
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "host" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "port" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "db" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "user" ) )->ToString() ),
-			Persistent<String>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "password" ) )->ToString() ),
-			Persistent<Object>::New( nkPreIsolatedOS  config->Get( nkNewV8String( "model" ) )->ToObject() ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  v8::True( nkIsolate )  ),
-			Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  0 ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  0 ) ),
-			Persistent<Array>::New( nkPreIsolatedOS  Array::New( nkIsolate ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  v8::False( nkIsolate )  ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8String( "" ) )
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "host" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "port" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "db" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "user" ) )->ToString() ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "password" ) )->ToString() ) ),
+			Persistent<Object>::New( nkPreIsolatedOS  nkNewV8HandleValue( config->Get( nkNewV8String( "model" ) )->ToObject() ) ),
+			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::True( nkIsolate ) ) ),
+			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  0 ) ) ),
+			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  0 ) ) ),
+			Persistent<Array>::New( nkPreIsolatedOS  nkNewV8HandleValue( Array::New( nkIsolate ) ) ),
+			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::False( nkIsolate ) ) ),
+			Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( nkNewV8String( "" ) ) )
 			);
 		}
 
@@ -246,9 +246,9 @@ nkReturnType Driver::Query( const nkArguments& args )
 		nkReturn( args.This() );
     }
 
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_NOPREP ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_NOPREP ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) ) );
 
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
@@ -318,9 +318,9 @@ nkReturnType Driver::Select( const nkArguments& args )
     }
 
     // Set our query type and the query string.
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8String( qp.c_str() ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_SELECT ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( nkNewV8String( qp.c_str() ) ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_SELECT ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -395,9 +395,9 @@ nkReturnType Driver::Insert( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // And concatenate it with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_INSERT ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_INSERT ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -619,15 +619,15 @@ nkReturnType Driver::Values( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
 
     if( !multi )
     {
-    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_VALS_PREP_START ) );
+    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_START ) ) );
     }
     else
     {
-    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_VALS_PREP_END ) );
+    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_END ) ) );
     }
 
     // Return the entire object to allow chaining.
@@ -674,9 +674,9 @@ nkReturnType Driver::Update( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_UPDATE ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_UPDATE ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -722,9 +722,9 @@ nkReturnType Driver::Delete( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_DELETE ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_DELETE ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ))  );
 
     // Return the entire object to allow for chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -896,8 +896,8 @@ nkReturnType Driver::Where( const nkArguments& args )
     dvr->phmap_->Set( 0, phspec );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), nkNewV8String( qp.c_str() ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_WHERE_PREP_START ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), nkNewV8String( qp.c_str() ) ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_WHERE_PREP_START ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -943,8 +943,8 @@ nkReturnType Driver::Join( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_JOIN_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_JOIN_PREP ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -991,7 +991,7 @@ nkReturnType Driver::On( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1051,8 +1051,8 @@ nkReturnType Driver::Limit( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_LIMIT_PREP ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_LIMIT_PREP ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1099,7 +1099,7 @@ nkReturnType Driver::Order( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1579,28 +1579,28 @@ nkReturnType Driver::Reset( const nkArguments& args )
     Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
     // Reset the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8String("") );
+    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8HandleValue( nkNewV8String("") ) );
 
     // Reset the model
     if( !args[0]->IsUndefined() && args[0]->IsObject() )
     {	// If an object is passed, we replace the model
-	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  args[0]->ToObject() );
-	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  v8::True( nkIsolate )  );
+	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  nkNewV8HandleValue( args[0]->ToObject() ) );
+	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::True( nkIsolate ) ) );
     }
     else if( !args[0]->IsUndefined() )
     {	// If anything other than an object is passed, we clear the model
-	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  Object::New( nkIsolate )  );
-	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  v8::False( nkIsolate )  );
+	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  nkNewV8HandleValue( Object::New( nkIsolate ) ) );
+	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8HandleValue( v8::False( nkIsolate ) ) );
     }// Otherwise we leave the model situation as-is
 
     // Reset the place holder map
-    dvr->phmap_ = Persistent<Array>::New( nkPreIsolatedOS  Array::New( nkIsolate ) );
+    dvr->phmap_ = Persistent<Array>::New( nkPreIsolatedOS  nkNewV8HandleValue( Array::New( nkIsolate ) ) );
 
     // Reset the type flag
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_EMPTY ) );
+    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_EMPTY ) ) );
 
     // Reset the prepared flag
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
+    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8HandleValue( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
