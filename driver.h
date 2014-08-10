@@ -31,7 +31,7 @@
 #define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkNewV8ValuePtr( original ) original
-#define nkTestArgument , CopyablePersistentTraits<*v8::String>>
+#define nkTestArgument , v8::CopyablePersistentTraits<*v8::String>>
 #define nkException( str ) v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
@@ -50,7 +50,7 @@
 #define nkNewV8StringOS( var ) *v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkNewV8ValuePtr( original ) original
-#define nkTestArgument( var ) , CopyablePersistentTraits<*v8::var>>
+#define nkTestArgument( var ) , v8::CopyablePersistentTraits<*v8::var>>
 #define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkReturnType void
