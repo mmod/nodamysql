@@ -40,7 +40,7 @@ Persistent<Function> Driver::constructor;	// Default constructor prototype
  * @since 0.0.1
  */
 Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Object> model, Persistent<Boolean> modeled, Persistent<Integer> type, Persistent<Integer> prepared, Persistent<Array> phmap, Persistent<Boolean> mapped, Persistent<String> query )
-			: host_( host ), port_( port ), db_( db ), user_( user ), password_( password ), model_( model ), modeled_( modeled ), type_( type ), prepared_( prepared ), phmap_( phmap ), mapped_( mapped ), query_( query )
+			: nkSetPS( host_, host ), nkSetPS( port_, port ), nkSetPS( db_, db ), nkSetPS( user_, user ), nkSetPS( password_, password ), model_( model ), modeled_( modeled ), type_( type ), prepared_( prepared ), phmap_( phmap ), mapped_( mapped ), nkSetPS( query_, query )
 {
 }
 
