@@ -88,7 +88,7 @@
 #define nkNewV8Object( var ) var
 #define nkNewV8PArray( var ) v8::Persistent<v8::Array>::New( var )
 #define nkNewV8Array( var ) v8::Persistent<v8::Array>::New( var )
-#define nkNewV8PStringOS( obj, var ) v8::Persistent<v8::String>::New( v8::String::New( var ) )
+#define nkNewV8PStringOS( var ) v8::Persistent<v8::String>::New( v8::String::New( var ) )
 #define nkNewV8StringOS( var ) v8::String::New( var )
 #define nkNewV8PString( var ) v8::Persistent<v8::String>::New( var )
 #define nkNewV8String( var ) nkNewV8StringOS( var )
