@@ -140,35 +140,35 @@ nkReturnType Driver::New( const nkArguments& args )
 		{
 
 			dvr = new Driver(
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "host" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "port" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "db" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "user" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "password" ) )->ToString() ) ),
-			Persistent<Object>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Object::New( nkIsolate ) ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::False( nkIsolate ) ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  0 ) ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  0 ) ) ),
-			Persistent<Array>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Array::New( nkIsolate ) ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::False( nkIsolate ) )  ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( nkNewV8String( "" ) ) )
+				nkNewV8PString( config->Get( nkNewV8String( "host" ) )->ToString() ),
+				nkNewV8PString( config->Get( nkNewV8String( "port" ) )->ToString() ),
+				nkNewV8PString( config->Get( nkNewV8String( "db" ) )->ToString() ),
+				nkNewV8PString( config->Get( nkNewV8String( "user" ) )->ToString() ),
+				nkNewV8PString( config->Get( nkNewV8String( "password" ) )->ToString() ),
+				nkNewV8PObject( Object::New( nkIsolate ) ),
+				nkNewV8PBoolean( v8::False( nkIsolate ) ),
+				nkNewV8PInteger( Integer::New( nkPreIsolated  0 ) ),
+				nkNewV8PInteger( Integer::New( nkPreIsolated  0 ) ),
+				nkNewV8PArray( Array::New( nkIsolate ) ),
+				nkNewV8PBoolean( v8::False( nkIsolate ) ),
+				nkNewV8PString( nkNewV8String( "" ) )
 			);
 		}
 		else
 		{
 			dvr = new Driver(
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "host" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "port" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "db" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "user" ) )->ToString() ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "password" ) )->ToString() ) ),
-			Persistent<Object>::New( nkPreIsolatedOS  nkNewV8ValuePtr( config->Get( nkNewV8String( "model" ) )->ToObject() ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::True( nkIsolate ) ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  0 ) ) ),
-			Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  0 ) ) ),
-			Persistent<Array>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Array::New( nkIsolate ) ) ),
-			Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::False( nkIsolate ) ) ),
-			Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( nkNewV8String( "" ) ) )
+					nkNewV8PString( config->Get( nkNewV8String( "host" ) )->ToString() ),
+					nkNewV8PString( config->Get( nkNewV8String( "port" ) )->ToString() ),
+					nkNewV8PString( config->Get( nkNewV8String( "db" ) )->ToString() ),
+					nkNewV8PString( config->Get( nkNewV8String( "user" ) )->ToString() ),
+					nkNewV8PString( config->Get( nkNewV8String( "password" ) )->ToString() ),
+					nkNewV8PObject( config->Get( nkNewV8String( "model" ) )->ToObject() ),
+					nkNewV8PBoolean( v8::False( nkIsolate ) ),
+					nkNewV8PInteger( Integer::New( nkPreIsolated  0 ) ),
+					nkNewV8PInteger( Integer::New( nkPreIsolated  0 ) ),
+					nkNewV8PArray( Array::New( nkIsolate ) ),
+					nkNewV8PBoolean( v8::False( nkIsolate ) ),
+					nkNewV8PString( nkNewV8String( "" )->ToString() )
 			);
 		}
 
@@ -246,9 +246,9 @@ nkReturnType Driver::Query( const nkArguments& args )
 		nkReturn( args.This() );
     }
 
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_NOPREP ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOPREP ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
 
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
@@ -318,9 +318,9 @@ nkReturnType Driver::Select( const nkArguments& args )
     }
 
     // Set our query type and the query string.
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( nkNewV8String( qp.c_str() ) ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_SELECT ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
+    dvr->query_ = nkNewV8PString( nkNewV8String( qp.c_str() ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_SELECT ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -395,9 +395,9 @@ nkReturnType Driver::Insert( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // And concatenate it with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_INSERT ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_INSERT ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -619,15 +619,15 @@ nkReturnType Driver::Values( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
     if( !multi )
     {
-    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_START ) ) );
+    	dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_START ) );
     }
     else
     {
-    	dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_END ) ) );
+    	dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_END ) );
     }
 
     // Return the entire object to allow chaining.
@@ -674,9 +674,9 @@ nkReturnType Driver::Update( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_UPDATE ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_UPDATE ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -722,9 +722,9 @@ nkReturnType Driver::Delete( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_DELETE ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ))  );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_DELETE ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
 
     // Return the entire object to allow for chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -781,111 +781,111 @@ nkReturnType Driver::Where( const nkArguments& args )
     bool prevor = false;					// A flag for determining if additional where clause arguments should be and'd or or'd
     for( int i = 0, l = keys->Length(); i < l; i++ )
     {
-	// Get the key for this where clause argument, as well as the data array which defines the operator to use, the type to set, and the value to set.
-	Local<String> k = keys->Get( i )->ToString();
-	Local<Array> data = Local<Array>::Cast( where->Get( k ) );
+		// Get the key for this where clause argument, as well as the data array which defines the operator to use, the type to set, and the value to set.
+		Local<String> k = keys->Get( i )->ToString();
+		Local<Array> data = Local<Array>::Cast( where->Get( k ) );
 
-	// Convert the key and the operator to std:string
-	String::AsciiValue kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
-	std::string kv = *kav, ov = *oav;
+		// Convert the key and the operator to std:string
+		String::AsciiValue kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
+		std::string kv = *kav, ov = *oav;
 
-	// Build upon the query string
-	if( i != 0 && !prevor )
-	{
-	    qp += " AND ";
-	}
-	else if( i != 0 && prevor )
-	{
-	    qp += " OR ";
-	    prevor = false;					// Don't forget to reset this flag!
-	}
-
-	// Add the key and operator value to the query string
-	qp += kv + " " + ov;
-
-	int acount = data->Length();
-	// The 'where' array could have more than 2 elements if - for instance - they are using a BETWEEN or providing an OR operator.
-	if( acount > 2 )
-	{   // We need to know our operator to determine how to build the string
-	    if( ov == std::string( "BETWEEN" ) )
-	    {   // Fancy up our string
-		qp += "( ";
-		// Start with 1 (cuz 0 is the operator)
-		for( int ii = KWAERI_WHERE_VALUE; ii < acount; ii++ )
-		{   // After the first iteration we'll need to AND or OR the additional values, respectively
-		    if( ii > 1 )
-		    {
+		// Build upon the query string
+		if( i != 0 && !prevor )
+		{
 			qp += " AND ";
-		    }
-
-		    Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
-
-		    // Create the key/value pair
-		    kvpair->Set( KWAERI_PH_KEY, k );
-		    kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
-
-		    // Store the values and conditions for the placeholders in the order they are added to the clause
-		    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
-		    cindex++;
-
-		    qp += "?";
+		}
+		else if( i != 0 && prevor )
+		{
+			qp += " OR ";
+			prevor = false;					// Don't forget to reset this flag!
 		}
 
-		// Finish fancying up our string
-		qp += " ) ";
-	    }
-	    else
-	    {   // If there are more than two elements, but it's not BETWEEN for the operator, the user is adding an OR statement for the current condition, or an OR statement for the next condition
-		String::AsciiValue waav( data->Get( KWAERI_WHERE_ADD ) );
-		std::string wav = *waav;
-		if( wav == std::string( "OR" ) || wav == std::string( "or" ) )
-		{   // If the user is OR'ing for the current condition, they'll have actually supplied 4 or more elements..
-		    if( acount > 3 )
-		    {   // Fancy up our string
+		// Add the key and operator value to the query string
+		qp += kv + " " + ov;
+
+		int acount = data->Length();
+		// The 'where' array could have more than 2 elements if - for instance - they are using a BETWEEN or providing an OR operator.
+		if( acount > 2 )
+		{   // We need to know our operator to determine how to build the string
+			if( ov == std::string( "BETWEEN" ) )
+			{   // Fancy up our string
 			qp += "( ";
-			for( int ii = 1; ii < acount; ii++ )
-			{
-			    if( ii > 1 )
-			    {
-				qp += " OR ";
-			    }
+			// Start with 1 (cuz 0 is the operator)
+			for( int ii = KWAERI_WHERE_VALUE; ii < acount; ii++ )
+			{   // After the first iteration we'll need to AND or OR the additional values, respectively
+				if( ii > 1 )
+				{
+				qp += " AND ";
+				}
 
-			    Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
+				Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
 
-			    // Create the key/value pair
-			    kvpair->Set( KWAERI_PH_KEY, k );
-			    kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
+				// Create the key/value pair
+				kvpair->Set( KWAERI_PH_KEY, k );
+				kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
 
-			    // Store the values and conditions for the placeholders in the order they are added to the clause
-			    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
-			    cindex++;
-			    qp += "?";
+				// Store the values and conditions for the placeholders in the order they are added to the clause
+				dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+				cindex++;
+
+				qp += "?";
 			}
 
 			// Finish fancying up our string
 			qp += " ) ";
-		    }
-		    else
-		    {	// If the user is OR'ing for the next condition, we just need to set prevor to true
-			prevor = true;
-		    }
+			}
+			else
+			{   // If there are more than two elements, but it's not BETWEEN for the operator, the user is adding an OR statement for the current condition, or an OR statement for the next condition
+			String::AsciiValue waav( data->Get( KWAERI_WHERE_ADD ) );
+			std::string wav = *waav;
+			if( wav == std::string( "OR" ) || wav == std::string( "or" ) )
+			{   // If the user is OR'ing for the current condition, they'll have actually supplied 4 or more elements..
+				if( acount > 3 )
+				{   // Fancy up our string
+				qp += "( ";
+				for( int ii = 1; ii < acount; ii++ )
+				{
+					if( ii > 1 )
+					{
+					qp += " OR ";
+					}
+
+					Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
+
+					// Create the key/value pair
+					kvpair->Set( KWAERI_PH_KEY, k );
+					kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
+
+					// Store the values and conditions for the placeholders in the order they are added to the clause
+					dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+					cindex++;
+					qp += "?";
+				}
+
+				// Finish fancying up our string
+				qp += " ) ";
+				}
+				else
+				{	// If the user is OR'ing for the next condition, we just need to set prevor to true
+				prevor = true;
+				}
+			}
+			}
 		}
-	    }
-	}
-	else
-	{
-	    // Otherwise we set a single placeholder
-	    Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
+		else
+		{
+			// Otherwise we set a single placeholder
+			Local<Array> kvpair = Array::New( nkIsolate );				// Stores the key value pair for the place-holder map
 
-	    // Create the key/value pair
-	    kvpair->Set( KWAERI_PH_KEY, k );
-	    kvpair->Set( KWAERI_PH_VALUE, data->Get( KWAERI_WHERE_VALUE ) );
+			// Create the key/value pair
+			kvpair->Set( KWAERI_PH_KEY, k );
+			kvpair->Set( KWAERI_PH_VALUE, data->Get( KWAERI_WHERE_VALUE ) );
 
-	    // Store the values and conditions for the placeholders in the order they are added to the clause
-	    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
-	    cindex++;
-	    qp += "?";
-	}
+			// Store the values and conditions for the placeholders in the order they are added to the clause
+			dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+			cindex++;
+			qp += "?";
+		}
     }
 
     // Add on the new part.
@@ -896,8 +896,8 @@ nkReturnType Driver::Where( const nkArguments& args )
     dvr->phmap_->Set( 0, phspec );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), nkNewV8String( qp.c_str() ) ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_WHERE_PREP_START ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), nkNewV8String( qp.c_str() ) ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_WHERE_PREP_START ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -943,8 +943,8 @@ nkReturnType Driver::Join( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_JOIN_PREP ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_JOIN_PREP ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -991,7 +991,7 @@ nkReturnType Driver::On( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1051,8 +1051,8 @@ nkReturnType Driver::Limit( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_LIMIT_PREP ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_LIMIT_PREP ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1099,7 +1099,7 @@ nkReturnType Driver::Order( const nkArguments& args )
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( String::Concat( dvr->query_->ToString(), qps->ToString() ) ) );
+    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
@@ -1579,28 +1579,28 @@ nkReturnType Driver::Reset( const nkArguments& args )
     Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
 
     // Reset the query string
-    dvr->query_ = Persistent<String>::New( nkPreIsolatedOS  nkNewV8ValuePtr( nkNewV8String("") ) );
+    dvr->query_ = nkNewV8PString( nkNewV8String("") );
 
     // Reset the model
     if( !args[0]->IsUndefined() && args[0]->IsObject() )
     {	// If an object is passed, we replace the model
-	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  nkNewV8ValuePtr( args[0]->ToObject() ) );
-	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::True( nkIsolate ) ) );
+	dvr->model_ = nkNewV8PObject( args[0]->ToObject() );
+	dvr->modeled_ = nkNewV8PBoolean( v8::True( nkIsolate ) );
     }
     else if( !args[0]->IsUndefined() )
     {	// If anything other than an object is passed, we clear the model
-	dvr->model_ = Persistent<Object>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Object::New( nkIsolate ) ) );
-	dvr->modeled_ = Persistent<Boolean>::New( nkPreIsolatedOS  nkNewV8ValuePtr( v8::False( nkIsolate ) ) );
+	dvr->model_ = nkNewV8PObject( Object::New( nkIsolate ) );
+	dvr->modeled_ = nkNewV8PBoolean( v8::False( nkIsolate ) );
     }// Otherwise we leave the model situation as-is
 
     // Reset the place holder map
-    dvr->phmap_ = Persistent<Array>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Array::New( nkIsolate ) ) );
+    dvr->phmap_ = nkNewV8PArray( Array::New( nkIsolate ) );
 
     // Reset the type flag
-    dvr->type_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_EMPTY ) ) );
+    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_EMPTY ) );
 
     // Reset the prepared flag
-    dvr->prepared_ = Persistent<Integer>::New( nkPreIsolatedOS  nkNewV8ValuePtr( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) ) );
+    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
