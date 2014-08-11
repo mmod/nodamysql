@@ -32,7 +32,7 @@
 #define nkNewV8Object( var ) var
 #define nkNewV8PArray( var ) v8::Handle<v8::String>::Cast( var )
 #define nkNewV8Array( var ) var
-#define nkNewV8PStringOS( obj, var ) obj.Reset( v8::Isolate::GetCurrent(), v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var ) ) )
+#define nkNewV8PStringOS( var ) obj.Reset( v8::Isolate::GetCurrent(), v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var ) ) )
 #define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8PString( var ) v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( nkIsolate, var ) )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
@@ -59,7 +59,7 @@
 #define nkNewV8Object( var ) var
 #define nkNewV8PArray( var ) v8::Handle<v8::String>::Cast( var )
 #define nkNewV8Array( var ) var
-#define nkNewV8PStringOS( obj, var ) v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var ) )
+#define nkNewV8PStringOS( var ) v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var ) )
 #define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8PString( var ) v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( nkIsolate, var ) )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
@@ -124,7 +124,7 @@ class Driver : public node::ObjectWrap
 							v8::Persistent<v8::String> port = nkNewV8PStringOS( "3306" ),
 							v8::Persistent<v8::String> db = nkNewV8PStringOS( "test" ),
 							v8::Persistent<v8::String> user = nkNewV8PStringOS( "test" ),
-							v8::Persistent<v8::String> password = nkNewV8PStringOS( password, "password" ),
+							v8::Persistent<v8::String> password = nkNewV8PStringOS( "password" ),
 							v8::Persistent<v8::Object> model = nkNewV8PObject( v8::Object::New( nkIsolateOS ) ),
 							v8::Persistent<v8::Boolean> modeled = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
 							v8::Persistent<v8::Integer> type = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
