@@ -71,6 +71,14 @@
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
 #define nkV8StringType v8::Handle<v8::String>
 #define nkSetPS( ivar, var ) ivar.Reset( var )
+#define nkV8ObjectType v8::Handle<v8::Object>
+#define nkSetPO( ivar, var ) ivar.Reset( var )
+#define nkV8ArrayType v8::Handle<v8::Array>
+#define nkSetPA( ivar, var ) ivar.Reset( var )
+#define nkV8IntegerType v8::Handle<v8::Integer>
+#define nkSetPI( ivar, var ) ivar.Reset( var )
+#define nkV8BooleanType v8::Handle<v8::Boolean>
+#define nkSetPB( ivar, var ) ivar.Reset( var )
 #define nkReturnType void
 #define nkReturn( var ) return scope.Close( var )
 
@@ -100,6 +108,14 @@
 #define nkArguments v8::Arguments
 #define nkV8StringType v8::Persistent<v8::String>
 #define nkSetPS( ivar, var ) ivar( var )
+#define nkV8ObjectType v8::Persistent<v8::Object>
+#define nkSetPO( ivar, var ) ivar( var )
+#define nkV8ArrayType v8::Persistent<v8::Array>
+#define nkSetPA( ivar, var ) ivar( var )
+#define nkV8IntegerType v8::Persistent<v8::Integer>
+#define nkSetPI( ivar, var ) ivar( var )
+#define nkV8BooleanType v8::Persistent<v8::Boolean>
+#define nkSetPB( ivar, var ) ivar( var )
 #define nkReturnType v8::Handle<v8::Value>
 #define nkReturn( var ) return scope.Close( var )
 #endif
@@ -121,17 +137,17 @@ class Driver : public node::ObjectWrap
 	private:
 		explicit Driver(
 							nkV8StringType host = nkNewV8PStringOS( "localhost" ),
-							v8::Persistent<v8::String> port = nkNewV8PStringOS( "3306" ),
-							v8::Persistent<v8::String> db = nkNewV8PStringOS( "test" ),
-							v8::Persistent<v8::String> user = nkNewV8PStringOS( "test" ),
-							v8::Persistent<v8::String> password = nkNewV8PStringOS( "password" ),
-							v8::Persistent<v8::Object> model = nkNewV8PObject( v8::Object::New( nkIsolateOS ) ),
-							v8::Persistent<v8::Boolean> modeled = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
-							v8::Persistent<v8::Integer> type = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							v8::Persistent<v8::Integer> prepared = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							v8::Persistent<v8::Array> phmap = nkNewV8PArray( v8::Array::New( nkIsolateOS ) ),
-							v8::Persistent<v8::Boolean> mapped = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
-							v8::Persistent<v8::String> query = nkNewV8PStringOS( "" )
+							nkV8StringType port = nkNewV8PStringOS( "3306" ),
+							nkV8StringType db = nkNewV8PStringOS( "test" ),
+							nkV8StringType user = nkNewV8PStringOS( "test" ),
+							nkV8StringType password = nkNewV8PStringOS( "password" ),
+							nkV8ObjectType model = nkNewV8PObject( v8::Object::New( nkIsolateOS ) ),
+							nkV8BooleanType modeled = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
+							nkV8IntegerType type = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							nkV8IntegerType prepared = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+							nkV8ArrayType phmap = nkNewV8PArray( v8::Array::New( nkIsolateOS ) ),
+							nkV8BooleanType mapped = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
+							nkV8StringType query = nkNewV8PStringOS( "" )
 						);
 		~Driver();
 
