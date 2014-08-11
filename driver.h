@@ -65,7 +65,7 @@
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
 #define nkNewV8PInteger( var ) v8::Handle<v8::Integer>::Cast( var )
 #define nkNewV8Integer( var ) var
-#define nkNewV8PBoolean( var ) v8::Boolean::New( var )
+#define nkNewV8PBoolean( var ) var
 #define nkNewV8Boolean( var ) var
 #define nkException( str ) nkIsolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( nkIsolate, str ) ) )
 #define nkArguments v8::FunctionCallbackInfo<v8::Value>
