@@ -59,7 +59,7 @@
 #define nkNewV8Object( var ) var
 #define nkNewV8PArray( var ) v8::Handle<v8::String>::Cast( var )
 #define nkNewV8Array( var ) var
-#define nkNewV8PStringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
+#define nkNewV8PStringOS( var ) v8::Persistent<v8::String>::New( v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var ) ) )
 #define nkNewV8StringOS( var ) v8::String::NewFromUtf8( v8::Isolate::GetCurrent(), var )
 #define nkNewV8PString( var ) v8::Handle<v8::String>::Cast( v8::String::NewFromUtf8( nkIsolate, var ) )
 #define nkNewV8String( var ) v8::String::NewFromUtf8( nkIsolate, var )
