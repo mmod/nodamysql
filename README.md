@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql )
+# nodamysql ( nk-mysql 0.2.x )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
