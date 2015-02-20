@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql v0.2.1 )
+# nodamysql ( nk-mysql )
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -48,7 +48,7 @@ Including nodamysql into your project is relatively simple:
 ```node
 // Require our type
 var nkmysql = require( 'nk-mysql' ),
-	driver = nkmysql.driver;
+    driver = nkmysql.driver;
 ...
 ```
 
@@ -65,9 +65,9 @@ for nodamysql and nk-mvc.
 */
 var fakeModel = 
 {
-	id: [ 'key', 'type', 'Record Id' ],
-	title: [ false, 'type', 'Record Title' ],
-	description: [ false,'type', 'Record Description' ]
+    id: [ 'key', 'type', 'Record Id' ],
+    title: [ false, 'type', 'Record Title' ],
+    description: [ false,'type', 'Record Description' ]
 };
 
 // Create a config, which contains our connection details and/or model if needed 
@@ -101,7 +101,7 @@ var records = db.query( 'SELECT * FROM tableName' ).execute();
 // And view our results.
 for( var recs in records )
 {
-	console.log( 'Query results: ' + recs['id'] + ', ' + recs['title'] + ', ' + recs['description'] + '.' );
+    console.log( 'Query results: ' + recs['id'] + ', ' + recs['title'] + ', ' + recs['description'] + '.' );
 }
 ```
 
@@ -153,7 +153,7 @@ var records = dbo.select( 'col1, col2, col3 from tableName' ).execute();
 // And view our results
 for( var recs in records )
 {
-	console.log( 'Query results: ' + recs['id'] + ', ' + recs['title'] + ', ' + recs['description'] + '.' );
+    console.log( 'Query results: ' + recs['id'] + ', ' + recs['title'] + ', ' + recs['description'] + '.' );
 }
 ```
 
@@ -166,14 +166,14 @@ db.reset( modelForExample );
 
 var whereVals = 
 {
-	title: [ '=', '<titleValue>' ]	// You can replace the operator and <titleValue>....
+    title: [ '=', '<titleValue>' ]  // You can replace the operator and <titleValue>....
 };
 
 var records = db.select( 'tableName' )
-		.join( 'table2Name' )
-		.on( 'table2Name.id = tableName.id' )
-		.where( whereVals )
-		.execute();		
+        .join( 'table2Name' )
+        .on( 'table2Name.id = tableName.id' )
+        .where( whereVals )
+        .execute();     
 ...
 ```
 
@@ -186,14 +186,14 @@ db.reset( false );
 
 var whereVals = 
 {
-	title: [ '=', '<titleValue>' ]
+    title: [ '=', '<titleValue>' ]
 };
 
 var records = db.select( 'col1, col2, col3, table2Name.col1 as fakeCol from tableName' )
-		.join( 'table2Name' )
-		.on( 'table2Name.id = tableName.id' )
-		.where( whereVals )
-		.execute();		
+        .join( 'table2Name' )
+        .on( 'table2Name.id = tableName.id' )
+        .where( whereVals )
+        .execute();     
 ...
 ```
 
@@ -211,13 +211,13 @@ var updateVals =
         description: 'Updating the description.'
 },whereVals = 
 {
-	title: [ '=', '<titleValue>' ]		// You should replace the operator and <titleValue>....
+    title: [ '=', '<titleValue>' ]      // You should replace the operator and <titleValue>....
 };
 
-var records = db.update( 'tableName' )		// Records contains the number of rows affected.
-		.values( updateVals )
-		.where( whereVals )
-		.execute();						
+var records = db.update( 'tableName' )      // Records contains the number of rows affected.
+        .values( updateVals )
+        .where( whereVals )
+        .execute();                     
 ...
 ```
 
@@ -230,13 +230,13 @@ var records = db.update( 'tableName' )		// Records contains the number of rows a
 
 var insertVals = 
 {
-	title: 'titleVal',								
-	description: 'Description.'
+    title: 'titleVal',                              
+    description: 'Description.'
 };
 
-var records = dbo.insert( 'tableName' )		// Records contains the number of rows affected.
-		.values( insertVals )
-		.execute();			
+var records = dbo.insert( 'tableName' )     // Records contains the number of rows affected.
+        .values( insertVals )
+        .execute();         
 ...
 ```
 
@@ -246,14 +246,14 @@ var records = dbo.insert( 'tableName' )		// Records contains the number of rows 
 db.reset( false );
 ...
 
-var records = db.insert( 'tableName' )		// Records contains the number of rows affected.
-		.values
+var records = db.insert( 'tableName' )      // Records contains the number of rows affected.
+        .values
                 ([
                     { accessLevel: 3, description: 'Inserting value 1' },
                     { accessLevel: 3, description: 'Inserting value 2' },
                     { accessLevel: 3, description: 'Inserting value 3' },
                 ])
-		.execute();
+        .execute();
 
 // The query was just sent to the server once, and we sent all the sets of parameters separately 
 // in a loop via binary transfer to be executed.  This is part of the beauty of prepared statements.
@@ -267,11 +267,11 @@ var records = db.insert( 'tableName' )		// Records contains the number of rows a
 db.reset( false );
 ...
 
-var records = db.insert( 'tableName' )		// Records contains the number of rows affected.
-		.values( { accessLevel: 3, description: 'Inserting value 1' } )
-		.values( { accessLevel: 3, description: 'Inserting value 2' } )
-		.values( { accessLevel: 3, description: 'Inserting value 3' } )
-		.execute();
+var records = db.insert( 'tableName' )      // Records contains the number of rows affected.
+        .values( { accessLevel: 3, description: 'Inserting value 1' } )
+        .values( { accessLevel: 3, description: 'Inserting value 2' } )
+        .values( { accessLevel: 3, description: 'Inserting value 3' } )
+        .execute();
 
 // Although not as efficient with the entire process as the last example, like above we only sent the query to 
 // the server once - and then sent all the sets of parameters separately one at a time in a loop via
@@ -289,13 +289,13 @@ db.reset( false );
 
 var whereVals = 
 {
-	title: [ '=', '<titleValue>' ]		// You should replace the operator and  <titleValue>....	
+    title: [ '=', '<titleValue>' ]      // You should replace the operator and  <titleValue>....    
 };
 
-var records = db.delete( 'tableName' )		// Records contains the number of rows affected.
-			.where( whereVals )
-			.execute();
-				
+var records = db.delete( 'tableName' )      // Records contains the number of rows affected.
+            .where( whereVals )
+            .execute();
+                
 ...
 ```
 

@@ -130,58 +130,58 @@
  * @since 0.0.1
  */
 class Driver : public node::ObjectWrap {
-	public:
-		static void Init( v8::Handle<v8::Object> exports );
+    public:
+        static void Init( v8::Handle<v8::Object> exports );
 
-	private:
-		explicit Driver(
-							nkV8StringType host = nkNewV8PStringOS( "localhost" ),
-							nkV8StringType port = nkNewV8PStringOS( "3306" ),
-							nkV8StringType db = nkNewV8PStringOS( "test" ),
-							nkV8StringType user = nkNewV8PStringOS( "test" ),
-							nkV8StringType password = nkNewV8PStringOS( "password" ),
-							nkV8ObjectType model = nkNewV8PObject( v8::Object::New( nkIsolateOS ) ),
-							nkV8BooleanType modeled = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
-							nkV8IntegerType type = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							nkV8IntegerType prepared = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
-							nkV8ArrayType phmap = nkNewV8PArray( v8::Array::New( nkIsolateOS ) ),
-							nkV8BooleanType mapped = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
-							nkV8StringType query = nkNewV8PStringOS( "" )
-						);
-		~Driver();
+    private:
+        explicit Driver(
+                            nkV8StringType host = nkNewV8PStringOS( "localhost" ),
+                            nkV8StringType port = nkNewV8PStringOS( "3306" ),
+                            nkV8StringType db = nkNewV8PStringOS( "test" ),
+                            nkV8StringType user = nkNewV8PStringOS( "test" ),
+                            nkV8StringType password = nkNewV8PStringOS( "password" ),
+                            nkV8ObjectType model = nkNewV8PObject( v8::Object::New( nkIsolateOS ) ),
+                            nkV8BooleanType modeled = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
+                            nkV8IntegerType type = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+                            nkV8IntegerType prepared = nkNewV8PInteger( v8::Integer::New( nkPreIsolatedOS 0 ) ),
+                            nkV8ArrayType phmap = nkNewV8PArray( v8::Array::New( nkIsolateOS ) ),
+                            nkV8BooleanType mapped = nkNewV8PBoolean( v8::False( nkIsolateOS ) ),
+                            nkV8StringType query = nkNewV8PStringOS( "" )
+                        );
+        ~Driver();
 
-		static v8::Persistent<v8::Function> constructor;
-		static nkReturnType New( const nkArguments& args );
-		static nkReturnType Query( const nkArguments& args );
-		static nkReturnType Select( const nkArguments& args );
-		static nkReturnType Insert( const nkArguments& args );
-		static nkReturnType Values( const nkArguments& args );
-		static nkReturnType Update( const nkArguments& args );
-		static nkReturnType Delete( const nkArguments& args );
-		static nkReturnType Where( const nkArguments& args );
-		static nkReturnType Join( const nkArguments& args );
-		static nkReturnType On( const nkArguments& args );
-		static nkReturnType Limit( const nkArguments& args );
-		static nkReturnType Order( const nkArguments& args );
-		static nkReturnType Execute( const nkArguments& args );
-		static nkReturnType ExecuteQuery( const nkArguments& args );
-		static nkReturnType GetConnection( const nkArguments& args );
-		static nkReturnType GetQuery( const nkArguments& args );
-		static nkReturnType Reset( const nkArguments& args );
+        static v8::Persistent<v8::Function> constructor;
+        static nkReturnType New( const nkArguments& args );
+        static nkReturnType Query( const nkArguments& args );
+        static nkReturnType Select( const nkArguments& args );
+        static nkReturnType Insert( const nkArguments& args );
+        static nkReturnType Values( const nkArguments& args );
+        static nkReturnType Update( const nkArguments& args );
+        static nkReturnType Delete( const nkArguments& args );
+        static nkReturnType Where( const nkArguments& args );
+        static nkReturnType Join( const nkArguments& args );
+        static nkReturnType On( const nkArguments& args );
+        static nkReturnType Limit( const nkArguments& args );
+        static nkReturnType Order( const nkArguments& args );
+        static nkReturnType Execute( const nkArguments& args );
+        static nkReturnType ExecuteQuery( const nkArguments& args );
+        static nkReturnType GetConnection( const nkArguments& args );
+        static nkReturnType GetQuery( const nkArguments& args );
+        static nkReturnType Reset( const nkArguments& args );
 
-	public:
-		v8::Persistent<v8::String> host_;
-		v8::Persistent<v8::String> port_;
-		v8::Persistent<v8::String> db_;
-		v8::Persistent<v8::String> user_;
-		v8::Persistent<v8::String> password_;
-		v8::Persistent<v8::Object> model_;
-		v8::Persistent<v8::Boolean> modeled_;
-		v8::Persistent<v8::Integer> type_;
-		v8::Persistent<v8::Integer> prepared_;
-		v8::Persistent<v8::Array> phmap_;
-		v8::Persistent<v8::Boolean> mapped_;
-		v8::Persistent<v8::String> query_;
+    public:
+        v8::Persistent<v8::String> host_;
+        v8::Persistent<v8::String> port_;
+        v8::Persistent<v8::String> db_;
+        v8::Persistent<v8::String> user_;
+        v8::Persistent<v8::String> password_;
+        v8::Persistent<v8::Object> model_;
+        v8::Persistent<v8::Boolean> modeled_;
+        v8::Persistent<v8::Integer> type_;
+        v8::Persistent<v8::Integer> prepared_;
+        v8::Persistent<v8::Array> phmap_;
+        v8::Persistent<v8::Boolean> mapped_;
+        v8::Persistent<v8::String> query_;
 };
 
 #endif
