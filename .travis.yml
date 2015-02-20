@@ -1,18 +1,19 @@
 language: node_js
 node_js:
- - "0.11"
+ - "0.12"
  - "0.10"
 before_install:
- - sudo apt-get update && apt-get upgrade
- - sudo apt-get install build-essential zlib-dev zlib libbz2-dev bzip2 python-dev libmysqlclient-dev mysql-client
- - sudo mkdir boosted
+ - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+ - sudo apt-get update -qq 
+ - sudo apt-get install -qq build-essential libmysqlclient-dev mysql-client g++-4.8
+ - export CXX="g++-4.8" CC="gcc-4.8"
+ - mkdir boosted
  - cd boosted
- - curl -sL https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true > boost_headers_1_56_0.zip
- - unzip boost_headers_1_56_0.zip
- - rm boost_headers_1_56_0.zip
+ - wget -O boost_headers_1_56_0.zip https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
+ - unzip -qq boost_headers_1_56_0.zip
  - sudo cp -R boost /usr/include
  - cd ..
  - sudo rm -r boosted
  - mysql -e "create database nktest;" -u root
  - mysql -e "create user 'nktestadm'@'localhost' identified by '^NKTestPass777$';" -u root
- - mysql -e "grant all privileges on 'nktest'.* to 'nktestadm'@'localhost';" -u root
+ - mysql -e "grant all privileges on nktest.* to 'nktestadm'@'localhost';" -u root
