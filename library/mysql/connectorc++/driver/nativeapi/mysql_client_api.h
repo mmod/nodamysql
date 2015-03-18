@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -73,6 +73,8 @@ typedef const char * (STDCALL *ptr2mysql_get_server_info)(MYSQL *);
 
 typedef unsigned long (STDCALL *ptr2mysql_get_server_version)(MYSQL *);
 
+typedef void (STDCALL *ptr2mysql_get_character_set_info)(MYSQL *, void *);
+
 typedef char * (STDCALL *ptr2mysql_info)(MYSQL *mysql);
 
 typedef MYSQL * (STDCALL *ptr2mysql_init)(MYSQL *mysql);
@@ -90,6 +92,10 @@ typedef unsigned int (STDCALL *ptr2mysql_num_fields)(MYSQL_RES *);
 typedef my_ulonglong (STDCALL *ptr2mysql_num_rows)(MYSQL_RES *);
 
 typedef int (STDCALL *ptr2mysql_options)(MYSQL *, enum mysql_option, const void *);
+
+typedef int (STDCALL *ptr2mysql_options4)(MYSQL *, enum mysql_option, const void *, const void *);
+
+typedef int (STDCALL *ptr2mysql_get_option)(MYSQL *, enum mysql_option, const void *);
 
 typedef int (STDCALL *ptr2mysql_query)(MYSQL *, const char *);
 
@@ -152,6 +158,8 @@ typedef const char * (STDCALL *ptr2mysql_stmt_sqlstate)(MYSQL_STMT *);
 
 typedef int (STDCALL *ptr2mysql_stmt_store_result)(MYSQL_STMT *);
 
+typedef int (STDCALL *ptr2mysql_stmt_next_result)(MYSQL_STMT *);
+
 typedef void (STDCALL *ptr2mysql_thread_init)();
 
 typedef void (STDCALL *ptr2mysql_thread_end)();
@@ -198,6 +206,8 @@ public:
 
 	virtual unsigned long get_server_version(MYSQL *) = 0;
 
+	virtual void get_character_set_info(MYSQL *, void *) = 0;
+
 	virtual const char * info(MYSQL *mysql) = 0;
 
 	virtual MYSQL * init(MYSQL *mysql) = 0;
@@ -215,6 +225,10 @@ public:
 	virtual my_ulonglong num_rows(MYSQL_RES * ) = 0;
 
 	virtual int options(MYSQL *, enum mysql_option option , const void *arg) = 0;
+
+	virtual int options(MYSQL *, enum mysql_option option , const void *arg1, const void *arg2) = 0;
+
+	virtual int get_option(MYSQL *, enum mysql_option option , const void *arg) = 0;
 
 	virtual int ping(MYSQL *) = 0;
 
@@ -248,7 +262,7 @@ public:
 
 	virtual MYSQL_RES * use_result(MYSQL *) = 0;
 
-  virtual unsigned int warning_count(MYSQL *) = 0;
+	virtual unsigned int warning_count(MYSQL *) = 0;
 
 	/* Methods - wrappers of prepared statement stmt_* functions */
 	virtual my_ulonglong  stmt_affected_rows (MYSQL_STMT *) = 0;
@@ -288,6 +302,8 @@ public:
 	virtual const char *  stmt_sqlstate(MYSQL_STMT *) = 0;
 
 	virtual int stmt_store_result(MYSQL_STMT *) = 0;
+
+	virtual int stmt_next_result(MYSQL_STMT *) = 0;
 
 	virtual void thread_end() = 0;
 

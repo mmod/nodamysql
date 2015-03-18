@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -298,6 +298,17 @@ LibmysqlDynamicProxy::get_server_version(MYSQL * mysql)
 /* }}} */
 
 
+/* {{{ LibmysqlDynamicProxy::get_character_set_info() */
+void
+LibmysqlDynamicProxy::get_character_set_info(MYSQL * mysql, void *cs)
+{
+	ptr2mysql_get_character_set_info ptr2_get_character_set_info = symbol_safe_cast<ptr2mysql_get_character_set_info>(GetProcAddr("mysql_get_character_set_info"));
+
+	return (*ptr2_get_character_set_info)(mysql, static_cast<MY_CHARSET_INFO *>(cs));
+}
+/* }}} */
+
+
 /* {{{ LibmysqlDynamicProxy::info() */
 const char *
 LibmysqlDynamicProxy::info(MYSQL * mysql)
@@ -392,7 +403,47 @@ LibmysqlDynamicProxy::options(MYSQL * mysql, enum mysql_option option, const voi
 {
 	ptr2mysql_options ptr2_options = symbol_safe_cast<ptr2mysql_options>(GetProcAddr("mysql_options"));
 
-	return (*ptr2_options)(mysql, option, arg);
+	if ((*ptr2_options)(mysql, option, arg)) {
+		throw sql::InvalidArgumentException("Unsupported option provided to mysql_options()");
+	} else {
+		return 0;
+	}
+}
+/* }}} */
+
+
+/* {{{ LibmysqlDynamicProxy::options() */
+int
+LibmysqlDynamicProxy::options(MYSQL * mysql, enum mysql_option option, const void *arg1, const void *arg2)
+{
+	ptr2mysql_options4 ptr2_options = symbol_safe_cast<ptr2mysql_options4>(GetProcAddr("mysql_options4"));
+	if (ptr2_options != NULL) {
+		if (((*ptr2_options)(mysql, option, arg1, arg2))) {
+			throw sql::InvalidArgumentException("Unsupported option provided to mysql_options4()");
+		} else {
+			return 0;
+		}
+	} else {
+		throw ::sql::MethodNotImplementedException("::mysql_options4()");
+	}
+}
+/* }}} */
+
+
+/* {{{ LibmysqlDynamicProxy::get_option() */
+int
+LibmysqlDynamicProxy::get_option(MYSQL * mysql, enum mysql_option option, const void *arg)
+{
+	ptr2mysql_get_option ptr2_get_option = symbol_safe_cast<ptr2mysql_options4>(GetProcAddr("mysql_get_option"));
+	if (ptr2_get_option != NULL) {
+		if (((*ptr2_get_option)(mysql, option, arg))) {
+			throw sql::InvalidArgumentException("Unsupported option provided to mysql_get_option()");
+		} else {
+			return 0;
+		}
+	} else {
+		throw ::sql::MethodNotImplementedException("::mysql_get_option()");
+	}
 }
 /* }}} */
 
@@ -738,6 +789,20 @@ LibmysqlDynamicProxy::stmt_store_result(MYSQL_STMT * stmt)
 	ptr2mysql_stmt_store_result ptr2_stmt_store_result = symbol_safe_cast<ptr2mysql_stmt_store_result>(GetProcAddr("mysql_stmt_store_result"));
 
 	return (*ptr2_stmt_store_result)(stmt);
+}
+/* }}} */
+
+
+/* {{{ LibmysqlDynamicProxy::stmt_next_result() */
+int
+LibmysqlDynamicProxy::stmt_next_result(MYSQL_STMT * stmt)
+{
+	ptr2mysql_stmt_next_result ptr2_stmt_next_result = symbol_safe_cast<ptr2mysql_stmt_next_result>(GetProcAddr("mysql_stmt_next_result"));
+	if (ptr2_stmt_next_result != NULL) {
+		return (*ptr2_stmt_next_result)(stmt);
+	} else {
+		throw ::sql::MethodNotImplementedException("::mysql_stmt_next_result()");
+	}
 }
 /* }}} */
 

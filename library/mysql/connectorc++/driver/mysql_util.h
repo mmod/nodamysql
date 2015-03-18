@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -127,8 +127,8 @@ class NativeStatementWrapper;
 
 namespace util {
 
-extern const sql::SQLString EMPTYSTR;
-extern const sql::SQLString LOCALHOST;
+extern const char *EMPTYSTR;
+extern const char *LOCALHOST;
 
 void throwSQLException(::sql::mysql::NativeAPI::NativeConnectionWrapper & proxy);
 void throwSQLException(::sql::mysql::NativeAPI::NativeStatementWrapper & proxy);

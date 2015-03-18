@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -191,6 +191,10 @@ public:
 
 	const sql::SQLString& getSchemaTerm();
 
+	sql::ResultSet * getSchemaCollation(const sql::SQLString& catalog, const sql::SQLString& schemaPattern);
+
+	sql::ResultSet * getSchemaCharset(const sql::SQLString& catalog, const sql::SQLString& schemaPattern);
+
 	const sql::SQLString& getSearchStringEscape();
 
 	const sql::SQLString& getSQLKeywords();
@@ -210,6 +214,10 @@ public:
 	sql::ResultSet * getTables(const sql::SQLString& catalog, const sql::SQLString& schemaPattern, const sql::SQLString& tableNamePattern, std::list<sql::SQLString> &types);
 
 	sql::ResultSet * getTableTypes();
+
+	sql::ResultSet * getTableCollation(const sql::SQLString& catalog, const sql::SQLString& schemaPattern, const sql::SQLString& tableNamePattern);
+
+	sql::ResultSet * getTableCharset(const sql::SQLString& catalog, const sql::SQLString& schemaPattern, const sql::SQLString& tableNamePattern);
 
 	const sql::SQLString& getTimeDateFunctions();
 

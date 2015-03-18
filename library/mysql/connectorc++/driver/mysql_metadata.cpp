@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <stdlib.h>
 #include <string>
+#include <sstream>
 
 #include <memory>
 #include <boost/scoped_ptr.hpp>
@@ -37,6 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "mysql_statement.h"
 #include "mysql_prepared_statement.h"
 #include "mysql_debug.h"
+#include "version_info.h"
 
 #include "nativeapi/native_connection_wrapper.h"
 
@@ -1808,11 +1810,13 @@ MySQL_ConnectionMetaData::getColumnPrivileges(const sql::SQLString& /*catalog*/,
 
 	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
 
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
+
 	/* I_S seems currently (20080220) not to work */
 	if (use_info_schema && server_version > 69999) {
 #if A0
 		sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM, TABLE_NAME,"
-				 		"COLUMN_NAME, NULL AS GRANTOR, GRANTEE, PRIVILEGE_TYPE AS PRIVILEGE, IS_GRANTABLE\n"
+						"COLUMN_NAME, NULL AS GRANTOR, GRANTEE, PRIVILEGE_TYPE AS PRIVILEGE, IS_GRANTABLE\n"
 						"FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES\n"
 						"WHERE TABLE_SCHEMA LIKE ? AND TABLE_NAME=? AND COLUMN_NAME LIKE ?\n"
 						"ORDER BY COLUMN_NAME, PRIVILEGE_TYPE");
@@ -1929,6 +1933,8 @@ MySQL_ConnectionMetaData::getColumns(const sql::SQLString& /*catalog*/, const sq
 	rs_field_data.push_back("SOURCE_DATA_TYPE");
 	rs_field_data.push_back("IS_AUTOINCREMENT");
 
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
+
 	if (use_info_schema && server_version > 50020) {
 		char buf[5];
 		sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, DATA_TYPE,"
@@ -1976,14 +1982,25 @@ MySQL_ConnectionMetaData::getColumns(const sql::SQLString& /*catalog*/, const sq
 			"NULL AS SCOPE_TABLE,"
 			"NULL AS SOURCE_DATA_TYPE,"
 			"IF (EXTRA LIKE '%auto_increment%','YES','NO') AS IS_AUTOINCREMENT "
-			"FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA LIKE ? AND TABLE_NAME LIKE ? AND COLUMN_NAME LIKE ? "
+			"FROM INFORMATION_SCHEMA.COLUMNS WHERE ");
+		if (schemaPattern.length()) {
+			query.append(" TABLE_SCHEMA LIKE ? ");
+		} else {
+			query.append(" TABLE_SCHEMA = DATABASE() ");
+		}
+		query.append("AND TABLE_NAME LIKE ? AND COLUMN_NAME LIKE ? "
 			"ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION");
 
 		boost::scoped_ptr< sql::PreparedStatement > pStmt(connection->prepareStatement(query));
 
-		pStmt->setString(1, escapedSchemaPattern);
-		pStmt->setString(2, escapedTableNamePattern);
-		pStmt->setString(3, escapedColumnNamePattern);
+		if (schemaPattern.length()) {
+			pStmt->setString(1, escapedSchemaPattern);
+			pStmt->setString(2, escapedTableNamePattern);
+			pStmt->setString(3, escapedColumnNamePattern);
+		} else {
+			pStmt->setString(1, escapedTableNamePattern);
+			pStmt->setString(2, escapedColumnNamePattern);
+		}
 
 		boost::scoped_ptr< sql::ResultSet > rs(pStmt->executeQuery());
 
@@ -2136,6 +2153,8 @@ MySQL_ConnectionMetaData::getCrossReference(const sql::SQLString& primaryCatalog
 	rs_field_data.push_back("FK_NAME");
 	rs_field_data.push_back("PK_NAME");
 	rs_field_data.push_back("DEFERRABILITY");
+
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	/* Not sure which version, let it not be 5.1.0, just something above which is anyway not used anymore */
 	if (use_info_schema && server_version >= 50110) {
@@ -2302,7 +2321,7 @@ unsigned int
 MySQL_ConnectionMetaData::getDriverMajorVersion()
 {
 	CPP_ENTER("MySQL_ConnectionMetaData::getDriverMajorVersion");
-	return 1;
+	return MYCPPCONN_MAJOR_VERSION;
 }
 /* }}} */
 
@@ -2312,7 +2331,7 @@ unsigned int
 MySQL_ConnectionMetaData::getDriverMinorVersion()
 {
 	CPP_ENTER("MySQL_ConnectionMetaData::getDriverMinorVersion");
-	return 1;
+	return MYCPPCONN_MINOR_VERSION;
 }
 /* }}} */
 
@@ -2321,7 +2340,7 @@ unsigned int
 MySQL_ConnectionMetaData::getDriverPatchVersion()
 {
 	CPP_ENTER("MySQL_ConnectionMetaData::getDriverPatchVersion");
-	return 0;
+	return MYCPPCONN_PATCH_VERSION;
 }
 /* }}} */
 
@@ -2331,7 +2350,7 @@ const sql::SQLString&
 MySQL_ConnectionMetaData::getDriverVersion()
 {
 	CPP_ENTER("MySQL_ConnectionMetaData::getDriverVersion");
-	static const sql::SQLString version("1.1.0-GA");
+	static const sql::SQLString version(MYCPPCONN_STRVERSION);
 	return version;
 }
 /* }}} */
@@ -2371,6 +2390,8 @@ MySQL_ConnectionMetaData::getExportedKeys(const sql::SQLString& catalog, const s
 	rs_field_data.push_back("FK_NAME");
 	rs_field_data.push_back("PK_NAME");
 	rs_field_data.push_back("DEFERRABILITY");
+
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	/* Not sure which version, let it not be 5.1.0, just something above which is anyway not used anymore */
 	if (use_info_schema && server_version >= 50110) {
@@ -2624,6 +2645,16 @@ MySQL_ConnectionMetaData::parseImportedKeys(
 /* }}} */
 
 
+/* ORDER BY PKTABLE_SCHEM, PKTABLE_NAME, KEY_SEQ 1,2,8 */
+bool compareImportedKeys(std::vector< MyVal > &first, std::vector< MyVal > &second)
+{
+	return (first[1].getString().compare(second[1].getString()) < 0) ||
+           ((first[1].getString().compare(second[1].getString()) == 0) && (first[2].getString().compare(second[2].getString()) < 0)) ||
+           ((first[1].getString().compare(second[1].getString()) == 0) && (first[2].getString().compare(second[2].getString()) == 0) &&
+            (first[8].getString().caseCompare(second[8].getString()) < 0 ));
+}
+
+
 /* {{{ MySQL_ConnectionMetaData::getImportedKeys() -I- */
 sql::ResultSet *
 MySQL_ConnectionMetaData::getImportedKeys(const sql::SQLString& catalog, const sql::SQLString& schema, const sql::SQLString& table)
@@ -2648,6 +2679,8 @@ MySQL_ConnectionMetaData::getImportedKeys(const sql::SQLString& catalog, const s
 	rs_field_data.push_back("FK_NAME");
 	rs_field_data.push_back("PK_NAME");
 	rs_field_data.push_back("DEFERRABILITY");
+
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	if (use_info_schema && server_version >= 50116) {
 		/* This just doesn't work */
@@ -2788,13 +2821,14 @@ MySQL_ConnectionMetaData::getImportedKeys(const sql::SQLString& catalog, const s
 
 					rs_data_row.push_back(constraint_name);		// FK_NAME
 					// ToDo: Should it really be PRIMARY?
-					rs_data_row.push_back("");					// PK_NAME
+					rs_data_row.push_back("PRIMARY");					// PK_NAME
 					rs_data_row.push_back((int64_t) importedKeyNotDeferrable);	// DEFERRABILITY
 
 					rs_data->push_back(rs_data_row);
 				}
 			}
 		}
+		rs_data.get()->sort(compareImportedKeys);
 	}
 
 	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
@@ -2803,6 +2837,19 @@ MySQL_ConnectionMetaData::getImportedKeys(const sql::SQLString& catalog, const s
 	return ret;
 }
 /* }}} */
+
+
+/* ORDER BY NON_UNIQUE, TYPE, INDEX_NAME, ORDINAL_POSITION */
+bool compareIndexInfo(std::vector< MyVal > &first, std::vector< MyVal > &second)
+{
+	return (first[3].getBool() < second[3].getBool()) ||
+           ((first[3].getBool() == second[3].getBool()) && (first[6].getString().compare(second[6].getString()) < 0)) ||
+           ((first[3].getBool() == second[3].getBool()) && (first[6].getString().compare(second[6].getString()) == 0) &&
+            (first[5].getString().caseCompare(second[5].getString()) < 0 )) ||
+           ((first[3].getBool() == second[3].getBool()) && (first[6].getString().compare(second[6].getString()) == 0) &&
+            (first[5].getString().caseCompare(second[5].getString()) == 0 ) &&
+			(first[7].getString().caseCompare(second[7].getString()) < 0 ));
+}
 
 
 /* {{{ MySQL_ConnectionMetaData::getIndexInfo() -I- */
@@ -2830,13 +2877,14 @@ MySQL_ConnectionMetaData::getIndexInfo(const sql::SQLString& /*catalog*/, const 
 	rs_field_data.push_back("FILTER_CONDITION");
 
 	char indexOther[5];
+	char indexHash[5];
 
 	snprintf(indexOther, sizeof(indexOther), "%d", DatabaseMetaData::tableIndexOther);
+	snprintf(indexHash, sizeof(indexHash), "%d", DatabaseMetaData::tableIndexHashed);
+
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	if (use_info_schema && server_version > 50020) {
-		char indexHash[5];
-		snprintf(indexHash, sizeof(indexHash), "%d", DatabaseMetaData::tableIndexHashed);
-
 		sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, "
 						 "TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME, CASE WHEN INDEX_TYPE='HASH' THEN ");
 		query.append(indexHash).append(" ELSE ").append(indexOther);
@@ -2887,6 +2935,14 @@ MySQL_ConnectionMetaData::getIndexInfo(const sql::SQLString& /*catalog*/, const 
 		}
 
 		while (rs.get() && rs->next()) {
+		unsigned int row_unique;
+		std::istringstream buffer(rs->getString("Non_unique"));
+		buffer >> row_unique;
+		if (!(buffer.rdstate() & std::istringstream::failbit)
+				&& unique && row_unique != 0){
+			continue;
+		}
+
 			MySQL_ArtResultSet::row_t rs_data_row;
 
 			rs_data_row.push_back("def");							// TABLE_CAT
@@ -2895,7 +2951,11 @@ MySQL_ConnectionMetaData::getIndexInfo(const sql::SQLString& /*catalog*/, const 
 			rs_data_row.push_back(atoi(rs->getString("Non_unique").c_str())? true:false);	// NON_UNIQUE
 			rs_data_row.push_back(schema);							// INDEX_QUALIFIER
 			rs_data_row.push_back(rs->getString("Key_name"));		// INDEX_NAME
-			rs_data_row.push_back((const char *) indexOther);				// TYPE
+			if (!rs->getString("Index_type").compare("HASH")) {
+				rs_data_row.push_back((const char *) indexHash);	// TYPE
+			} else {
+				rs_data_row.push_back((const char *) indexOther);	// TYPE
+			}
 			rs_data_row.push_back(rs->getString("Seq_in_index"));	// ORDINAL_POSITION
 			rs_data_row.push_back(rs->getString("Column_name"));	// COLUMN_NAME
 			rs_data_row.push_back(rs->getString("Collation"));		// ASC_OR_DESC
@@ -2905,6 +2965,7 @@ MySQL_ConnectionMetaData::getIndexInfo(const sql::SQLString& /*catalog*/, const 
 
 			rs_data->push_back(rs_data_row);
 		}
+		rs_data.get()->sort(compareIndexInfo);
 	}
 
 	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
@@ -3166,6 +3227,8 @@ MySQL_ConnectionMetaData::getPrimaryKeys(const sql::SQLString& catalog, const sq
 
 	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
 
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
+
 	/* Bind Problems with 49999, check later why */
 	if (use_info_schema && server_version > 49999) {
 		const sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM, TABLE_NAME, "
@@ -3244,6 +3307,8 @@ MySQL_ConnectionMetaData::getUniqueNonNullableKeys(const sql::SQLString& catalog
 
 
 	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
+
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	/* Bind Problems with 49999, check later why */
 	if (use_info_schema && server_version > 50002) {
@@ -3378,6 +3443,8 @@ MySQL_ConnectionMetaData::getProcedures(const sql::SQLString& /*catalog*/, const
 	char procRetUnknown[5];
 	my_i_to_a(procRetUnknown, sizeof(procRetUnknown) - 1, procedureResultUnknown);
 
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
+
 	if (use_info_schema && server_version > 49999) {
 		sql::SQLString query("SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM, "
 						"ROUTINE_NAME AS PROCEDURE_NAME, NULL AS RESERVED_1, NULL AS RESERVERD_2, NULL as RESERVED_3,"
@@ -3417,9 +3484,9 @@ MySQL_ConnectionMetaData::getProcedures(const sql::SQLString& /*catalog*/, const
 			sql::SQLString query("SELECT 'def' AS PROCEDURE_CAT, db as PROCEDURE_SCHEM, "
 									"name AS PROCEDURE_NAME, NULL as RESERVERD_1, NULL as RESERVERD_2, "
 									"NULL AS RESERVERD_3, comment as REMARKS, ");
-			query.append("CASE WHEN TYPE=='FUNCTION' THEN ").append(procRetRes).append("\n");
-			query.append("WHEN TYPE='PROCEDURE' THEN").append(procRetNoRes).append("ELSE ").append(procRetUnknown);
-			query.append("\n END AS PROCEDURE_TYPE\nFROM mysql.proc WHERE name LIKE ? AND db <=> ? ORDER BY name");
+			query.append(" CASE WHEN TYPE='FUNCTION' THEN ").append(procRetRes);
+			query.append(" WHEN TYPE='PROCEDURE' THEN ").append(procRetNoRes).append(" ELSE ").append(procRetUnknown);
+			query.append(" END AS PROCEDURE_TYPE FROM mysql.proc WHERE name LIKE ? AND db <=> ? ORDER BY name");
 
 			boost::scoped_ptr< sql::PreparedStatement > pStmt(connection->prepareStatement(query));
 			pStmt->setString(1, escapedProcedureNamePattern);
@@ -3510,6 +3577,7 @@ MySQL_ConnectionMetaData::getSchemas()
 	std::list<sql::SQLString> rs_field_data;
 	rs_field_data.push_back("TABLE_SCHEM");
 	rs_field_data.push_back("TABLE_CATALOG");
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
 
 	boost::scoped_ptr< sql::ResultSet > rs(
 		stmt->executeQuery(use_info_schema && server_version > 49999?
@@ -3544,6 +3612,88 @@ MySQL_ConnectionMetaData::getSchemaTerm()
 	CPP_ENTER("MySQL_ConnectionMetaData::getSchemaTerm");
 	static const sql::SQLString term("database");
 	return term;
+}
+/* }}} */
+
+
+/* {{{ MySQL_ConnectionMetaData::getSchemaCollation() -I- */
+sql::ResultSet *
+MySQL_ConnectionMetaData::getSchemaCollation(const sql::SQLString& /* catalog */,
+                                    const sql::SQLString& schemaPattern)
+{
+	CPP_ENTER("MySQL_ConnectionMetaData::getSchemaCollation");
+	CPP_INFO_FMT("schemaPattern=%s", schemaPattern.c_str());
+
+	sql::SQLString escapedSchemaPattern = connection->escapeString(schemaPattern);
+
+	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
+
+	std::list<sql::SQLString> rs_field_data;
+	rs_field_data.push_back("SCHEMA_CAT");
+	rs_field_data.push_back("SCHEMA_NAME");
+	rs_field_data.push_back("SCHEMA_COLLATION");
+
+	sql::SQLString query("SELECT CATALOG_NAME AS SCHEMA_CAT, SCHEMA_NAME, "
+	"DEFAULT_COLLATION_NAME AS SCHEMA_COLLATION FROM INFORMATION_SCHEMA.SCHEMATA "
+	"where SCHEMA_NAME LIKE '");
+	query.append(escapedSchemaPattern).append("'");
+
+	boost::scoped_ptr< sql::Statement > stmt(connection->createStatement());
+	boost::scoped_ptr< sql::ResultSet > rs(stmt->executeQuery(query));
+	while (rs->next()) {
+		MySQL_ArtResultSet::row_t rs_data_row;
+
+		rs_data_row.push_back(rs->getString(1)); // SCHEMA_CAT
+		rs_data_row.push_back(rs->getString(2)); // SCHEMA_NAME
+		rs_data_row.push_back(rs->getString(3)); // SCHEMA_COLLATION
+
+		rs_data->push_back(rs_data_row);
+	}
+	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
+	// If there is no exception we can release otherwise on function exit memory will be freed
+	rs_data.release();
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ MySQL_ConnectionMetaData::getSchemaCharset() -I- */
+sql::ResultSet *
+MySQL_ConnectionMetaData::getSchemaCharset(const sql::SQLString& /* catalog */,
+                                    const sql::SQLString& schemaPattern)
+{
+	CPP_ENTER("MySQL_ConnectionMetaData::getSchemaCharset");
+	CPP_INFO_FMT("schemaPattern=%s", schemaPattern.c_str());
+
+	sql::SQLString escapedSchemaPattern = connection->escapeString(schemaPattern);
+
+	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
+
+	std::list<sql::SQLString> rs_field_data;
+	rs_field_data.push_back("SCHEMA_CAT");
+	rs_field_data.push_back("SCHEMA_NAME");
+	rs_field_data.push_back("SCHEMA_CHARSET");
+
+	sql::SQLString query("SELECT CATALOG_NAME AS SCHEMA_CAT, SCHEMA_NAME, "
+	"DEFAULT_CHARACTER_SET_NAME AS SCHEMA_CHARSET FROM INFORMATION_SCHEMA.SCHEMATA "
+	"where SCHEMA_NAME LIKE '");
+	query.append(escapedSchemaPattern).append("'");
+
+	boost::scoped_ptr< sql::Statement > stmt(connection->createStatement());
+	boost::scoped_ptr< sql::ResultSet > rs(stmt->executeQuery(query));
+	while (rs->next()) {
+		MySQL_ArtResultSet::row_t rs_data_row;
+
+		rs_data_row.push_back(rs->getString(1)); // SCHEMA_CAT
+		rs_data_row.push_back(rs->getString(2)); // SCHEMA_NAME
+		rs_data_row.push_back(rs->getString(3)); // SCHEMA_CHARSET
+
+		rs_data->push_back(rs_data_row);
+	}
+	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
+	// If there is no exception we can release otherwise on function exit memory will be freed
+	rs_data.release();
+	return ret;
 }
 /* }}} */
 
@@ -3856,10 +4006,14 @@ MySQL_ConnectionMetaData::getTables(const sql::SQLString& /* catalog */, const s
 	rs_field_data.push_back("TABLE_TYPE");
 	rs_field_data.push_back("REMARKS");
 
+	connection->getClientOption("metadataUseInfoSchema", (void *) &use_info_schema);
+
 	/* Bind Problems with 49999, check later why */
 	if (use_info_schema && server_version > 49999) {
 		const sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEM, TABLE_NAME,"
-							"IF(STRCMP(TABLE_TYPE,'BASE TABLE'), TABLE_TYPE, 'TABLE') AS TABLE_TYPE, TABLE_COMMENT AS REMARKS\n"
+							"IF(STRCMP(TABLE_TYPE,'BASE TABLE'), "
+							"IF(STRCMP(TABLE_TYPE,'SYSTEM VIEW'), TABLE_TYPE, 'VIEW'),"
+							" 'TABLE') AS TABLE_TYPE, TABLE_COMMENT AS REMARKS\n"
 							"FROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA  LIKE ? AND TABLE_NAME LIKE ?\n"
 							"ORDER BY TABLE_TYPE, TABLE_SCHEMA, TABLE_NAME");
 
@@ -3893,7 +4047,7 @@ MySQL_ConnectionMetaData::getTables(const sql::SQLString& /* catalog */, const s
 		boost::scoped_ptr< sql::ResultSet > rs1(stmt->executeQuery(query1));
 		while (rs1->next()) {
 			sql::SQLString current_schema(rs1->getString(1));
-			sql::SQLString query2("SHOW TABLES FROM `");
+			sql::SQLString query2("SHOW FULL TABLES FROM `");
 			query2.append(current_schema).append("` LIKE '").append(escapedTableNamePattern).append("'");
 
 			boost::scoped_ptr< sql::ResultSet > rs2(stmt->executeQuery(query2));
@@ -3903,7 +4057,7 @@ MySQL_ConnectionMetaData::getTables(const sql::SQLString& /* catalog */, const s
 				for (; it != types.end(); ++it) {
 					/* < 49999 knows only TABLE, no VIEWS */
 					/* TODO: Optimize this everytime checking, put it outside of the loop */
-					if (!it->compare("TABLE")) {
+					if (!it->compare("TABLE") && !(rs2->getString(2)).compare("BASE TABLE")) {
 						MySQL_ArtResultSet::row_t rs_data_row;
 
 						CPP_INFO_FMT("[][%s][%s][TABLE][]", current_schema.c_str(), rs2->getString(1).c_str());
@@ -3911,6 +4065,18 @@ MySQL_ConnectionMetaData::getTables(const sql::SQLString& /* catalog */, const s
 						rs_data_row.push_back(current_schema);		// TABLE_SCHEM
 						rs_data_row.push_back(rs2->getString(1));	// TABLE_NAME
 						rs_data_row.push_back("TABLE");				// TABLE_TYPE
+						rs_data_row.push_back("");					// REMARKS
+
+						rs_data->push_back(rs_data_row);
+						break;
+					} else if (!it->compare(rs2->getString(2)) && server_version > 49999) {
+						MySQL_ArtResultSet::row_t rs_data_row;
+
+						CPP_INFO_FMT("[][%s][%s][TABLE][]", current_schema.c_str(), rs2->getString(1).c_str());
+						rs_data_row.push_back("def");				// TABLE_CAT
+						rs_data_row.push_back(current_schema);		// TABLE_SCHEM
+						rs_data_row.push_back(rs2->getString(1));	// TABLE_NAME
+						rs_data_row.push_back("VIEW");				// TABLE_TYPE
 						rs_data_row.push_back("");					// REMARKS
 
 						rs_data->push_back(rs_data_row);
@@ -3957,6 +4123,100 @@ MySQL_ConnectionMetaData::getTableTypes()
 	return ret;
 }
 /* }}} */
+
+
+/* {{{ MySQL_ConnectionMetaData::getTableCollation() -I- */
+sql::ResultSet *
+MySQL_ConnectionMetaData::getTableCollation(const sql::SQLString& /* catalog */,
+											const sql::SQLString& schemaPattern,
+											const sql::SQLString& tableNamePattern)
+{
+	CPP_ENTER("MySQL_ConnectionMetaData::getTableCollation");
+	CPP_INFO_FMT("schemaPattern=%s tablePattern=%s", schemaPattern.c_str(), tableNamePattern.c_str());
+
+	sql::SQLString escapedSchemaPattern = connection->escapeString(schemaPattern);
+	sql::SQLString escapedTableNamePattern = connection->escapeString(tableNamePattern);
+
+	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
+
+	std::list<sql::SQLString> rs_field_data;
+	rs_field_data.push_back("TABLE_CAT");
+	rs_field_data.push_back("TABLE_SCHEMA");
+	rs_field_data.push_back("TABLE_NAME");
+	rs_field_data.push_back("TABLE_COLLATION");
+
+	sql::SQLString query("SELECT TABLE_CATALOG AS TABLE_CAT, TABLE_SCHEMA AS TABLE_SCHEMA, "
+	"TABLE_NAME, TABLE_COLLATION FROM INFORMATION_SCHEMA.TABLES where TABLE_NAME LIKE '");
+	query.append(escapedTableNamePattern).append("' ").append("AND TABLE_SCHEMA LIKE '");
+	query.append(escapedSchemaPattern).append("'");
+
+	boost::scoped_ptr< sql::Statement > stmt(connection->createStatement());
+	boost::scoped_ptr< sql::ResultSet > rs(stmt->executeQuery(query));
+	while (rs->next()) {
+		MySQL_ArtResultSet::row_t rs_data_row;
+
+		rs_data_row.push_back(rs->getString(1)); // TABLE_CAT
+		rs_data_row.push_back(rs->getString(2)); // TABLE_SCHEM
+		rs_data_row.push_back(rs->getString(3)); // TABLE_NAME
+		rs_data_row.push_back(rs->getString(4)); // TABLE_COLLATION
+
+		rs_data->push_back(rs_data_row);
+	}
+	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
+	// If there is no exception we can release otherwise on function exit memory will be freed
+	rs_data.release();
+	return ret;
+}
+/* }}} */
+
+
+/* {{{ MySQL_ConnectionMetaData::getTableCharset() -I- */
+sql::ResultSet *
+MySQL_ConnectionMetaData::getTableCharset(const sql::SQLString& /* catalog */,
+                                    const sql::SQLString& schemaPattern,
+									const sql::SQLString& tableNamePattern)
+{
+	CPP_ENTER("MySQL_ConnectionMetaData::getTableCharset");
+	CPP_INFO_FMT("schemaPattern=%s tablePattern=%s", schemaPattern.c_str(), tableNamePattern.c_str());
+
+	sql::SQLString escapedSchemaPattern = connection->escapeString(schemaPattern);
+	sql::SQLString escapedTableNamePattern = connection->escapeString(tableNamePattern);
+
+	std::auto_ptr< MySQL_ArtResultSet::rset_t > rs_data(new MySQL_ArtResultSet::rset_t());
+
+	std::list<sql::SQLString> rs_field_data;
+	rs_field_data.push_back("TABLE_CAT");
+	rs_field_data.push_back("TABLE_SCHEMA");
+	rs_field_data.push_back("TABLE_NAME");
+	rs_field_data.push_back("TABLE_CHARSET");
+
+	sql::SQLString query("SELECT t.TABLE_CATALOG AS TABLE_CAT, t.TABLE_SCHEMA AS TABLE_SCHEMA, t.TABLE_NAME, "
+							"c.CHARACTER_SET_NAME AS TABLE_CHARSET FROM INFORMATION_SCHEMA.TABLES t, "
+							"INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY c "
+							"WHERE t.TABLE_COLLATION = c.COLLATION_NAME AND t.TABLE_NAME LIKE '");
+	query.append(escapedTableNamePattern).append("' ").append("AND t.TABLE_SCHEMA LIKE '");
+	query.append(escapedSchemaPattern).append("'");
+
+	boost::scoped_ptr< sql::Statement > stmt(connection->createStatement());
+	boost::scoped_ptr< sql::ResultSet > rs(stmt->executeQuery(query));
+	while (rs->next()) {
+		MySQL_ArtResultSet::row_t rs_data_row;
+
+		rs_data_row.push_back(rs->getString(1)); // TABLE_CAT
+		rs_data_row.push_back(rs->getString(2)); // TABLE_SCHEM
+		rs_data_row.push_back(rs->getString(3)); // TABLE_NAME
+		rs_data_row.push_back(rs->getString(4)); // TABLE_CHARSET
+
+		rs_data->push_back(rs_data_row);
+	}
+	MySQL_ArtResultSet * ret = new MySQL_ArtResultSet(rs_field_data, rs_data.get(), logger);
+	// If there is no exception we can release otherwise on function exit memory will be freed
+	rs_data.release();
+	return ret;
+}
+/* }}} */
+
+
 
 
 /* {{{ MySQL_ConnectionMetaData::getTimeDateFunctions() -I- */

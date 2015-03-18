@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -28,17 +28,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define _SQL_CONNECTION_H_
 
 #include <map>
-#include <boost/variant.hpp>
 
 #include "build_config.h"
 #include "warning.h"
 #include "sqlstring.h"
+#include "variant.h"
 
 namespace sql
 {
 
-
-typedef boost::variant<int, double, bool, sql::SQLString > ConnectPropertyVal;
+typedef sql::Variant ConnectPropertyVal;
 
 typedef std::map< sql::SQLString, ConnectPropertyVal > ConnectOptionsMap;
 
@@ -101,6 +100,8 @@ public:
 
 	virtual void getClientOption(const sql::SQLString & optionName, void * optionValue) = 0;
 
+	virtual sql::SQLString getClientOption(const sql::SQLString & optionName) = 0;
+
 	virtual DatabaseMetaData * getMetaData() = 0;
 
 	virtual enum_transaction_isolation getTransactionIsolation() = 0;
@@ -110,6 +111,10 @@ public:
 	virtual bool isClosed() = 0;
 
 	virtual bool isReadOnly() = 0;
+
+	virtual bool isValid() = 0;
+
+	virtual bool reconnect() = 0;
 
 	virtual sql::SQLString nativeSQL(const sql::SQLString& sql) = 0;
 
@@ -138,6 +143,8 @@ public:
 	virtual void setSchema(const sql::SQLString& catalog) = 0;
 
 	virtual sql::Connection * setClientOption(const sql::SQLString & optionName, const void * optionValue) = 0;
+
+	virtual sql::Connection * setClientOption(const sql::SQLString & optionName, const sql::SQLString & optionValue) = 0;
 
 	virtual void setHoldability(int holdability) = 0;
 

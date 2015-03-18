@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "libmysql_static_proxy.h"
 
+#include <cppconn/exception.h>
 
 namespace sql
 {
@@ -202,6 +203,15 @@ LibmysqlStaticProxy::get_server_version(MYSQL * mysql)
 /* }}} */
 
 
+/* {{{ LibmysqlStaticProxy::get_character_set_info() */
+void
+LibmysqlStaticProxy::get_character_set_info(MYSQL * mysql, void *cs)
+{
+	return ::mysql_get_character_set_info(mysql, static_cast<MY_CHARSET_INFO *>(cs));
+}
+/* }}} */
+
+
 /* {{{ LibmysqlStaticProxy::info() */
 const char *
 LibmysqlStaticProxy::info(MYSQL * mysql)
@@ -279,7 +289,45 @@ int
 LibmysqlStaticProxy::options(MYSQL * mysql, enum mysql_option option, const void *arg)
 {
 	// in 5.0 mysql_options's 3rd parameter is "const char *"
-	return ::mysql_options(mysql, option, static_cast<const char *>(arg));
+	if ((::mysql_options(mysql, option, static_cast<const char *>(arg)))) {
+		throw sql::InvalidArgumentException("Unsupported option provided to mysql_options()");
+	} else {
+		return 0;
+	}
+}
+/* }}} */
+
+
+/* {{{ LibmysqlStaticProxy::options4() */
+int
+LibmysqlStaticProxy::options(MYSQL * mysql, enum mysql_option option, const void *arg1, const void *arg2)
+{
+#if MYSQL_VERSION_ID >= 50606
+	if ((::mysql_options4(mysql, option, static_cast<const char *>(arg1), static_cast<const char *>(arg2)))) {
+		throw sql::InvalidArgumentException("Unsupported option provided to mysql_options4()");
+	} else {
+		return 0;
+	}
+#else
+	throw ::sql::MethodNotImplementedException("::mysql_options4()");
+#endif
+}
+/* }}} */
+
+
+/* {{{ LibmysqlStaticProxy::get_option() */
+int
+LibmysqlStaticProxy::get_option(MYSQL * mysql, enum mysql_option option, const void *arg)
+{
+#if MYSQL_VERSION_ID >= 50703
+	if (::mysql_get_option(mysql, option, arg)) {
+		throw sql::InvalidArgumentException("Unsupported option provided to mysql_get_option()");
+	} else {
+		return 0;
+	}
+#else
+	throw ::sql::MethodNotImplementedException("::mysql_get_option()");
+#endif
 }
 /* }}} */
 
@@ -566,6 +614,19 @@ int
 LibmysqlStaticProxy::stmt_store_result(MYSQL_STMT * stmt)
 {
 	return ::mysql_stmt_store_result(stmt);
+}
+/* }}} */
+
+
+/* {{{ LibmysqlStaticProxy::stmt_next_result() */
+int
+LibmysqlStaticProxy::stmt_next_result(MYSQL_STMT * stmt)
+{
+#if MYSQL_VERSION_ID >= 50503
+	return ::mysql_stmt_next_result(stmt);
+#else
+	throw ::sql::MethodNotImplementedException("::mysql_stmt_next_result()");
+#endif
 }
 /* }}} */
 
