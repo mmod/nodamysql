@@ -245,7 +245,7 @@
 #define nkNewV8PIntegerOS( var ) v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
 #define nkSetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
 #define nkResetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
-#define nkNewV8PInteger( var ) v8::Persistent<v8::Integer>( isolate, var )
+#define nkNewV8PInteger( var ) v8::Persistent<v8::Integer>( var )
 #define nkSetV8PInteger( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
 #define nkResetV8PInteger( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
 #define nkNewV8IntegerOS( var ) var
