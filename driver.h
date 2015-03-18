@@ -255,7 +255,7 @@
 #define nkNewV8PBooleanOS( var ) v8::Persistent<v8::Boolean>::New( var )
 #define nkSetV8PBooleanOS( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
 #define nkResetV8PBooleanOS( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
-#define nkNewV8PBoolean( var ) v8::Persistent<v8::Boolean>( isolate, var )
+#define nkNewV8PBoolean( var ) v8::Persistent<v8::Boolean>( var )
 #define nkSetV8PBoolean( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
 #define nkResetV8PBoolean( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
 #define nkNewV8BooleanOS( var ) var
