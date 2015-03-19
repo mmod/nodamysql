@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -127,7 +127,7 @@ MySQL_ResultSetMetaData::getColumnDisplaySize(unsigned int columnIndex)
 	const MYSQL_FIELD * const field = getFieldMeta(columnIndex);
 	const sql::mysql::util::OUR_CHARSET * const cs = sql::mysql::util::find_charset(field->charsetnr);
 	if (!cs) {
-		std::ostringstream msg("Server sent uknown charsetnr (");
+		std::ostringstream msg("Server sent unknown charsetnr (");
 		msg << field->charsetnr << ") . Please report";
 		throw SQLException(msg.str());
 	}
@@ -160,7 +160,7 @@ MySQL_ResultSetMetaData::getColumnName(unsigned int columnIndex)
 	checkValid();
 	checkColumnIndex(columnIndex);
 
-	return getFieldMeta(columnIndex)->name;
+	return getFieldMeta(columnIndex)->org_name;
 }
 /* }}} */
 
@@ -187,6 +187,46 @@ MySQL_ResultSetMetaData::getColumnTypeName(unsigned int columnIndex)
 	checkColumnIndex(columnIndex);
 
 	return sql::mysql::util::mysql_type_to_string(getFieldMeta(columnIndex), this->logger);
+}
+/* }}} */
+
+
+/* {{{ MySQL_ResultSetMetaData::getColumnCharset -I- */
+SQLString
+MySQL_ResultSetMetaData::getColumnCharset(unsigned int columnIndex)
+{
+	CPP_ENTER("MySQL_ResultSetMetaData::getColumnCharset");
+	checkValid();
+	checkColumnIndex(columnIndex);
+
+	const MYSQL_FIELD * const field = getFieldMeta(columnIndex);
+	const sql::mysql::util::OUR_CHARSET * const cs = sql::mysql::util::find_charset(field->charsetnr);
+	if (!cs) {
+		std::ostringstream msg;
+		msg << "Server sent unknown charsetnr (" << field->charsetnr << ") . Please report";
+		throw SQLException(msg.str());
+	}
+	return cs->name;
+}
+/* }}} */
+
+
+/* {{{ MySQL_ResultSetMetaData::getColumnCollation -I- */
+SQLString
+MySQL_ResultSetMetaData::getColumnCollation(unsigned int columnIndex)
+{
+	CPP_ENTER("MySQL_ResultSetMetaData::getColumnCollation");
+	checkValid();
+	checkColumnIndex(columnIndex);
+
+	const MYSQL_FIELD * const field = getFieldMeta(columnIndex);
+	const sql::mysql::util::OUR_CHARSET * const cs = sql::mysql::util::find_charset(field->charsetnr);
+	if (!cs) {
+		std::ostringstream msg;
+		msg << "Server sent unknown charsetnr (" << field->charsetnr << ") . Please report";
+		throw SQLException(msg.str());
+	}
+	return cs->collation;
 }
 /* }}} */
 
@@ -287,7 +327,7 @@ MySQL_ResultSetMetaData::isCaseSensitive(unsigned int columnIndex)
 	const sql::mysql::util::OUR_CHARSET * const cs = sql::mysql::util::find_charset(field->charsetnr);
 	if (!cs) {
 		std::ostringstream msg;
-		msg << "Server sent uknown charsetnr (" << field->charsetnr << ") . Please report";
+		msg << "Server sent unknown charsetnr (" << field->charsetnr << ") . Please report";
 		throw SQLException(msg.str());
 	}
 	return NULL == strstr(cs->collation, "_ci");

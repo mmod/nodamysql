@@ -8,12 +8,6 @@
 
 
 // INCLUDES
-#include <v8.h>
-#include <node.h>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include "resource.h"
 #include "driver.h"
 
 // MySQL Includes ( Also targets Boost C++ Headers )
@@ -39,8 +33,7 @@ Persistent<Function> Driver::constructor;   // Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver( Persistent<String> host, Persistent<String> port, Persistent<String> db, Persistent<String> user, Persistent<String> password, Persistent<Object> model, Persistent<Boolean> modeled, Persistent<Integer> type, Persistent<Integer> prepared, Persistent<Array> phmap, Persistent<Boolean> mapped, Persistent<String> query )
-            : nkSetPS( host_, host ), nkSetPS( port_, port ), nkSetPS( db_, db ), nkSetPS( user_, user ), nkSetPS( password_, password ), nkSetPO( model_, model ), nkSetPB( modeled_, modeled ), nkSetPI( type_, type ), nkSetPI( prepared_, prepared ), nkSetPA( phmap_, phmap ), nkSetPB( mapped_, mapped ), nkSetPS( query_, query )
+Driver::Driver( nkDriverConstructorDefinitionBlockA ) : nkDriverConstructorDefinitionBlockB
 {
 }
 
@@ -68,33 +61,33 @@ Driver::~Driver()
  */
 void Driver::Init( Handle<Object> exports )
 {
-    nkIsolation
+    nkIsolationOS
 
     // Prepare constructor template
-    Local<FunctionTemplate> tpl = FunctionTemplate::New( New );
-    tpl->SetClassName( String::NewSymbol( "driver" ) );
+    Local<FunctionTemplate> tpl = nkFunctionTemplate( New );
+    tpl->SetClassName( nkNewV8SString( "driver" ) );
     tpl->InstanceTemplate()->SetInternalFieldCount( 12 );
 
     // Prototype(s) of our methods for v8
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "query" ), FunctionTemplate::New( Query )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "select" ), FunctionTemplate::New( Select )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "insert" ), FunctionTemplate::New( Insert )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "values" ), FunctionTemplate::New( Values )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "update" ), FunctionTemplate::New( Update )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "delete" ), FunctionTemplate::New( Delete )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "where" ), FunctionTemplate::New( Where )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "join" ), FunctionTemplate::New( Join )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "on" ), FunctionTemplate::New( On )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "limit" ), FunctionTemplate::New( Limit )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "order" ), FunctionTemplate::New( Order )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "execute" ), FunctionTemplate::New( Execute )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "executeQuery" ), FunctionTemplate::New( ExecuteQuery )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "getConnection" ), FunctionTemplate::New( GetConnection )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "getQuery" ), FunctionTemplate::New( GetQuery )->GetFunction() );
-    tpl->PrototypeTemplate()->Set( String::NewSymbol( "reset" ), FunctionTemplate::New( Reset )->GetFunction() );
+    nkSetPrototypeMethod( tpl, "query", Query )
+    nkSetPrototypeMethod( tpl, "select", Select )
+    nkSetPrototypeMethod( tpl, "insert", Insert )
+    nkSetPrototypeMethod( tpl, "values", Values )
+    nkSetPrototypeMethod( tpl, "update", Update )
+    nkSetPrototypeMethod( tpl, "delete", Delete )
+    nkSetPrototypeMethod( tpl, "where", Where )
+    nkSetPrototypeMethod( tpl, "join", Join )
+    nkSetPrototypeMethod( tpl, "on", On )
+    nkSetPrototypeMethod( tpl, "limit", Limit )
+    nkSetPrototypeMethod( tpl, "order", Order )
+    nkSetPrototypeMethod( tpl, "execute", Execute )
+    nkSetPrototypeMethod( tpl, "executeQuery", ExecuteQuery )
+    nkSetPrototypeMethod( tpl, "getConnection", GetConnection )
+    nkSetPrototypeMethod( tpl, "getQuery", GetQuery )
+    nkSetPrototypeMethod( tpl, "reset", Reset )
 
-    constructor = Persistent<Function>::New( nkPreIsolated tpl->GetFunction() );
-    exports->Set( String::NewSymbol( "driver" ), constructor );
+    nkSetConstructor( tpl )
+    nkSetExports( "driver", constructor, tpl )
 }
 
 
@@ -107,9 +100,10 @@ void Driver::Init( Handle<Object> exports )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::New( const nkArguments& args )
+nkMethodReturnType Driver::New( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
     if( args.IsConstructCall() )
     {
@@ -118,12 +112,12 @@ nkReturnType Driver::New( const nkArguments& args )
 
         if( args[0]->IsUndefined() )
         {
-            config = Object::New( nkIsolate ) ;
-            config->Set( String::NewSymbol( "host" ), nkNewV8String( "localhost" ) );
-            config->Set( String::NewSymbol( "port" ), nkNewV8String( "3306" ) );
-            config->Set( String::NewSymbol( "db" ), nkNewV8String( "test" ) );
-            config->Set( String::NewSymbol( "user" ), nkNewV8String( "test" ) );
-            config->Set( String::NewSymbol( "password" ), nkNewV8String( "testpass" ) );
+            config = Object::New( nkIsolate );
+            config->Set( nkNewV8SString( "host" ), nkNewV8String( "localhost" ) );
+            config->Set( nkNewV8SString( "port" ), nkNewV8String( "3306" ) );
+            config->Set( nkNewV8SString( "db" ), nkNewV8String( "test" ) );
+            config->Set( nkNewV8SString( "user" ), nkNewV8String( "test" ) );
+            config->Set( nkNewV8SString( "password" ), nkNewV8String( "testpass" ) );
         }
         else
         {
@@ -131,6 +125,7 @@ nkReturnType Driver::New( const nkArguments& args )
         }
 
         Driver* dvr;
+        Local<Array> phmap = Array::New( nkIsolate );
         Local<Array> phspec = Array::New( nkIsolate );
         phspec->Set( 0, Integer::New( nkPreIsolated  0 ) );
         phspec->Set( 1, Integer::New( nkPreIsolated  0 ) );
@@ -138,13 +133,17 @@ nkReturnType Driver::New( const nkArguments& args )
         // A model doesn't have to be passed or used
         if( config->Get( nkNewV8String( "model" ) )->IsUndefined() )
         {
-
+            Local<String> host = config->Get( nkNewV8SString( "host" ) )->ToString();
+            Local<String> port = config->Get( nkNewV8SString( "port" ) )->ToString();
+            Local<String> db = config->Get( nkNewV8SString( "db" ) )->ToString();
+            Local<String> user = config->Get( nkNewV8SString( "user" ) )->ToString();
+            Local<String> pass = config->Get( nkNewV8SString( "password" ) )->ToString();
             dvr = new Driver(
-                nkNewV8PString( config->Get( nkNewV8String( "host" ) )->ToString() ),
-                nkNewV8PString( config->Get( nkNewV8String( "port" ) )->ToString() ),
-                nkNewV8PString( config->Get( nkNewV8String( "db" ) )->ToString() ),
-                nkNewV8PString( config->Get( nkNewV8String( "user" ) )->ToString() ),
-                nkNewV8PString( config->Get( nkNewV8String( "password" ) )->ToString() ),
+                nkNewV8PString( host ),
+                nkNewV8PString( port ),
+                nkNewV8PString( db ),
+                nkNewV8PString( user ),
+                nkNewV8PString( pass ),
                 nkNewV8PObject( Object::New( nkIsolate ) ),
                 nkNewV8PBoolean( v8::False( nkIsolate ) ),
                 nkNewV8PInteger( Integer::New( nkPreIsolated  0 ) ),
@@ -172,11 +171,12 @@ nkReturnType Driver::New( const nkArguments& args )
             );
         }
 
-        dvr->phmap_->Set( 0, phspec );
+        phmap->Set( 0, Local<Array>::New( nkPreIsolated phspec ) );
+        nkResetV8PArray( dvr->phmap_, phmap );
 
         dvr->Wrap( args.This() );
 
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
     else
     {
@@ -188,11 +188,11 @@ nkReturnType Driver::New( const nkArguments& args )
         if( args[0]->IsUndefined() )
         {
             config = Object::New( nkIsolate ) ;
-            config->Set( String::NewSymbol( "host" ), nkNewV8String( "localhost" ) );
-            config->Set( String::NewSymbol( "port" ), nkNewV8String( "3306" ) );
-            config->Set( String::NewSymbol( "db" ), nkNewV8String( "test" ) );
-            config->Set( String::NewSymbol( "user" ), nkNewV8String( "test" ) );
-            config->Set( String::NewSymbol( "password" ), nkNewV8String( "testpass" ) );
+            config->Set( nkNewV8SString( "host" ), nkNewV8String( "localhost" ) );
+            config->Set( nkNewV8SString( "port" ), nkNewV8String( "3306" ) );
+            config->Set( nkNewV8SString( "db" ), nkNewV8String( "test" ) );
+            config->Set( nkNewV8SString( "user" ), nkNewV8String( "test" ) );
+            config->Set( nkNewV8SString( "password" ), nkNewV8String( "testpass" ) );
         }
         else
         {
@@ -210,15 +210,16 @@ nkReturnType Driver::New( const nkArguments& args )
             config->Get( nkNewV8String( "user" ) ),
             config->Get( nkNewV8String( "pass" ) ),
             config->Get( nkNewV8String( "model" ) ),
-            Local<Boolean>::New( v8::False( nkIsolate )  ),
+            Local<Boolean>::New( nkPreIsolated v8::False( nkIsolate )  ),
             Integer::New( nkPreIsolated  0 ),
             Integer::New( nkPreIsolated  0 ),
             phspec,
-            Local<Boolean>::New( v8::False( nkIsolate )  ),
+            Local<Boolean>::New( nkPreIsolated v8::False( nkIsolate )  ),
             nkNewV8String( "" )
         };
 
-        nkReturn( constructor->NewInstance( argc, argv ) );
+        nkNewConstructor
+        nkReturn( nkNewFromConstructor )
     }
 }
 
@@ -232,27 +233,31 @@ nkReturnType Driver::New( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Query( const nkArguments& args )
+nkMethodReturnType Driver::Query( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != ( KWAERI_EMPTY || KWAERI_NOPREP ) && dvr->prepared_->IntegerValue() != KWAERI_NOT_PREP ) )
+    if( args[0]->IsUndefined() || ( type->IntegerValue() != ( KWAERI_EMPTY || KWAERI_NOPREP ) && prepared->IntegerValue() != KWAERI_NOT_PREP ) )
     {
         std::cout << "Error: Escaped .Query" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), args[0]->ToString() ) );
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOPREP ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), args[0]->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->type_, KWAERI_NOPREP );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_NOT_PREP );
 
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -265,41 +270,46 @@ nkReturnType Driver::Query( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Select( const nkArguments& args )
+nkMethodReturnType Driver::Select( const nkMethodArgumentType& args )
 {
-    // Always declare the HandleScope
-    nkScope;
+    // Always declare isolate and HandleScope
+    nkIsolation( args )
+    nkScope
 
     // Unwrap the object
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Boolean> modeled = Local<Boolean>::New( nkPreIsolated dvr->modeled_ );
+    Local<Object> model = Local<Object>::New( nkPreIsolated dvr->model_ );
 
     // Fetch our arguments and define default behavior for incorrect arguments or no arguments
-    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    if( args[0]->IsUndefined() || type->IntegerValue() != KWAERI_EMPTY )
     {
         std::cout << "Error: Escaped .Select" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // This is how we convert a JavaScript string to a std::string (c++)
-    String::AsciiValue av( args[0] );
+
+    nkV8StringValueType av( args[0] );
     std::string select = *av;
 
     // Build our query string part
     std::string qp = std::string( "SELECT " );
 
     // If we're using models, we build our select in the proper manner
-    if( dvr->modeled_->BooleanValue() )
+    if( modeled->BooleanValue() )
     {
         // The supplied model let's us know which columns to select - let's write it out
-        Local<Array> keys = dvr->model_->GetOwnPropertyNames();     // Gets us all the keys in an array
+        Local<Array> keys = model->GetOwnPropertyNames();     // Gets us all the keys in an array
         for( int i = 0, l = keys->Length(); i < l; i++ )
         {
             // Get the keys to build the select clause
             Local<String> k = keys->Get( i )->ToString();
 
-            String::AsciiValue kav( k );
+            nkV8StringValueType kav( k );
             std::string kv = *kav;
 
             if( i != 0 )
@@ -318,14 +328,14 @@ nkReturnType Driver::Select( const nkArguments& args )
     }
 
     // Set our query type and the query string.
-    dvr->query_ = nkNewV8PString( nkNewV8String( qp.c_str() ) );
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_SELECT ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    nkResetV8PStringUtf8( dvr->query_, qp.c_str() );
+    nkResetV8PInteger( dvr->type_, KWAERI_SELECT );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_CLAUSE_PREP );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -338,40 +348,45 @@ nkReturnType Driver::Select( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Insert( const nkArguments& args )
+nkMethodReturnType Driver::Insert( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Boolean> modeled = Local<Boolean>::New( nkPreIsolated dvr->modeled_ );
+    Local<Object> model = Local<Object>::New( nkPreIsolated dvr->model_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    if( args[0]->IsUndefined() || type->IntegerValue() != KWAERI_EMPTY )
     {
         std::cout << "Error: Escaped .Insert" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Fetch the user input
-    String::AsciiValue av( args[0] );
+    nkV8StringValueType av( args[0] );
     std::string insert = *av;
     std::string qp;
 
     // If we're using models, the supplied model let's us know which columns to provide values for
-    if( dvr->modeled_->BooleanValue() )
+    if( modeled->BooleanValue() )
     {
         // Build our query string part
         qp = std::string( "INSERT INTO " );
         qp += insert;
         qp += " ( ";
 
-        Local<Array> keys = dvr->model_->GetOwnPropertyNames();     // Gets us all the keys in an array
+        Local<Array> keys = model->GetOwnPropertyNames();     // Gets us all the keys in an array
         for( int i = 0, l = keys->Length(); i < l; i++ )
         {
             // Get the keys to build the select clause
             Local<String> k = keys->Get( i )->ToString();
 
-            String::AsciiValue kav( k );
+            nkV8StringValueType kav( k );
             std::string kv = *kav;
 
             if( i != 0 )
@@ -391,18 +406,18 @@ nkReturnType Driver::Insert( const nkArguments& args )
 
     // Convert the std string to a v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // And concatenate it with the existing query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_INSERT ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->type_, KWAERI_INSERT );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_CLAUSE_PREP );
 
     // Return the entire object to allow chaining, results can be checked there
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -415,18 +430,23 @@ nkReturnType Driver::Insert( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Values( const nkArguments& args )
+nkMethodReturnType Driver::Values( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
+    Local<Array> phmap = Local<Array>::New( nkPreIsolated dvr->phmap_ );
 
-    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() == KWAERI_VALS_PREP_END || ( dvr->prepared_->IntegerValue() != KWAERI_CLAUSE_PREP && dvr->prepared_->IntegerValue() != KWAERI_VALS_PREP_START ) || ( dvr->type_->IntegerValue() != KWAERI_INSERT && dvr->type_->IntegerValue() != KWAERI_UPDATE ) )
+    if( args[0]->IsUndefined() || prepared->IntegerValue() == KWAERI_VALS_PREP_END || ( prepared->IntegerValue() != KWAERI_CLAUSE_PREP && prepared->IntegerValue() != KWAERI_VALS_PREP_START ) || ( type->IntegerValue() != KWAERI_INSERT && type->IntegerValue() != KWAERI_UPDATE ) )
     {
         std::cout << "Error: Escaped .Values" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Get some controls in place
@@ -436,13 +456,13 @@ nkReturnType Driver::Values( const nkArguments& args )
     {
         multi = true;
     }
-    else if( dvr->prepared_->IntegerValue() == KWAERI_VALS_PREP_START )
+    else if( prepared->IntegerValue() == KWAERI_VALS_PREP_START )
     {
         adding = true;
     }
 
     // If it's an insert query:
-    if( dvr->type_->IntegerValue() == KWAERI_INSERT )
+    if( type->IntegerValue() == KWAERI_INSERT )
     {   // We could pass an array of objects which contain values for multiple records to be inserted
         if( !adding )
         {
@@ -456,7 +476,7 @@ nkReturnType Driver::Values( const nkArguments& args )
             Local<Array> phspec = Array::New( nkIsolate );
 
             // We'll set the phspec index to an empty array so that the length is 1 :)
-            dvr->phmap_->Set( 0, Array::New( nkIsolate ) );
+            phmap->Set( 0, Array::New( nkIsolate ) );
 
             // This tells us how many times to loop when executing the prepared statement (we only need to do this once once);
             phspec->Set( 0, Integer::New( nkPreIsolated  mvals->Length() ) );
@@ -476,7 +496,7 @@ nkReturnType Driver::Values( const nkArguments& args )
                     kvpair->Set( 1, vals->Get( k )->ToString() );
 
                     // Store the key/value pair for the place-holder in the order they are added to the clause.
-                    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );      // Using the Length() property ensures that we always set the next index in the array.
+                    phmap->Set( phmap->Length(), kvpair );      // Using the Length() property ensures that we always set the next index in the array.
 
                     if( !prepped )
                     {
@@ -505,7 +525,7 @@ nkReturnType Driver::Values( const nkArguments& args )
             }
 
             // Set the phmap metadata in the first index
-            dvr->phmap_->Set( 0, phspec );
+            phmap->Set( 0, phspec );
         }
         else
         {   // Add on to the insert clause, providing values
@@ -517,7 +537,7 @@ nkReturnType Driver::Values( const nkArguments& args )
             int lcount = 1;
             if( adding )
             {
-                phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+                phspec = Local<Array>::Cast( phmap->Get( 0 ) );
                 lcount += phspec->Get( 0 )->IntegerValue();
 
                 phspec->Set( 0, Integer::New( nkPreIsolated  lcount ) );
@@ -528,7 +548,7 @@ nkReturnType Driver::Values( const nkArguments& args )
                 phspec->Set( 1, Integer::New( nkPreIsolated  keys->Length() ) );    // We only need this the first time on an insert statement that's being looped
             }
 
-            dvr->phmap_->Set( 0, phspec );
+            phmap->Set( 0, phspec );
 
             for( int i = 0, l = keys->Length(); i < l; i++ )
             {
@@ -541,7 +561,7 @@ nkReturnType Driver::Values( const nkArguments& args )
                 kvpair->Set( 1, vals->Get( k )->ToString() );
 
                 // Store the key/value pair for the place-holder in the order they are added to the clause.
-                dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );      // Using the Length() property ensures that we always set the next index in the array.
+                phmap->Set( phmap->Length(), kvpair );      // Using the Length() property ensures that we always set the next index in the array.
 
                 if( !adding )
                 {
@@ -560,7 +580,7 @@ nkReturnType Driver::Values( const nkArguments& args )
             }
         }
     }
-    else if( dvr->type_->IntegerValue() == KWAERI_UPDATE )
+    else if( type->IntegerValue() == KWAERI_UPDATE )
     {
         // Add on to the update clause, providing values
         Handle<Object> vals = args[0]->ToObject();
@@ -571,7 +591,7 @@ nkReturnType Driver::Values( const nkArguments& args )
         int lcount = 1;
         if( adding )
         {
-            phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+            phspec = Local<Array>::Cast( phmap->Get( 0 ) );
             lcount += phspec->Get( 0 )->IntegerValue();
 
             phspec->Set( KWAERI_PH_KEY, Integer::New( nkPreIsolated  lcount ) );
@@ -583,7 +603,7 @@ nkReturnType Driver::Values( const nkArguments& args )
             qp = std::string( "SET " );
         }
 
-        dvr->phmap_->Set( KWAERI_PH_KEY, phspec );
+        phmap->Set( KWAERI_PH_KEY, phspec );
 
         for( int i = 0, l = keys->Length(); i < l; i++ )
         {
@@ -596,9 +616,9 @@ nkReturnType Driver::Values( const nkArguments& args )
             kvpair->Set( KWAERI_PH_VALUE, vals->Get( k ) );
 
             // Store the values and conditions for the placeholders in the order they are added to the clause
-            dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+            phmap->Set( phmap->Length(), kvpair );
 
-            String::AsciiValue kav( k );
+            nkV8StringValueType kav( k );
             std::string kv = *kav;
 
             if( !adding )
@@ -615,25 +635,25 @@ nkReturnType Driver::Values( const nkArguments& args )
 
     // Convert the std string to a v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
 
     if( !multi )
     {
-        dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_START ) );
+        nkResetV8PInteger( dvr->prepared_, KWAERI_VALS_PREP_START );
     }
     else
     {
-        dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_VALS_PREP_END ) );
+        nkResetV8PInteger( dvr->prepared_, KWAERI_VALS_PREP_END );
     }
 
     // Return the entire object to allow chaining.
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -646,22 +666,25 @@ nkReturnType Driver::Values( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Update( const nkArguments& args )
+nkMethodReturnType Driver::Update( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || ( dvr->type_->IntegerValue() != KWAERI_EMPTY ) )
+    if( args[0]->IsUndefined() || ( type->IntegerValue() != KWAERI_EMPTY ) )
     {
         std::cout << "Error: Escaped .Update" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Get the name of the database to update and convert it to a std string
-    String::AsciiValue av( args[0] );
+    nkV8StringValueType av( args[0] );
     std::string update = *av;
 
     // Build our query string part
@@ -670,18 +693,18 @@ nkReturnType Driver::Update( const nkArguments& args )
 
     // Convert the query part from std string to v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_UPDATE ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->type_, KWAERI_UPDATE );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_CLAUSE_PREP );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -694,22 +717,25 @@ nkReturnType Driver::Update( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Delete( const nkArguments& args )
+nkMethodReturnType Driver::Delete( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || dvr->type_->IntegerValue() != KWAERI_EMPTY )
+    if( args[0]->IsUndefined() || type->IntegerValue() != KWAERI_EMPTY )
     {
         std::cout << "Error: Escaped .Delete" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Fetch the user input (database name) and convert it to a std string
-    String::AsciiValue av( args[0] );
+    nkV8StringValueType av( args[0] );
     std::string remove = *av;
 
     // Build our query string part
@@ -718,18 +744,18 @@ nkReturnType Driver::Delete( const nkArguments& args )
 
     // Convert the std string to a v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Update the query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_DELETE ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_CLAUSE_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->type_, KWAERI_DELETE );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_CLAUSE_PREP );
 
     // Return the entire object to allow for chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -742,32 +768,37 @@ nkReturnType Driver::Delete( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Where( const nkArguments& args )
+nkMethodReturnType Driver::Where( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
+    Local<Array> phmap = Local<Array>::New( nkPreIsolated dvr->phmap_ );
 
     // The supplied argument should be an object with arrays defining operators, types, and values for each where clause argument
-    if( args[0]->IsUndefined() || !args[0]->IsObject() || dvr->prepared_->IntegerValue() < KWAERI_CLAUSE_PREP || dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_NOPREP )
+    if( args[0]->IsUndefined() || !args[0]->IsObject() || prepared->IntegerValue() < KWAERI_CLAUSE_PREP || type->IntegerValue() == KWAERI_INSERT || type->IntegerValue() == KWAERI_NOPREP )
     {
         std::cout << "Error: Escaped .Where" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // We'll need to make sure that the phmap has its specs set so Length() returns at least 1
-    if( dvr->phmap_->Length() < 1 )
+    if( phmap->Length() < 1 )
     {
         Local<Array> phspec = Array::New( nkIsolate );
         phspec->Set( 0, Integer::New( nkPreIsolated  1 ) );
         phspec->Set( 1, Integer::New( nkPreIsolated  0 ) );
-        dvr->phmap_->Set( 0, phspec );
+        phmap->Set( 0, phspec );
     }
 
     // Now prepare to modify the phspec array as needed
-    Local<Array> ophspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+    Local<Array> ophspec = Local<Array>::Cast( phmap->Get( 0 ) );
     Local<Array> phspec = Array::New( nkIsolate );
     phspec->Set( 0, ophspec->Get( 0 ) );    // This flag could sometimes increase from the use of this method, such as from a DELETE statement, but we won't mess with that quite yet
     int cindex = 0;             // Holds the total number of parameters that are being added to the phmap for this clause
@@ -786,7 +817,7 @@ nkReturnType Driver::Where( const nkArguments& args )
         Local<Array> data = Local<Array>::Cast( where->Get( k ) );
 
         // Convert the key and the operator to std:string
-        String::AsciiValue kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
+        nkV8StringValueType kav( k ), oav( data->Get( KWAERI_OPERATOR ) );
         std::string kv = *kav, ov = *oav;
 
         // Build upon the query string
@@ -809,45 +840,13 @@ nkReturnType Driver::Where( const nkArguments& args )
         {   // We need to know our operator to determine how to build the string
             if( ov == std::string( "BETWEEN" ) )
             {   // Fancy up our string
-            qp += "( ";
-            // Start with 1 (cuz 0 is the operator)
-            for( int ii = KWAERI_WHERE_VALUE; ii < acount; ii++ )
-            {   // After the first iteration we'll need to AND or OR the additional values, respectively
-                if( ii > 1 )
-                {
-                qp += " AND ";
-                }
-
-                Local<Array> kvpair = Array::New( nkIsolate );              // Stores the key value pair for the place-holder map
-
-                // Create the key/value pair
-                kvpair->Set( KWAERI_PH_KEY, k );
-                kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
-
-                // Store the values and conditions for the placeholders in the order they are added to the clause
-                dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
-                cindex++;
-
-                qp += "?";
-            }
-
-            // Finish fancying up our string
-            qp += " ) ";
-            }
-            else
-            {   // If there are more than two elements, but it's not BETWEEN for the operator, the user is adding an OR statement for the current condition, or an OR statement for the next condition
-            String::AsciiValue waav( data->Get( KWAERI_WHERE_ADD ) );
-            std::string wav = *waav;
-            if( wav == std::string( "OR" ) || wav == std::string( "or" ) )
-            {   // If the user is OR'ing for the current condition, they'll have actually supplied 4 or more elements..
-                if( acount > 3 )
-                {   // Fancy up our string
                 qp += "( ";
-                for( int ii = 1; ii < acount; ii++ )
-                {
+                // Start with 1 (cuz 0 is the operator)
+                for( int ii = KWAERI_WHERE_VALUE; ii < acount; ii++ )
+                {   // After the first iteration we'll need to AND or OR the additional values, respectively
                     if( ii > 1 )
                     {
-                    qp += " OR ";
+                        qp += " AND ";
                     }
 
                     Local<Array> kvpair = Array::New( nkIsolate );              // Stores the key value pair for the place-holder map
@@ -857,19 +856,51 @@ nkReturnType Driver::Where( const nkArguments& args )
                     kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
 
                     // Store the values and conditions for the placeholders in the order they are added to the clause
-                    dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+                    phmap->Set( phmap->Length(), kvpair );
                     cindex++;
+
                     qp += "?";
                 }
 
                 // Finish fancying up our string
                 qp += " ) ";
-                }
-                else
-                {   // If the user is OR'ing for the next condition, we just need to set prevor to true
-                prevor = true;
-                }
             }
+            else
+            {   // If there are more than two elements, but it's not BETWEEN for the operator, the user is adding an OR statement for the current condition, or an OR statement for the next condition
+                nkV8StringValueType waav( data->Get( KWAERI_WHERE_ADD ) );
+                std::string wav = *waav;
+                if( wav == std::string( "OR" ) || wav == std::string( "or" ) )
+                {   // If the user is OR'ing for the current condition, they'll have actually supplied 4 or more elements..
+                    if( acount > 3 )
+                    {   // Fancy up our string
+                        qp += "( ";
+                        for( int ii = 1; ii < acount; ii++ )
+                        {
+                            if( ii > 1 )
+                            {
+                                qp += " OR ";
+                            }
+
+                            Local<Array> kvpair = Array::New( nkIsolate );              // Stores the key value pair for the place-holder map
+
+                            // Create the key/value pair
+                            kvpair->Set( KWAERI_PH_KEY, k );
+                            kvpair->Set( KWAERI_PH_VALUE, data->Get( ii ) );
+
+                            // Store the values and conditions for the placeholders in the order they are added to the clause
+                            phmap->Set( phmap->Length(), kvpair );
+                            cindex++;
+                            qp += "?";
+                        }
+
+                        // Finish fancying up our string
+                        qp += " ) ";
+                    }
+                    else
+                    {   // If the user is OR'ing for the next condition, we just need to set prevor to true
+                        prevor = true;
+                    }
+                }
             }
         }
         else
@@ -882,7 +913,7 @@ nkReturnType Driver::Where( const nkArguments& args )
             kvpair->Set( KWAERI_PH_VALUE, data->Get( KWAERI_WHERE_VALUE ) );
 
             // Store the values and conditions for the placeholders in the order they are added to the clause
-            dvr->phmap_->Set( dvr->phmap_->Length(), kvpair );
+            phmap->Set( phmap->Length(), kvpair );
             cindex++;
             qp += "?";
         }
@@ -893,16 +924,24 @@ nkReturnType Driver::Where( const nkArguments& args )
 
     // Let's set the new parameter count to be that of the existing plus the new amount from this clause.  Remember we are not allowing chaining yet.
     phspec->Set( 1, Integer::New( nkPreIsolated  ophspec->Get( 1 )->IntegerValue() + cindex ) );
-    dvr->phmap_->Set( 0, phspec );
+    phmap->Set( 0, phspec );
+
+    // Convert the query string part from std string to v8 string
+    Handle<Value> qph = nkNewV8String( qp.c_str() );
+    nkV8StringValueType qpav( qph );
+    Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), nkNewV8String( qp.c_str() ) ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_WHERE_PREP_START ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+
+    // Concatenate the new query part with the existing query
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_WHERE_PREP_START );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -915,22 +954,25 @@ nkReturnType Driver::Where( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Join( const nkArguments& args )
+nkMethodReturnType Driver::Join( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() < KWAERI_CLAUSE_PREP )
+    if( args[0]->IsUndefined() || prepared->IntegerValue() < KWAERI_CLAUSE_PREP )
     {
         std::cout << "Error: Escaped .Join" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Get the database name for which we are joining
-    String::AsciiValue av( args[0] );
+    nkV8StringValueType av( args[0] );
     std::string db = *av;
 
     // Build our query string part
@@ -939,17 +981,17 @@ nkReturnType Driver::Join( const nkArguments& args )
 
     // Convert the query string part from std string to v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_JOIN_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_JOIN_PREP );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -962,22 +1004,25 @@ nkReturnType Driver::Join( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::On( const nkArguments& args )
+nkMethodReturnType Driver::On( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() != KWAERI_JOIN_PREP )
+    if( args[0]->IsUndefined() || prepared->IntegerValue() != KWAERI_JOIN_PREP )
     {
         std::cout << "Error: Escaped .On" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        return scope.Close( args.This() );
+        nkReturn( args.This() )
     }
 
     // Get user input and convert it to a std string
-    String::AsciiValue av( args[0] );
+    nkV8StringValueType av( args[0] );
     std::string on = *av;
 
     // Build our query string part
@@ -987,16 +1032,16 @@ nkReturnType Driver::On( const nkArguments& args )
 
     // Convert the query string part from std string to v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the new query part with the existing query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -1009,18 +1054,20 @@ nkReturnType Driver::On( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Limit( const nkArguments& args )
+nkMethodReturnType Driver::Limit( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
     if( args[0]->IsUndefined() )
     {
         std::cout << "Error: Escaped .Limit" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // We allow the invoker to specify 1 or two arguments for ease of use
@@ -1028,13 +1075,13 @@ nkReturnType Driver::Limit( const nkArguments& args )
     if( args[1]->IsUndefined() )
     {
         // This is how we convert a JavaScript string to a std::string (c++)
-        String::AsciiValue avto( args[0] );
+        nkV8StringValueType avto( args[0] );
         from = "0";
         to = *avto;
     }
     else
     {
-        String::AsciiValue avfrom( args[0] ), avto( args[1] );
+        nkV8StringValueType avfrom( args[0] ), avto( args[1] );
         from = *avfrom;
         to = *avto;
     }
@@ -1047,17 +1094,17 @@ nkReturnType Driver::Limit( const nkArguments& args )
 
     // Convert the query string part from std string to v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_LIMIT_PREP ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_LIMIT_PREP );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -1070,23 +1117,26 @@ nkReturnType Driver::Limit( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Order( const nkArguments& args )
+nkMethodReturnType Driver::Order( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> prepared = Local<Integer>::New( nkPreIsolated dvr->prepared_ );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( args[0]->IsUndefined() || dvr->prepared_->IntegerValue() == KWAERI_LIMIT_PREP )
+    if( args[0]->IsUndefined() || prepared->IntegerValue() == KWAERI_LIMIT_PREP )
     {
         std::cout << "Error: Escaped .Order" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // Fetch user input and convert it to a std string
     std::string order;
-    String::AsciiValue avorder( args[0] );
+    nkV8StringValueType avorder( args[0] );
     order = *avorder;
 
     // Build our query string part
@@ -1095,16 +1145,16 @@ nkReturnType Driver::Order( const nkArguments& args )
 
     // Convert the query string part from std string to v8 string
     Handle<Value> qph = nkNewV8String( qp.c_str() );
-    String::AsciiValue qpav( qph );
+    nkV8StringValueType qpav( qph );
     Local<String> qps = nkNewV8String( *qpav );
 
     // Concatenate the query part with the existing query string
-    dvr->query_ = nkNewV8PString( String::Concat( dvr->query_->ToString(), qps->ToString() ) );
+    nkResetV8PString( dvr->query_, String::Concat( query->ToString(), qps->ToString() )->ToString() );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
 
 
@@ -1113,23 +1163,31 @@ nkReturnType Driver::Order( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Execute( const nkArguments& args )
+nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<Array> phmap = Local<Array>::New( nkPreIsolated dvr->phmap_ );
+    Local<String> _host = Local<String>::New( nkPreIsolated dvr->host_ );
+    Local<String> _db = Local<String>::New( nkPreIsolated dvr->db_ );
+    Local<String> _user = Local<String>::New( nkPreIsolated dvr->user_ );
+    Local<String> _password = Local<String>::New( nkPreIsolated dvr->password_ );
+    Local<String> _query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( dvr->type_->IntegerValue() == KWAERI_EMPTY )
+    if( type->IntegerValue() == KWAERI_EMPTY )
     {
         std::cout << "Error: Escaped .Execute" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
-    if( dvr->type_->IntegerValue() == KWAERI_NOPREP /* && dvr->prepared_->IntegerValue() == KWAERI_NOT_PREP */ )
+    if( type->IntegerValue() == KWAERI_NOPREP /* && dvr->prepared_->IntegerValue() == KWAERI_NOT_PREP */ )
     {
-        nkReturn( Driver::ExecuteQuery( args ) );
+        return( Driver::ExecuteQuery( args ) );
     }
 
     sql::Driver* driver;
@@ -1141,8 +1199,8 @@ nkReturnType Driver::Execute( const nkArguments& args )
 
     try
     {
-        String::AsciiValue hav( dvr->host_ ), dbav( dvr->db_ ), userav( dvr->user_ ), passav( dvr->password_ ), queryav( dvr->query_ );
-        std::string db = *dbav, host = *hav, user = *userav, pass = *passav, query = *queryav, tresult;
+        nkV8StringValueType hav( _host ), dbav( _db ), userav( _user ), passav( _password ), queryav( _query );
+        std::string host = *hav, db = *dbav, user = *userav, pass = *passav, query = *queryav, tresult;
         bool result = true;
         int affectedRows = 0;
 
@@ -1152,77 +1210,86 @@ nkReturnType Driver::Execute( const nkArguments& args )
         con->setSchema( db );
         pstmt = con->prepareStatement( query );
 
+        if( pstmt )
+        {
+            std::cout << "Statement object created" << std::endl;
+        }
+        else
+        {
+            std::cout << "Statement object not created" << std::endl;
+        }
+
         // If any values are set in the placeholder map we need to prepare them.
-        if( dvr->phmap_->Length() > 1 )
+        if( phmap->Length() > 1 )
         {
             // Let's see how many loops we'll need to do
-            Local<Array> phspec = Local<Array>::Cast( dvr->phmap_->Get( 0 ) );
+            Local<Array> phspec = Local<Array>::Cast( phmap->Get( 0 ) );
             int loops = phspec->Get( 0 )->IntegerValue();
             int acount = phspec->Get( 1 )->IntegerValue();
 
             //std::cout << "Loops: " << loops << " - Params per loop: " << acount << std::endl;
 
-            if( loops > 1 && ( dvr->type_->IntegerValue() == KWAERI_INSERT || dvr->type_->IntegerValue() == KWAERI_UPDATE ) )
+            if( loops > 1 && ( type->IntegerValue() == KWAERI_INSERT || type->IntegerValue() == KWAERI_UPDATE ) )
             {
                 int cindex = 1;
                 for( int c = 0; c < loops; c++ )
                 {
                     for( int i = 1, l = acount + 1; i < l; i++ )
                     {
-                    // Get the key/value pair for which to set the place-holder's values
-                    Local<Array> kvp = Local<Array>::Cast( dvr->phmap_->Get( cindex )->ToObject() );
+                        // Get the key/value pair for which to set the place-holder's values
+                        Local<Array> kvp = Local<Array>::Cast( phmap->Get( cindex )->ToObject() );
 
-                    // Now discern the type of the place-holder's value so we can set it
-                    if( !kvp->Get( KWAERI_PH_VALUE )->IsUndefined() )
-                    {
-                        if( kvp->Get( KWAERI_PH_VALUE )->IsString() || kvp->Get( KWAERI_PH_VALUE )->IsDate() || kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+                        // Now discern the type of the place-holder's value so we can set it
+                        if( !kvp->Get( KWAERI_PH_VALUE )->IsUndefined() )
                         {
-                            String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
-                            std::string strval = *strvalav;
-                            if( strval.length() > 255 )
-                            {   // We'll set this using setBlob
-                                std::istringstream stream( strval );
-                                pstmt->setBlob( i, &stream );
+                            if( kvp->Get( KWAERI_PH_VALUE )->IsString() || kvp->Get( KWAERI_PH_VALUE )->IsDate() || kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+                            {
+                                nkV8StringValueType strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+                                std::string strval = *strvalav;
+                                if( strval.length() > 255 )
+                                {   // We'll set this using setBlob
+                                    std::istringstream stream( strval );
+                                    pstmt->setBlob( i, &stream );
+                                }
+                                else
+                                {   // Set using set string
+                                    if( kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+                                    {
+                                        pstmt->setString( i, std::string( "" ) );
+                                    }
+                                    else
+                                    {
+                                        pstmt->setString( i, strval );
+                                    }
+                                }
                             }
-                            else
-                            {   // Set using set string
-                                if( kvp->Get( KWAERI_PH_VALUE )->IsNull() )
+                            else if( kvp->Get( KWAERI_PH_VALUE )->IsNumber() )  //
+                            {
+                                if( kvp->Get( KWAERI_PH_VALUE )->IsInt32() )    // int32_t (probably checks if is 64-bit on 64-bit systems)
                                 {
-                                    pstmt->setString( i, std::string( "" ) );
+                                    pstmt->setInt( i, kvp->Get( KWAERI_PH_VALUE )->ToInteger()->Value() );
+                                }
+                                else if( kvp->Get( KWAERI_PH_VALUE )->IsUint32() )  // uint32_t (same as above)
+                                {
+                                    pstmt->setUInt( i, kvp->Get( KWAERI_PH_VALUE )->ToUint32()->Value() );
                                 }
                                 else
                                 {
-                                    pstmt->setString( i, strval );
+                                    pstmt->setDouble( i, kvp->Get( KWAERI_PH_VALUE )->ToNumber()->Value() );
                                 }
                             }
-                        }
-                        else if( kvp->Get( KWAERI_PH_VALUE )->IsNumber() )  //
-                        {
-                            if( kvp->Get( KWAERI_PH_VALUE )->IsInt32() )    // int32_t (probably checks if is 64-bit on 64-bit systems)
+                            else if( kvp->Get( KWAERI_PH_VALUE )->IsBoolean() )
                             {
-                                pstmt->setInt( i, kvp->Get( KWAERI_PH_VALUE )->ToInteger()->Value() );
-                            }
-                            else if( kvp->Get( KWAERI_PH_VALUE )->IsUint32() )  // uint32_t (same as above)
-                            {
-                                pstmt->setUInt( i, kvp->Get( KWAERI_PH_VALUE )->ToUint32()->Value() );
+                                pstmt->setBoolean( i, kvp->Get( KWAERI_PH_VALUE )->ToBoolean()->Value() );
                             }
                             else
                             {
-                                pstmt->setDouble( i, kvp->Get( KWAERI_PH_VALUE )->ToNumber()->Value() );
+                                nkV8StringValueType strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+                                std::string strval = *strvalav;
+                                std::cout << "Error: Unrecongnized or unsupported type:" << strval << std::endl;
                             }
                         }
-                        else if( kvp->Get( KWAERI_PH_VALUE )->IsBoolean() )
-                        {
-                            pstmt->setBoolean( i, kvp->Get( KWAERI_PH_VALUE )->ToBoolean()->Value() );
-                        }
-                        else
-                        {
-                            String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
-                            std::string strval = *strvalav;
-                            std::cout << "Error: Unrecongnized or unsupported type:" << strval << std::endl;
-                        }
-                    }
-                    cindex++;
+                        cindex++;
                     }
 
                     // Now we run our looped prepared statement
@@ -1234,14 +1301,14 @@ nkReturnType Driver::Execute( const nkArguments& args )
                 delete con;
                 delete pstmt;
 
-                nkReturn( Integer::New( nkPreIsolated  affectedRows ) );
+                nkReturn( Integer::New( nkPreIsolated  affectedRows ) )
             }
             else
             {
                 for( int i = 1, l = acount + 1; i < l; i++ )
                 {
                     // Get the key/value pair for which to set the place-holder's values
-                    Local<Array> kvp = Local<Array>::Cast( dvr->phmap_->Get( i ) );
+                    Local<Array> kvp = Local<Array>::Cast( phmap->Get( i ) );
                     // Local<String> k = kvp->Get( KWAERI_PH_KEY )->ToString();
 
                     // Now discern the type of the place-holder's value so we can set it
@@ -1249,7 +1316,7 @@ nkReturnType Driver::Execute( const nkArguments& args )
                     {
                         if( kvp->Get( KWAERI_PH_VALUE )->IsString() || kvp->Get( KWAERI_PH_VALUE )->IsDate() || kvp->Get( KWAERI_PH_VALUE )->IsNull() )
                         {
-                            String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+                            nkV8StringValueType strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
                             std::string strval = *strvalav;
                             if( strval.length() > 255 )
                             {   // We'll set this using setBlob
@@ -1289,7 +1356,7 @@ nkReturnType Driver::Execute( const nkArguments& args )
                         }
                         else
                         {
-                            String::AsciiValue strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
+                            nkV8StringValueType strvalav( kvp->Get( KWAERI_PH_VALUE )->ToString() );
                             std::string strval = *strvalav;
                             std::cout << "Error: Unrecongnized or unsupported type:" << strval << std::endl;
                         }
@@ -1298,17 +1365,17 @@ nkReturnType Driver::Execute( const nkArguments& args )
             }
         }
 
-        if( dvr->type_->IntegerValue() != KWAERI_SELECT )
+        if( type->IntegerValue() != KWAERI_SELECT )
         {
             // Let's execute the query and return how many rows were affected
-            affectedRows += pstmt->executeUpdate();
+            affectedRows = pstmt->executeUpdate();
 
             //std::cout << "We affected " << affectedRows << " rows.  It was an INSERT UPDATE or DELETE" << std::endl;
 
             delete con;
             delete pstmt;
 
-            nkReturn( Integer::New( nkPreIsolated  affectedRows ) );
+            nkReturn( Integer::New( nkPreIsolated  affectedRows ) )
         }
         else
         {   // We're fetching a resultset
@@ -1348,7 +1415,7 @@ nkReturnType Driver::Execute( const nkArguments& args )
                         else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
                         {
                             Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
-                            String::AsciiValue sav( svh );
+                            nkV8StringValueType sav( svh );
                             record->Set( k, nkNewV8String( *sav ) );
                         }
                         else
@@ -1367,10 +1434,10 @@ nkReturnType Driver::Execute( const nkArguments& args )
                 delete pstmt;
 
                 // Return the resulting array
-                nkReturn( Handle<Array>::Cast( records ) );
+                nkReturn( Handle<Array>::Cast( records ) )
             }else
             {
-                nkReturn( nkNewV8String( "We somehow fail horribly..." ) );
+                nkReturn( nkNewV8String( "We somehow fail horribly..." ) )
             }
         }
     }catch( sql::SQLException &e )
@@ -1382,7 +1449,7 @@ nkReturnType Driver::Execute( const nkArguments& args )
         std::cout << "MySQLCPPCONN Failed" << std::endl << "# ERR: SQLException in " << __FILE__ << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n" << std::endl;
         std::cout << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState " << e.getSQLState() << " )" << std::endl;
 
-        nkReturn( nkNewV8String( "Catch Failed" ) );
+        nkReturn( nkNewV8String( "Catch Failed" ) )
     }
 }
 
@@ -1392,18 +1459,25 @@ nkReturnType Driver::Execute( const nkArguments& args )
  *
  * @since 0.2.0
  */
-nkReturnType Driver::ExecuteQuery( const nkArguments& args )
+nkMethodReturnType Driver::ExecuteQuery( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<Integer> type = Local<Integer>::New( nkPreIsolated dvr->type_ );
+    Local<String> _host = Local<String>::New( nkPreIsolated dvr->host_ );
+    Local<String> _db = Local<String>::New( nkPreIsolated dvr->db_ );
+    Local<String> _user = Local<String>::New( nkPreIsolated dvr->user_ );
+    Local<String> _password = Local<String>::New( nkPreIsolated dvr->password_ );
+    Local<String> _query = Local<String>::New( nkPreIsolated dvr->query_ );
 
-    if( dvr->type_->IntegerValue() == KWAERI_EMPTY || dvr->type_->IntegerValue() != KWAERI_NOPREP )
+    if( type->IntegerValue() == KWAERI_EMPTY || type->IntegerValue() != KWAERI_NOPREP )
     {
         std::cout << "Error: Escaped .ExecuteQuery" << std::endl;
         Driver* rdvre = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
         rdvre->Wrap( args.This() );
-        nkReturn( args.This() );
+        nkReturn( args.This() )
     }
 
     // It's important to keep these here, so we can <b>delete</b> if an exception is caught.
@@ -1414,8 +1488,8 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
     sql::Statement* stmt;
     try
     {
-        String::AsciiValue hav( dvr->host_ ), dbav( dvr->db_ ), userav( dvr->user_ ), passav( dvr->password_ ), queryav( dvr->query_ );
-        std::string db = *dbav, host = *hav, user = *userav, pass = *passav, query = *queryav, tresult;
+        nkV8StringValueType hav( _host ), dbav( _db ), userav( _user ), passav( _password ), queryav( _query );
+        std::string host = *hav, db = *dbav, user = *userav, pass = *passav, query = *queryav, tresult;
         bool result = true;
 
         // Create a connection
@@ -1462,7 +1536,7 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
                     else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
                     {
                         Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
-                        String::AsciiValue sav( svh );
+                        nkV8StringValueType sav( svh );
                         record->Set( k, nkNewV8String( *sav ) );
                     }
                     else
@@ -1482,7 +1556,7 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
             delete stmt;
 
             // Return the resulting array
-            nkReturn( Handle<Array>::Cast( records ) );
+            nkReturn( Handle<Array>::Cast( records ) )
         }
         else
         {
@@ -1494,7 +1568,7 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
             delete stmt;
 
             // And return the count
-            nkReturn( affected );
+            nkReturn( affected )
         }
     }catch( sql::SQLException &e )
     {
@@ -1505,7 +1579,7 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
         std::cout << "MySQLCPPCONN Failed" << std::endl << "# ERR: SQLException in " << __FILE__ << " (" << __FUNCTION__ << ") on line " << __LINE__ << "\n" << std::endl;
         std::cout << "# ERR: " << e.what() << " (MySQL error code: " << e.getErrorCode() << ", SQLState " << e.getSQLState() << " )" << std::endl;
 
-        nkReturn( nkNewV8String( "Catch Failed" ) );
+        nkReturn( nkNewV8String( "Catch Failed" ) )
     }
 }
 
@@ -1519,14 +1593,21 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::GetConnection( const nkArguments& args )
+nkMethodReturnType Driver::GetConnection( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<String> _host = Local<String>::New( nkPreIsolated dvr->host_ );
+    Local<String> _port = Local<String>::New( nkPreIsolated dvr->port_ );
+    Local<String> _db = Local<String>::New( nkPreIsolated dvr->db_ );
+    Local<String> _user = Local<String>::New( nkPreIsolated dvr->user_ );
+    Local<String> _password = Local<String>::New( nkPreIsolated dvr->password_ );
+    Local<String> _query = Local<String>::New( nkPreIsolated dvr->query_ );
 
     // Convert the v8::Persistent<v8::String> to std::string
-    String::AsciiValue hostav( dvr->host_->ToString() ), portav( dvr->port_->ToString() ), dbav( dvr->db_->ToString() ), userav( dvr->user_->ToString() ), passav( dvr->password_->ToString() );
+    nkV8StringValueType hostav( _host ), portav( _port), dbav( _db ), userav( _user ), passav( _password );
     std::string host = *hostav, port = *portav, db = *dbav, user = *userav, password = *passav;
 
     std::string conn = "Connection: \nHost: " + host + ",\nPort: " + port + ",\nDatabase: " + db + ",\nUser: " + user + ",\nPassword: " + password + "\n";
@@ -1536,10 +1617,10 @@ nkReturnType Driver::GetConnection( const nkArguments& args )
     Handle<Value> connh = nkNewV8String( conn.c_str() );
 
     // Convert the v8::Handle<v8::Value> to a v8::String::AsciiValue
-    String::AsciiValue connav( connh );
+    nkV8StringValueType connav( connh );
 
     // Return a string containing all the connection info for this Driver instance
-    nkReturn( nkNewV8String( *connav ) );
+    nkReturn( nkNewV8String( *connav ) )
 }
 
 
@@ -1552,14 +1633,16 @@ nkReturnType Driver::GetConnection( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::GetQuery( const nkArguments& args )
+nkMethodReturnType Driver::GetQuery( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
+    Local<String> query = Local<String>::New( nkPreIsolated dvr->query_ );
 
     // Return the full query string to JavaScript
-    nkReturn( dvr->query_->ToString() );
+    nkReturn( query->ToString() )
 }
 
 
@@ -1572,38 +1655,40 @@ nkReturnType Driver::GetQuery( const nkArguments& args )
  *
  * @since 0.0.1
  */
-nkReturnType Driver::Reset( const nkArguments& args )
+nkMethodReturnType Driver::Reset( const nkMethodArgumentType& args )
 {
-    nkScope;
+    nkIsolation( args )
+    nkScope
 
-    Driver* dvr = ObjectWrap::Unwrap<Driver>( args.This() );
+    Driver* dvr = ObjectWrap::Unwrap<Driver>( nkUnwrapThis );
 
     // Reset the query string
-    dvr->query_ = nkNewV8PString( nkNewV8String("") );
+    nkResetV8PStringUtf8( dvr->query_, "" );
 
     // Reset the model
     if( !args[0]->IsUndefined() && args[0]->IsObject() )
     {   // If an object is passed, we replace the model
-        dvr->model_ = nkNewV8PObject( args[0]->ToObject() );
-        dvr->modeled_ = nkNewV8PBoolean( v8::True( nkIsolate ) );
+        Local<Object> model = args[0]->ToObject();
+        nkResetV8PObject( dvr->model_, model );
+        nkResetV8PBoolean( dvr->modeled_, true );
     }
     else if( !args[0]->IsUndefined() )
     {   // If anything other than an object is passed, we clear the model
-        dvr->model_ = nkNewV8PObject( Object::New( nkIsolate ) );
-        dvr->modeled_ = nkNewV8PBoolean( v8::False( nkIsolate ) );
+        nkResetV8PObject( dvr->model_, Object::New( nkIsolate ) );
+        nkResetV8PBoolean( dvr->modeled_, false );
     }// Otherwise we leave the model situation as-is
 
     // Reset the place holder map
-    dvr->phmap_ = nkNewV8PArray( Array::New( nkIsolate ) );
+    nkResetV8PArray( dvr->phmap_, Array::New( nkIsolate ) );
 
     // Reset the type flag
-    dvr->type_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_EMPTY ) );
+    nkResetV8PInteger( dvr->type_, KWAERI_EMPTY );
 
     // Reset the prepared flag
-    dvr->prepared_ = nkNewV8PInteger( Integer::New( nkPreIsolated  KWAERI_NOT_PREP ) );
+    nkResetV8PInteger( dvr->prepared_, KWAERI_NOT_PREP );
 
     // Return the entire object to allow chaining
     Driver* rdvr = new Driver( dvr->host_, dvr->port_, dvr->db_, dvr->user_, dvr->password_, dvr->model_, dvr->modeled_, dvr->type_, dvr->prepared_, dvr->phmap_, dvr->mapped_, dvr->query_ );
     rdvr->Wrap( args.This() );
-    nkReturn( args.This() );
+    nkReturn( args.This() )
 }
