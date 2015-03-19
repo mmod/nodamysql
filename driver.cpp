@@ -33,31 +33,7 @@ Persistent<Function> Driver::constructor;   // Default constructor prototype
  *
  * @since 0.0.1
  */
-Driver::Driver(
-        const nkPersistentMemberType<String>& host,
-        const nkPersistentMemberType<String>& port,
-        const nkPersistentMemberType<String>& db,
-        const nkPersistentMemberType<String>& user,
-        const nkPersistentMemberType<String>& password,
-        const nkPersistentMemberType<Object>& model,
-        const nkPersistentMemberType<Boolean>& modeled,
-        const nkPersistentMemberType<Integer>& type,
-        const nkPersistentMemberType<Integer>& prepared,
-        const nkPersistentMemberType<Array>& phmap,
-        const nkPersistentMemberType<Boolean>& mapped,
-        const nkPersistentMemberType<String>& query )
-        : nkSetV8PStringOS( host_, host ),
-          nkSetV8PStringOS( port_, port ),
-          nkSetV8PStringOS( db_, db ),
-          nkSetV8PStringOS( user_, user ),
-          nkSetV8PStringOS( password_, password ),
-          nkSetV8PObjectOS( model_, model ),
-          nkSetV8PBooleanOS( modeled_, modeled ),
-          nkSetV8PIntegerOS( type_, type ),
-          nkSetV8PIntegerOS( prepared_, prepared ),
-          nkSetV8PArrayOS( phmap_, phmap ),
-          nkSetV8PBooleanOS( mapped_, mapped ),
-          nkSetV8PStringOS( query_, query )
+Driver::Driver( nkDriverConstructorDefinitionBlockA ) : nkDriverConstructorDefinitionBlockB
 {
 }
 
@@ -1221,16 +1197,12 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
     sql::PreparedStatement* pstmt;
     sql::ParameterMetaData* pmeta;
 
-    std::cout << "Entering the try/catch block" << std::endl;
     try
     {
-        std::cout << "Depth 1 reached" << std::endl;
         nkV8StringValueType hav( _host ), dbav( _db ), userav( _user ), passav( _password ), queryav( _query );
         std::string host = *hav, db = *dbav, user = *userav, pass = *passav, query = *queryav, tresult;
         bool result = true;
         int affectedRows = 0;
-
-        std::cout << "Depth 2 reached" << std::endl;
 
         // Create a connection
         driver = get_driver_instance();
@@ -1247,12 +1219,9 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
             std::cout << "Statement object not created" << std::endl;
         }
 
-        std::cout << "Depth 3 reached" << std::endl;
         // If any values are set in the placeholder map we need to prepare them.
         if( phmap->Length() > 1 )
         {
-
-            std::cout << "Depth 4 reached" << std::endl;
             // Let's see how many loops we'll need to do
             Local<Array> phspec = Local<Array>::Cast( phmap->Get( 0 ) );
             int loops = phspec->Get( 0 )->IntegerValue();
@@ -1262,7 +1231,6 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
 
             if( loops > 1 && ( type->IntegerValue() == KWAERI_INSERT || type->IntegerValue() == KWAERI_UPDATE ) )
             {
-                std::cout << "Depth 4-1.1 reached" << std::endl;
                 int cindex = 1;
                 for( int c = 0; c < loops; c++ )
                 {
@@ -1337,8 +1305,6 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
             }
             else
             {
-
-                std::cout << "Depth 4-1.2 reached" << std::endl;
                 for( int i = 1, l = acount + 1; i < l; i++ )
                 {
                     // Get the key/value pair for which to set the place-holder's values
@@ -1399,44 +1365,33 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
             }
         }
 
-
-        std::cout << "Depth 5 reached" << std::endl;
         if( type->IntegerValue() != KWAERI_SELECT )
         {
-            std::cout << "Depth 6-1 reached" << std::endl;
-
             // Let's execute the query and return how many rows were affected
             affectedRows = pstmt->executeUpdate();
-            std::cout << "Depth 6-1 reached" << std::endl;
 
-            std::cout << "We affected " << affectedRows << " rows.  It was an INSERT UPDATE or DELETE" << std::endl;
+            //std::cout << "We affected " << affectedRows << " rows.  It was an INSERT UPDATE or DELETE" << std::endl;
 
             delete con;
             delete pstmt;
-
-            std::cout << "Depth 6-1.2 reached" << std::endl;
 
             nkReturn( Integer::New( nkPreIsolated  affectedRows ) )
         }
         else
         {   // We're fetching a resultset
             // Let's go ahead and execute our prepared statement
-            std::cout << "Depth 6-2 reached" << std::endl;
             bool res = false;
             res = pstmt->execute();
-            std::cout << "Depth 6-2.2 reached" << std::endl;
 
             // Fetch our results
             if( res )
             {
-                std::cout << "Depth 6-2.3 reached" << std::endl;
                 rset = pstmt->getResultSet();
                 rsmeta = rset->getMetaData();
                 int colcount = rsmeta->getColumnCount();
                 Local<Array> records = Array::New( nkIsolate );
                 int rec = 0;
 
-                std::cout << "Depth 6-2.3-2 reached" << std::endl;
                 while( rset->next() )
                 {
                     //std::cout << "We gots results! It was a SELECT." << std::endl;
@@ -1482,7 +1437,6 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
                 nkReturn( Handle<Array>::Cast( records ) )
             }else
             {
-                std::cout << "Depth 6-2.4 reached" << std::endl;
                 nkReturn( nkNewV8String( "We somehow fail horribly..." ) )
             }
         }

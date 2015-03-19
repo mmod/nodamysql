@@ -18,20 +18,21 @@ Regular builds and testing provided by https://travis-ci.org.
 
 #### News
 
-- Binaries are not included for Windows, you must build this package at this time (Binaries will be provided at a later date). [1]
-- For Node.js v0.10.x support before nk-mysql v0.4.x is fully backwards compatible, use `npm install nk-mysql@0.2.1`. [1]
+- Binaries are not supplied to Windows users for Node.js v0.12.x , you must build this package at this time (Binaries will be provided at a later date). [1]
+- If for any reason you have an issue when utilizing Node.js v0.10.x, beyond submitting a bug report; please try installing nk-mysql using the following: `npm install nk-mysql@0.2.1`. [2]
 - MySQL Connector C++ is now at v1.1.5. Changes since v1.1.3 included a forced static binding to libmysql for the connector.
 - nk-mysql may also be used with mysql-cluster.
-- MySQL Cluster now supports both traditional interfacing, as well as noSQL. Oracle has been working on a Memcached entry point for MySQL-Cluster, which boasts the speed and efficiency found with noSQL based database systems; yet for both traditional and noSQL based transactions.
-- In another MMOD project(s); namely nk-mvc and nk-xrm - we are expanding upon the data tools to enable support for both developer and designer. Our aim is to introduce a truly innovative approach, not only to agile development via our original MESSSE Code Methodology - but also to product development in general.
+- MySQL Cluster now supports both traditional interfacing, as well as noSQL. Oracle has been working on a Memcached entry point for MySQL Cluster, which boasts the speed and efficiency found with noSQL based database systems; yet for both traditional and noSQL based transactions.
+- In other MMOD project; namely nk-mvc and nk-xrm - we are expanding upon the data tools to enable support for both developer and designer. Our aim is to introduce a truly innovative approach, not only to agile development via our original [MESSSE Code Methodology](https://www.linkedin.com/pulse/mmod-messse-code-richard-winters?trk=pulse-det-nav_art) - but also to product development in general.
 
 ###### Notes:
-###### [1] Support for Node.js v0.12.x is now included. However, it is not yet fully backwards compatible with Node.js v0.10.x.
+###### [1] Binaries are supplied to Windows users utilizing Node.js v0.10.x, and are enabled by default for Windows users who do not have build tools installed (i.e. node-gyp).
+###### [2] Support for Node.js v0.12.x is now included for all platforms, and this singular package is backwards-compatible with Node.js v0.10.x as well.
 
 
 ## Installation
 
-Full and complete installation documentation can be found at the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki)
+Full and complete installation documentation can be found at the [nodakwaeri wiki @ Github](https//github.com/mmod/nodakwaeri/wiki/nk-mysql)
 
 #### The Quick Version
 
@@ -50,7 +51,7 @@ If you're not building (meaning node-gyp and python are not installed), but meet
 
 ## Usage
 
-At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
+At this time, examples may be found in the [nodakwaeri wiki @ Github](https//github.com/mmod/nodakwaeri/wiki/nk-mysql) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
 
 
 ### Preparing our DBO

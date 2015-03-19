@@ -124,18 +124,44 @@
 #define nkNewV8Boolean( var ) var
 
 // How we provide default values to the constructor for our chosen types is forcefully changed, so these defines must be kept, and left blank
-#define nkConstructHost
-#define nkConstructPort
-#define nkConstructDB
-#define nkConstructUser
-#define nkConstructPassword
-#define nkConstructModel
-#define nkConstructModelled
-#define nkConstructType
-#define nkConstructPrepared
-#define nkConstructPhmap
-#define nkConstructMapped
-#define nkConstructQuery
+#define nkDriverConstructorProtoBlock const nkPersistentMemberType<v8::String>& host, \
+                                 const nkPersistentMemberType<v8::String>& port, \
+                                 const nkPersistentMemberType<v8::String>& db, \
+                                 const nkPersistentMemberType<v8::String>& user, \
+                                 const nkPersistentMemberType<v8::String>& password, \
+                                 const nkPersistentMemberType<v8::Object>& model, \
+                                 const nkPersistentMemberType<v8::Boolean>& modeled, \
+                                 const nkPersistentMemberType<v8::Integer>& type, \
+                                 const nkPersistentMemberType<v8::Integer>& prepared, \
+                                 const nkPersistentMemberType<v8::Array>& phmap, \
+                                 const nkPersistentMemberType<v8::Boolean>& mapped, \
+                                 const nkPersistentMemberType<v8::String>& query \
+
+#define nkDriverConstructorDefinitionBlockA   const nkPersistentMemberType<String>& host, \
+                                              const nkPersistentMemberType<String>& port, \
+                                              const nkPersistentMemberType<String>& db, \
+                                              const nkPersistentMemberType<String>& user, \
+                                              const nkPersistentMemberType<String>& password, \
+                                              const nkPersistentMemberType<Object>& model, \
+                                              const nkPersistentMemberType<Boolean>& modeled, \
+                                              const nkPersistentMemberType<Integer>& type, \
+                                              const nkPersistentMemberType<Integer>& prepared, \
+                                              const nkPersistentMemberType<Array>& phmap, \
+                                              const nkPersistentMemberType<Boolean>& mapped, \
+                                              const nkPersistentMemberType<String>& query
+
+#define nkDriverConstructorDefinitionBlockB   nkSetV8PStringOS( host_, host ), \
+                                              nkSetV8PStringOS( port_, port ), \
+                                              nkSetV8PStringOS( db_, db ), \
+                                              nkSetV8PStringOS( user_, user ), \
+                                              nkSetV8PStringOS( password_, password ), \
+                                              nkSetV8PObjectOS( model_, model ), \
+                                              nkSetV8PBooleanOS( modeled_, modeled ), \
+                                              nkSetV8PIntegerOS( type_, type ), \
+                                              nkSetV8PIntegerOS( prepared_, prepared ), \
+                                              nkSetV8PArrayOS( phmap_, phmap ), \
+                                              nkSetV8PBooleanOS( mapped_, mapped ), \
+                                              nkSetV8PStringOS( query_, query )
 
 // The Exception return type was changed
 #define nkException( str ) isolate->ThrowException( v8::Exception::TypeError( v8::String::NewFromUtf8( isolate, str ) ) )
@@ -231,8 +257,8 @@
 #define nkResetV8PStringOS( ivar, var ) ivar = v8::Persistent<v8::String>::New( v8::String::New( var ) )
 #define nkNewV8PString( var ) v8::Persistent<v8::String>::New( var )
 #define nkSetV8PString( ivar, var ) v8::Persistent<v8::String>::New( var )
-#define nkResetV8PString( ivar, var ) ivar = v8::Persistent<v8::String>::New( v8::String::New( var ) )
-#define nkResetV8PStringUtf8( ivar, var ) ivar = v8::Persistent<v8::String>::New( var )
+#define nkResetV8PString( ivar, var ) ivar = v8::Persistent<v8::String>::New( var )
+#define nkResetV8PStringUtf8( ivar, var ) ivar = v8::Persistent<v8::String>::New( v8::String::New( var ) )
 #define nkNewV8StringOS( var ) v8::String::New( var )
 #define nkSetV8StringOS( ivar, var ) ivar = v8::String::New( var )
 #define nkNewV8String( var ) v8::String::New( var )
@@ -242,11 +268,11 @@
 #define nkV8StringValueType v8::String::AsciiValue
 
 // Integer
-#define nkNewV8PIntegerOS( var ) v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
-#define nkSetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
-#define nkResetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
-#define nkNewV8PInteger( var ) v8::Persistent<v8::Integer>( var )
-#define nkSetV8PInteger( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
+#define nkNewV8PIntegerOS( var ) v8::Persistent<v8::Integer>::New( var )
+#define nkSetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( var )
+#define nkResetV8PIntegerOS( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( var )
+#define nkNewV8PInteger( var ) v8::Persistent<v8::Integer>::New( var )
+#define nkSetV8PInteger( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( var )
 #define nkResetV8PInteger( ivar, var ) ivar = v8::Persistent<v8::Integer>::New( v8::Integer::New( var ) )
 #define nkNewV8IntegerOS( var ) var
 #define nkNewV8Integer( var ) var
@@ -255,25 +281,51 @@
 #define nkNewV8PBooleanOS( var ) v8::Persistent<v8::Boolean>::New( var )
 #define nkSetV8PBooleanOS( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
 #define nkResetV8PBooleanOS( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
-#define nkNewV8PBoolean( var ) v8::Persistent<v8::Boolean>( var )
+#define nkNewV8PBoolean( var ) v8::Persistent<v8::Boolean>::New( var )
 #define nkSetV8PBoolean( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
-#define nkResetV8PBoolean( ivar, var ) ivar = v8::Persistent<v8::Boolean>::New( var )
+#define nkResetV8PBoolean( ivar, var ) if( var == true ){ ivar = v8::Persistent<v8::Boolean>::New( v8::True() ); }else{ ivar = v8::Persistent<v8::Boolean>::New( v8::False() ); }
 #define nkNewV8BooleanOS( var ) var
 #define nkNewV8Boolean( var ) var
 
 // How we provide default values to the constructor for our chosen types is forcefully changed
-#define nkConstructHost = nkNewV8PStringOS( "localhost" )
-#define nkConstructPort = nkNewV8PStringOS( "3306" )
-#define nkConstructDB = nkNewV8PStringOS( "test" )
-#define nkConstructUser = nkNewV8PStringOS( "test" )
-#define nkConstructPassword  = nkNewV8PStringOS( "password" )
-#define nkConstructModel = nkNewV8PObject( v8::Object::New() )
-#define nkConstructModelled = nkNewV8PBoolean( v8::False() )
-#define nkConstructType = nkNewV8PInteger( v8::Integer::New( 0 ) )
-#define nkConstructPrepared = nkNewV8PInteger( v8::Integer::New( 0 ) )
-#define nkConstructPhmap = nkNewV8PArray( v8::Array::New() )
-#define nkConstructMapped = nkNewV8PBoolean( v8::False() )
-#define nkConstructQuery = nkNewV8PStringOS( "" )
+#define nkDriverConstructorProtoBlock   nkPersistentMemberType<v8::String> host = nkNewV8PStringOS( "localhost" ), \
+                                        nkPersistentMemberType<v8::String> port = nkNewV8PStringOS( "3306" ), \
+                                        nkPersistentMemberType<v8::String> db = nkNewV8PStringOS( "test" ), \
+                                        nkPersistentMemberType<v8::String> user = nkNewV8PStringOS( "test" ), \
+                                        nkPersistentMemberType<v8::String> password = nkNewV8PStringOS( "password" ), \
+                                        nkPersistentMemberType<v8::Object> model = nkNewV8PObjectOS( v8::Object::New() ), \
+                                        nkPersistentMemberType<v8::Boolean> modeled = nkNewV8PBooleanOS( v8::False() ), \
+                                        nkPersistentMemberType<v8::Integer> type = nkNewV8PIntegerOS( v8::Integer::New( 0 ) ), \
+                                        nkPersistentMemberType<v8::Integer> prepared = nkNewV8PIntegerOS( v8::Integer::New( 0 ) ), \
+                                        nkPersistentMemberType<v8::Array> phmap = nkNewV8PArrayOS( v8::Array::New() ), \
+                                        nkPersistentMemberType<v8::Boolean> mapped = nkNewV8PBooleanOS( v8::False() ), \
+                                        nkPersistentMemberType<v8::String> query =  nkNewV8PStringOS( "" )
+
+#define nkDriverConstructorDefinitionBlockA   nkPersistentMemberType<String> host, \
+                                              nkPersistentMemberType<String> port, \
+                                              nkPersistentMemberType<String> db, \
+                                              nkPersistentMemberType<String> user, \
+                                              nkPersistentMemberType<String> password, \
+                                              nkPersistentMemberType<Object> model, \
+                                              nkPersistentMemberType<Boolean> modeled, \
+                                              nkPersistentMemberType<Integer> type, \
+                                              nkPersistentMemberType<Integer> prepared, \
+                                              nkPersistentMemberType<Array> phmap, \
+                                              nkPersistentMemberType<Boolean> mapped, \
+                                              nkPersistentMemberType<String> query
+
+#define nkDriverConstructorDefinitionBlockB   host_( host ), \
+                                              port_( port ), \
+                                              db_( db ), \
+                                              user_( user ), \
+                                              password_( password ), \
+                                              model_( model ), \
+                                              modeled_( modeled ), \
+                                              type_( type ), \
+                                              prepared_( prepared ), \
+                                              phmap_( phmap ), \
+                                              mapped_( mapped ), \
+                                              query_( query )
 
 #define nkException( str ) return v8::ThrowException( v8::Exception::TypeError( v8::String::New( str ) ) )
 
@@ -310,18 +362,7 @@ class Driver : public node::ObjectWrap {
         static void Init( v8::Handle<v8::Object> exports );
 
     private:
-        explicit Driver( const nkPersistentMemberType<v8::String>& host nkConstructHost,
-                         const nkPersistentMemberType<v8::String>& port nkConstructPort,
-                         const nkPersistentMemberType<v8::String>& db nkConstructDB,
-                         const nkPersistentMemberType<v8::String>& user nkConstructUser,
-                         const nkPersistentMemberType<v8::String>& password nkConstructPassword,
-                         const nkPersistentMemberType<v8::Object>& model nkConstructModel,
-                         const nkPersistentMemberType<v8::Boolean>& modelled nkConstructModelled,
-                         const nkPersistentMemberType<v8::Integer>& type nkConstructType,
-                         const nkPersistentMemberType<v8::Integer>& prepared nkConstructPrepared,
-                         const nkPersistentMemberType<v8::Array>& phmap nkConstructPhmap,
-                         const nkPersistentMemberType<v8::Boolean>& mapped nkConstructMapped,
-                         const nkPersistentMemberType<v8::String>& query nkConstructQuery );
+        explicit Driver( nkDriverConstructorProtoBlock );
         ~Driver();
 
         static v8::Persistent<v8::Function> constructor;
