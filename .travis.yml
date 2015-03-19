@@ -1,6 +1,5 @@
 language: node_js
 node_js:
- - "0.12"
  - "0.10"
 before_install:
  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
@@ -9,9 +8,9 @@ before_install:
  - export CXX="g++-4.8" CC="gcc-4.8"
  - mkdir boosted
  - cd boosted
- - wget -O boost_headers_1_56_0.zip https://github.com/rikkotec/ci-deps/blob/master/boost_headers_1_56_0.zip?raw=true -P .
- - unzip -qq boost_headers_1_56_0.zip
- - sudo cp -R boost /usr/include
+ - wget -O boost_headers_1_57_0.zip https://github.com/mmod/ci-deps/blob/master/boost_headers_1_57_0.zip?raw=true -P .
+ - unzip -qq boost_headers_1_57_0.zip
+ - sudo cp -R boost_headers_1_57_0/boost /usr/include
  - cd ..
  - sudo rm -r boosted
  - mysql -e "create database nktest;" -u root
