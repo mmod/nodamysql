@@ -11,7 +11,10 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 #### Continuous Integration
 
-[![Build Status](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
+###### Build Status
+
+[![v0.12.x](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql)
+[![v0.10.x](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
 
 Regular builds and testing provided by https://travis-ci.org.
 
@@ -32,7 +35,7 @@ Regular builds and testing provided by https://travis-ci.org.
 
 ## Installation
 
-Full and complete installation documentation can be found at the [nodakwaeri wiki @ Github](https//github.com/mmod/nodakwaeri/wiki/nk-mysql)
+Full and complete installation documentation can be found at the [nodakwaeri wiki @ Github](http://github.com/mmod/nodakwaeri/wiki/nk-mysql)
 
 #### The Quick Version
 
