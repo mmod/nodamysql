@@ -13,8 +13,11 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 ###### Build Status
 
-[![v0.12.x](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql)
-[![v0.10.x](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
+###### Build Status
+
+**v0.12.x:**  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=development)](https://travis-ci.org/mmod/nodamysql)
+
+**v0.10.x:**  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=development)](https://travis-ci.org/mmod/nodamysql) 
 
 Regular builds and testing provided by https://travis-ci.org.
 
