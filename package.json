@@ -1,6 +1,6 @@
 {
   "name": "nk-mysql",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "description": "A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or any application which would make use of it.  Featuring the MySQL C++ Connector from Oracle, designed to keep your application secure and efficient.",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "MySQL",
     "mysql"
   ],
-  "author": "Richard Winters <rik@mmogp.com> (http://www.mmogp.com)",
+  "author": "Richard B Winters <rik@mmogp.com> (http://www.mmogp.com)",
   "license": "Apache V2.0",
   "bugs": {
     "url": "https://github.com/mmod/nodamysql/issues"

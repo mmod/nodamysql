@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -157,6 +157,32 @@ MySQL_ArtResultSetMetaData::getColumnTypeName(unsigned int columnIndex)
 	checkColumnIndex(columnIndex);
 
 	return "VARCHAR";
+}
+/* }}} */
+
+
+/* {{{ MySQL_ArtResultSetMetaData::getColumnCharset() -I- */
+SQLString
+MySQL_ArtResultSetMetaData::getColumnCharset(unsigned int columnIndex)
+{
+	CPP_ENTER("MySQL_ArtResultSetMetaData::getColumnCharset");
+	CPP_INFO_FMT("this=%p", this);
+	checkColumnIndex(columnIndex);
+
+	return "";
+}
+/* }}} */
+
+
+/* {{{ MySQL_ArtResultSetMetaData::getColumnCollation() -I- */
+SQLString
+MySQL_ArtResultSetMetaData::getColumnCollation(unsigned int columnIndex)
+{
+	CPP_ENTER("MySQL_ArtResultSetMetaData::getColumnCollation");
+	CPP_INFO_FMT("this=%p", this);
+	checkColumnIndex(columnIndex);
+
+	return "";
 }
 /* }}} */
 

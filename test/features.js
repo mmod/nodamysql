@@ -520,15 +520,17 @@ if( tresult === 'Failed' ){ status = 1; }
 
 // 25 This first bit shows adding multiple records by invoking values() over and overdb.insert( 'users' )
 db = db.reset( userModel );
+db.insert( 'users' )
+.values( { first: 'pstfirst1' , last: 'pstlast' } )
+.values( { first: 'pstfirst2' , last: 'pstlast2' } )
+.values( { first: 'pstfirst3' , last: 'pstlast3' } );
+console.log( db.getQuery() );
+
 result.push
 (
     JSON.stringify
     (
-        db.insert( 'users' )
-        .values( { first: 'pstfirst1' , last: 'pstlast' } )
-        .values( { first: 'pstfirst2' , last: 'pstlast2' } )
-        .values( { first: 'pstfirst3' , last: 'pstlast3' } )
-        .execute()
+        db.execute()
     )
 );  // We should get a count of rows affected (should be 3)
 console.log( '------' );

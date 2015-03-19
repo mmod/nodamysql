@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2008, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -27,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <string.h>
 #include <stdlib.h>
 #include <memory>
+#include <sstream>
 
 #include <cppconn/datatype.h>
 #include <cppconn/exception.h>
@@ -40,8 +41,8 @@ namespace mysql {
 namespace util {
 
 /* just for cases when we need to return const empty string reference */
-const sql::SQLString EMPTYSTR("");
-const sql::SQLString LOCALHOST("localhost");
+const char *EMPTYSTR= "";
+const char *LOCALHOST= "localhost";
 
 
 /* {{{ throwSQLException -I- */
@@ -82,6 +83,12 @@ void throwSQLException(::sql::mysql::NativeAPI::NativeStatementWrapper & proxy)
 #define check_mb_eucjpms			NULL
 #define cppconn_mbcharlen_utf8		NULL
 #define check_mb_utf8_valid			NULL
+#define cppconn_mbcharlen_utf8mb4	cppconn_mbcharlen_utf8
+#define check_mb_utf8mb4_valid		check_mb_utf8_valid
+#define cppconn_mbcharlen_utf16		NULL
+#define check_mb_utf16_valid		NULL
+#define cppconn_mbcharlen_utf32		NULL
+#define check_mb_utf32_valid		NULL
 
 /* {{{ our_charsets60 */
 const OUR_CHARSET our_charsets60[] =
@@ -151,7 +158,7 @@ const OUR_CHARSET our_charsets60[] =
 	{  68, "cp866", "cp866_bin", 1, 1, "", NULL, NULL},
 	{  69, "dec8", "dec8_bin", 1, 1, "", NULL, NULL},
 	{  70, "greek", "greek_bin", 1, 1, "", NULL, NULL},
-	{  71, "hebew", "hebrew_bin", 1, 1, "", NULL, NULL},
+	{  71, "hebrew", "hebrew_bin", 1, 1, "", NULL, NULL},
 	{  72, "hp8", "hp8_bin", 1, 1, "", NULL, NULL},
 	{  73, "keybcs2", "keybcs2_bin", 1, 1, "", NULL, NULL},
 	{  74, "koi8r", "koi8r_bin", 1, 1, "", NULL, NULL},
@@ -196,47 +203,114 @@ const OUR_CHARSET our_charsets60[] =
 	{ 145, "ucs2", "ucs2_esperanto_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
 	{ 146, "ucs2", "ucs2_hungarian_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
 	{ 147, "ucs2", "ucs2_sinhala_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
-	{ 192, "utf8mb3", "utf8mb3_general_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 193, "utf8mb3", "utf8mb3_icelandic_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 194, "utf8mb3", "utf8mb3_latvian_ci", 1, 3, "", cppconn_mbcharlen_utf8,  check_mb_utf8_valid},
-	{ 195, "utf8mb3", "utf8mb3_romanian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 196, "utf8mb3", "utf8mb3_slovenian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 197, "utf8mb3", "utf8mb3_polish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 198, "utf8mb3", "utf8mb3_estonian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 119, "utf8mb3", "utf8mb3_spanish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 200, "utf8mb3", "utf8mb3_swedish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 201, "utf8mb3", "utf8mb3_turkish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 202, "utf8mb3", "utf8mb3_czech_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 203, "utf8mb3", "utf8mb3_danish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid },
-	{ 204, "utf8mb3", "utf8mb3_lithunian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid },
-	{ 205, "utf8mb3", "utf8mb3_slovak_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 206, "utf8mb3", "utf8mb3_spanish2_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 207, "utf8mb3", "utf8mb3_roman_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 208, "utf8mb3", "utf8mb3_persian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 209, "utf8mb3", "utf8mb3_esperanto_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 210, "utf8mb3", "utf8mb3_hungarian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 211, "utf8mb3", "utf8mb3_sinhala_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 224, "utf8", "utf8_unicode_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 225, "utf8", "utf8_icelandic_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 226, "utf8", "utf8_latvian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 227, "utf8", "utf8_romanian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 228, "utf8", "utf8_slovenian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 229, "utf8", "utf8_polish_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 230, "utf8", "utf8_estonian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 231, "utf8", "utf8_spanish_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 232, "utf8", "utf8_swedish_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 233, "utf8", "utf8_turkish_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 234, "utf8", "utf8_czech_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 235, "utf8", "utf8_danish_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 236, "utf8", "utf8_lithuanian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 237, "utf8", "utf8_slovak_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 238, "utf8", "utf8_spanish2_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 239, "utf8", "utf8_roman_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 240, "utf8", "utf8_persian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 241, "utf8", "utf8_esperanto_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 242, "utf8", "utf8_hungarian_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 243, "utf8", "utf8_sinhala_ci", 1, 4, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
-	{ 254, "utf8mb3", "utf8mb3_general_cs", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 148, "ucs2", "ucs2_german2_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
+	{ 149, "ucs2", "ucs2_croatian_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
+	{ 150, "ucs2", "ucs2_unicode_520_ci", 2, 2, "", cppconn_mbcharlen_ucs2, check_mb_ucs2},
+	{ 192, "utf8", "utf8_unicode_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 193, "utf8", "utf8_icelandic_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 194, "utf8", "utf8_latvian_ci", 1, 3, "", cppconn_mbcharlen_utf8,  check_mb_utf8_valid},
+	{ 195, "utf8", "utf8_romanian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 196, "utf8", "utf8_slovenian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 197, "utf8", "utf8_polish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 198, "utf8", "utf8_estonian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 199, "utf8", "utf8_spanish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 200, "utf8", "utf8_swedish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 201, "utf8", "utf8_turkish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 202, "utf8", "utf8_czech_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 203, "utf8", "utf8_danish_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid },
+	{ 204, "utf8", "utf8_lithunian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid },
+	{ 205, "utf8", "utf8_slovak_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 206, "utf8", "utf8_spanish2_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 207, "utf8", "utf8_roman_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 208, "utf8", "utf8_persian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 209, "utf8", "utf8_esperanto_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 210, "utf8", "utf8_hungarian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 211, "utf8", "utf8_sinhala_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 212, "utf8", "utf8_german2_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 213, "utf8", "utf8_croatian_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 214, "utf8", "utf8_unicode_520_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 215, "utf8", "utf8_vietnamese_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 223, "utf8", "utf8_general_mysql500_ci", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+	{ 45, "utf8mb4", "utf8mb4_general_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 46, "utf8mb4", "utf8mb4_bin", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 224, "utf8mb4", "utf8mb4_unicode_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 225, "utf8mb4", "utf8mb4_icelandic_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 226, "utf8mb4", "utf8mb4_latvian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 227, "utf8mb4", "utf8mb4_romanian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 228, "utf8mb4", "utf8mb4_slovenian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 229, "utf8mb4", "utf8mb4_polish_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 230, "utf8mb4", "utf8mb4_estonian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 231, "utf8mb4", "utf8mb4_spanish_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 232, "utf8mb4", "utf8mb4_swedish_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 233, "utf8mb4", "utf8mb4_turkish_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 234, "utf8mb4", "utf8mb4_czech_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 235, "utf8mb4", "utf8mb4_danish_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 236, "utf8mb4", "utf8mb4_lithuanian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 237, "utf8mb4", "utf8mb4_slovak_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 238, "utf8mb4", "utf8mb4_spanish2_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 239, "utf8mb4", "utf8mb4_roman_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 240, "utf8mb4", "utf8mb4_persian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 241, "utf8mb4", "utf8mb4_esperanto_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 242, "utf8mb4", "utf8mb4_hungarian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 243, "utf8mb4", "utf8mb4_sinhala_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 244, "utf8mb4", "utf8mb4_german2_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 245, "utf8mb4", "utf8mb4_croatian_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 246, "utf8mb4", "utf8mb4_unicode_520_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+	{ 247, "utf8mb4", "utf8mb4_vietnamese_ci", 1, 4, "", cppconn_mbcharlen_utf8mb4, check_mb_utf8mb4_valid},
+
+	/*Should not really happen, but adding them */
+	{ 254, "utf8", "utf8_general_cs", 1, 3, "", cppconn_mbcharlen_utf8, check_mb_utf8_valid},
+
+	{ 101, "utf16", "utf16_unicode_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 102, "utf16", "utf16_icelandic_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 103, "utf16", "utf16_latvian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 104, "utf16", "utf16_romanian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 105, "utf16", "utf16_slovenian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 106, "utf16", "utf16_polish_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 107, "utf16", "utf16_estonian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 108, "utf16", "utf16_spanish_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 109, "utf16", "utf16_swedish_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 110, "utf16", "utf16_turkish_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 111, "utf16", "utf16_czech_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 112, "utf16", "utf16_danish_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 113, "utf16", "utf16_lithuanian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 114, "utf16", "utf16_slovak_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 115, "utf16", "utf16_spanish2_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 116, "utf16", "utf16_roman_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 117, "utf16", "utf16_persian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 118, "utf16", "utf16_esperanto_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 119, "utf16", "utf16_hungarian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 120, "utf16", "utf16_sinhala_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 121, "utf16", "utf16_german2_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 122, "utf16", "utf16_croatian_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 123, "utf16", "utf16_unicode_520_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+	{ 124, "utf16", "utf16_vietnamese_ci", 2, 4, "", cppconn_mbcharlen_utf16, check_mb_utf16_valid},
+
+	{ 160, "utf32", "utf32_unicode_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 161, "utf32", "utf32_icelandic_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 162, "utf32", "utf32_latvian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 163, "utf32", "utf32_romanian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 164, "utf32", "utf32_slovenian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 165, "utf32", "utf32_polish_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 166, "utf32", "utf32_estonian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 167, "utf32", "utf32_spanish_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 168, "utf32", "utf32_swedish_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 169, "utf32", "utf32_turkish_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 170, "utf32", "utf32_czech_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 171, "utf32", "utf32_danish_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 172, "utf32", "utf32_lithuanian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 173, "utf32", "utf32_slovak_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 174, "utf32", "utf32_spanish2_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 175, "utf32", "utf32_roman_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 176, "utf32", "utf32_persian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 177, "utf32", "utf32_esperanto_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 178, "utf32", "utf32_hungarian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 179, "utf32", "utf32_sinhala_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 180, "utf32", "utf32_german2_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 181, "utf32", "utf32_croatian_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 182, "utf32", "utf32_unicode_520_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+	{ 183, "utf32", "utf32_vietnamese_ci", 4, 4, "", cppconn_mbcharlen_utf32, check_mb_utf32_valid},
+
 	{   0, NULL, NULL, 0, 0, NULL, NULL, NULL}
 };
 /* }}} */
@@ -297,25 +371,32 @@ mysql_type_to_datatype(const MYSQL_FIELD * const field)
 		case MYSQL_TYPE_DATETIME:
 			return sql::DataType::TIMESTAMP;
 		case MYSQL_TYPE_TINY_BLOB:// should no appear over the wire
+		{
+			bool isBinary = (field->flags & BINARY_FLAG) &&
+							field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			const sql::mysql::util::OUR_CHARSET * const cs =
+							sql::mysql::util::find_charset(field->charsetnr);
+			if (!cs) {
+				std::ostringstream msg("Server sent unknown charsetnr (");
+				msg << field->charsetnr << ") . Please report";
+				throw SQLException(msg.str());
+			}
+			return isBinary ? sql::DataType::VARBINARY : sql::DataType::VARCHAR;
+		}
 		case MYSQL_TYPE_MEDIUM_BLOB:// should no appear over the wire
 		case MYSQL_TYPE_LONG_BLOB:// should no appear over the wire
 		case MYSQL_TYPE_BLOB:
 		{
-			const sql::mysql::util::OUR_CHARSET * const cs = sql::mysql::util::find_charset(field->charsetnr);
+			bool isBinary = (field->flags & BINARY_FLAG) &&
+							field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			const sql::mysql::util::OUR_CHARSET * const cs =
+							sql::mysql::util::find_charset(field->charsetnr);
 			if (!cs) {
-				throw SQLException("Server sent uknown charsetnr. Please report");
+				std::ostringstream msg("Server sent unknown charsetnr (");
+				msg << field->charsetnr << ") . Please report";
+				throw SQLException(msg.str());
 			}
-			if (255 == (field->length / cs->char_maxlen)) {
-				if ((field->flags & BINARY_FLAG) && field->charsetnr == MAGIC_BINARY_CHARSET_NR) {
-					return sql::DataType::VARBINARY;
-				}
-				return sql::DataType::VARCHAR;
-			}
-			// Over the wire only MYSQL_TYPE_BLOB appears
-			if ((field->flags & BINARY_FLAG) && field->charsetnr == MAGIC_BINARY_CHARSET_NR) {
-				return sql::DataType::LONGVARBINARY;
-			}
-			return sql::DataType::LONGVARCHAR;
+			return isBinary ? sql::DataType::LONGVARBINARY : sql::DataType::LONGVARCHAR;
 		}
 		case MYSQL_TYPE_VARCHAR:
 		case MYSQL_TYPE_VAR_STRING:
@@ -459,37 +540,71 @@ mysql_type_to_string(const MYSQL_FIELD * const field, boost::shared_ptr< sql::my
 		case MYSQL_TYPE_DATETIME:
 			return "DATETIME";
 		case MYSQL_TYPE_TINY_BLOB:// should no appear over the wire
-		case MYSQL_TYPE_MEDIUM_BLOB:// should no appear over the wire
-		case MYSQL_TYPE_LONG_BLOB:// should no appear over the wire
-		case MYSQL_TYPE_BLOB:
 		{
-			bool isBlob = field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			bool isBinary = field->charsetnr == MAGIC_BINARY_CHARSET_NR;
 			unsigned int char_maxlen = 1;
-			if (!isBlob) {
+			if (!isBinary) {
 				const sql::mysql::util::OUR_CHARSET * cset = find_charset(field->charsetnr);
 				if (!cset) {
-					throw SQLException("Server sent uknown charsetnr. Please report");
+					std::ostringstream msg("Server sent unknown charsetnr (");
+					msg << field->charsetnr << ") . Please report";
+					throw SQLException(msg.str());
 				}
 				char_maxlen = cset->char_maxlen;
 			}
 			CPP_INFO_FMT("char_maxlen=%u field->length=%lu", char_maxlen, field->length);
-			if (field->length == L64(4294967295)) {
-				/*
-				  The C/S Protocol can't hold more than 4 byte.
-				  Thus LONGTEXT which is 0xFFFFFFFF multiplied by char_len will overflow.
-				  To overcome this the server serves just 0xFF FF FF FF
-				*/
-				return isBlob? "LONGBLOB":"LONGTEXT";
+
+			return isBinary? "TINYBLOB":"TINYTEXT";
+		}
+		case MYSQL_TYPE_MEDIUM_BLOB:// should no appear over the wire
+		{
+			bool isBinary = field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			unsigned int char_maxlen = 1;
+			if (!isBinary) {
+				const sql::mysql::util::OUR_CHARSET * cset = find_charset(field->charsetnr);
+				if (!cset) {
+					std::ostringstream msg("Server sent unknown charsetnr (");
+					msg << field->charsetnr << ") . Please report";
+					throw SQLException(msg.str());
+				}
+				char_maxlen = cset->char_maxlen;
 			}
-			switch (field->length / char_maxlen) {
-				case 255: return isBlob? "TINYBLOB":"TINYTEXT";
-				case 65535: return isBlob? "BLOB":"TEXT";
-				case 16777215: return isBlob? "MEDIUMBLOB":"MEDIUMTEXT";
-				default:
-					CPP_ERR_FMT("What kind of type is this??? char_maxlen=%u field->length=%lu field->length/char_maxlen=%lu",
-									char_maxlen, field->length, field->length / char_maxlen);
-					return "UNKNOWN";
+			CPP_INFO_FMT("char_maxlen=%u field->length=%lu", char_maxlen, field->length);
+
+			return isBinary? "MEDIUMBLOB":"MEDIUMTEXT";
+		}
+		case MYSQL_TYPE_LONG_BLOB:// should no appear over the wire
+		{
+			bool isBinary = field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			unsigned int char_maxlen = 1;
+			if (!isBinary) {
+				const sql::mysql::util::OUR_CHARSET * cset = find_charset(field->charsetnr);
+				if (!cset) {
+					std::ostringstream msg("Server sent unknown charsetnr (");
+					msg << field->charsetnr << ") . Please report";
+					throw SQLException(msg.str());
+				}
+				char_maxlen = cset->char_maxlen;
 			}
+			CPP_INFO_FMT("char_maxlen=%u field->length=%lu", char_maxlen, field->length);
+
+			return isBinary? "LONGBLOB":"LONGTEXT";
+		}
+		case MYSQL_TYPE_BLOB:
+		{
+			bool isBinary= field->charsetnr == MAGIC_BINARY_CHARSET_NR;
+			unsigned int char_maxlen = 1;
+			if (!isBinary) {
+				const sql::mysql::util::OUR_CHARSET * cset = find_charset(field->charsetnr);
+				if (!cset) {
+					std::ostringstream msg("Server sent unknown charsetnr (");
+					msg << field->charsetnr << ") . Please report";
+					throw SQLException(msg.str());
+				}
+				char_maxlen = cset->char_maxlen;
+			}
+			CPP_INFO_FMT("char_maxlen=%u field->length=%lu", char_maxlen, field->length);
+			return isBinary? "BLOB":"TEXT";
 		}
 		case MYSQL_TYPE_VARCHAR:
 		case MYSQL_TYPE_VAR_STRING:

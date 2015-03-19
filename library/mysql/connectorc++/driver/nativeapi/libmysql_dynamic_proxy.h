@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009, 2011, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2009, 2014, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -93,6 +93,8 @@ public:
 
 	unsigned long get_server_version(MYSQL *);
 
+	void get_character_set_info(MYSQL *, void *);
+
 	const char * info(MYSQL *);
 
 	MYSQL * init(MYSQL *mysql);
@@ -110,6 +112,10 @@ public:
 	my_ulonglong num_rows(MYSQL_RES *);
 
 	int options (MYSQL *, enum mysql_option, const void *);
+
+	int options (MYSQL *, enum mysql_option, const void *, const void *);
+
+	int get_option (MYSQL *, enum mysql_option, const void *);
 
 	int ping(MYSQL *);
 
@@ -182,6 +188,8 @@ public:
 	const char * stmt_sqlstate(MYSQL_STMT *);
 
 	int stmt_store_result(MYSQL_STMT *);
+
+	int stmt_next_result(MYSQL_STMT *);
 
 	void thread_init();
 

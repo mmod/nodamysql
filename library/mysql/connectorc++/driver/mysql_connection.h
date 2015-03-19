@@ -102,6 +102,8 @@ public:
 
 	void getClientOption(const sql::SQLString & optionName, void * optionValue);
 
+	sql::SQLString getClientOption(const sql::SQLString & optionName);
+
 	sql::DatabaseMetaData * getMetaData();
 
 	enum_transaction_isolation getTransactionIsolation();
@@ -111,6 +113,10 @@ public:
 	bool isClosed();
 
 	bool isReadOnly();
+
+	bool isValid();
+
+	bool reconnect();
 
 	sql::SQLString nativeSQL(const sql::SQLString& sql);
 
@@ -140,6 +146,8 @@ public:
 
 	sql::Connection * setClientOption(const sql::SQLString & optionName, const void * optionValue);
 
+	sql::Connection * setClientOption(const sql::SQLString & optionName, const sql::SQLString & optionValue);
+
 	void setHoldability(int holdability);
 
 	void setReadOnly(bool readOnly);
@@ -153,6 +161,8 @@ public:
 	virtual sql::SQLString getSessionVariable(const sql::SQLString & varname);
 
 	virtual void setSessionVariable(const sql::SQLString & varname, const sql::SQLString & value);
+
+	virtual void setSessionVariable(const sql::SQLString & varname, unsigned int value);
 
 	virtual sql::SQLString getLastStatementInfo();
 

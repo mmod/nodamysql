@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
 
 The MySQL Connector/C++ is licensed under the terms of the GPLv2
 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most
@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 */
 
 
+#include <stdlib.h>
 #include "mysql_uri.h"
 #include "mysql_util.h"
 
@@ -56,7 +57,7 @@ MySQL_Uri::MySQL_Uri()
 const sql::SQLString & MySQL_Uri::Host()
 {
 	static const sql::SQLString hostValue4Pipe(".");
-	const sql::SQLString & hostValue4sock= util::LOCALHOST;
+	static const sql::SQLString hostValue4sock(util::LOCALHOST);
 
 	switch (Protocol())
 	{
@@ -79,7 +80,8 @@ const sql::SQLString & MySQL_Uri::SocketOrPipe()
 {
 	if (tcpProtocol(*this))
 	{
-		return util::EMPTYSTR;
+		static const sql::SQLString emptystr(util::EMPTYSTR);
+		return emptystr;
 	}
 
 	return host;
