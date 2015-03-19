@@ -11,7 +11,13 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 
 #### Continuous Integration
 
-[![Build Status](https://travis-ci.org/mmod/nodamysql.png)](https://travis-ci.org/mmod/nodamysql) 
+###### Build Status
+
+
+**nk-mysql v0.2.1 (Stable; Deprecated)**
+
+*Node.js v0.10.x:*  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=0.2.x)](https://travis-ci.org/mmod/nodamysql)
+
 
 Regular builds and testing provided by https://travis-ci.org.
 
@@ -19,7 +25,7 @@ Regular builds and testing provided by https://travis-ci.org.
 
 ## Installation
 
-Full and complete installation documentation can be found at the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki)
+Full and complete installation documentation can be found at the [nodakwaeri wiki @ Github](http://github.com/mmod/nodakwaeri/wiki/nk-mysql)
 
 #### The Quick Version
 
@@ -38,7 +44,7 @@ If you're not building (meaning node-gyp and python are not installed), but meet
 
 ## Usage
 
-At this time, examples may be found in the [nodamysql wiki @ Github](http://github.com/mmod/nodamysql/wiki) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
+At this time, examples may be found in the [nodakwaeri wiki @ Github](http://github.com/mmod/nodakwaeri/wiki/nk-mysql) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
 
 
 ### Preparing our DBO
