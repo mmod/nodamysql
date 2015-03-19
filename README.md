@@ -34,7 +34,7 @@ There are a few  prerequisites that need to be in place in order to properly bui
 To install (installing is how we build too!); open a terminal/shell/command tools/prompt and browse to the root of your application. Run the following command:
 
 ```
-path_to_application/> npm install nk-mysql@0.2.x
+path_to_application/> npm install nk-mysql@node-v10
 ```
 
 If you are building, you should have no problems (If you verified that all of the prerequisites are met) and other than some potential warnings everything will build properly.
