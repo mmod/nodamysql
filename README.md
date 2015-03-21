@@ -12,7 +12,7 @@ nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow impli
 <br />
 #### Continuous Integration
 
-**nk-mysql v0.4.1 (Stable)**
+**nk-mysql v0.4.x (Stable)**
 
 *Node.js <= v0.12.x:*  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=master)](https://travis-ci.org/mmod/nodamysql)
 
