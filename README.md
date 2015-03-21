@@ -1,4 +1,4 @@
-# nodamysql ( nk-mysql )
+# nodamysql ( nk-mysql ) [![Donate via PayPal.com](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8ZCX9RCEQ2DDJ)
 
 A mostly simple, yet powerful C++ data integration toolset for nodakwaeri (nk) or other software(s) which would make use of it. 
 
@@ -9,24 +9,22 @@ Free and Open Source Software sporting acceptable license types.
 nodamysql (nk-mysql) is designed to use Prepared Statements - and to allow implicit asynchronous usage - in order to help keep your application secure and efficient. 
 
 
+<br />
 #### Continuous Integration
-
-###### Build Status
-
 
 **nk-mysql v0.2.1 (Stable; Deprecated)**
 
-*Node.js v0.10.x:*  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=0.2.x)](https://travis-ci.org/mmod/nodamysql)
+*Node.js <= v0.10.x:*  [![Build Status](https://travis-ci.org/mmod/nodamysql.svg?branch=0.2.x)](https://travis-ci.org/mmod/nodamysql)
+
+Regular builds and testing provided by [travis-ci.org](https://travis-ci.org).
 
 
-Regular builds and testing provided by https://travis-ci.org.
-
-
-
+<br />
 ## Installation
 
 Full and complete installation documentation can be found at the [nodakwaeri wiki @ Github](http://github.com/mmod/nodakwaeri/wiki/nk-mysql)
 
+<br />
 #### The Quick Version
 
 There are a few  prerequisites that need to be in place in order to properly build nodamysql.  On Windows, a precompiled binary is usually available but not always at this point.  If you are familiar with nodakwaeri, and are sure you meet the requirements to build then:
@@ -37,16 +35,18 @@ To install (installing is how we build too!); open a terminal/shell/command tool
 path_to_application/> npm install nk-mysql@node-v10
 ```
 
+<br />
 If you are building, you should have no problems (If you verified that all of the prerequisites are met) and other than some potential warnings everything will build properly.
 
 If you're not building (meaning node-gyp and python are not installed), but meet the requirements for a precompiled add-on; a fall-back solution should be loaded for you.
 
 
+<br />
 ## Usage
 
 At this time, examples may be found in the [nodakwaeri wiki @ Github](http://github.com/mmod/nodakwaeri/wiki/nk-mysql) and [nodamysql repository @ Github](http://github.com/mmod/nodamysql/blob/master/test/features.js), though I'll leave this documentation with a copy of the wiki content:
 
-
+<br />
 ### Preparing our DBO
 
 Including nodamysql into your project is relatively simple:
@@ -58,6 +58,7 @@ var nkmysql = require( 'nk-mysql' ),
 ...
 ```
 
+<br />
 nodamysql supports the use of models when using prepared statements.  Models help to automate select and insert clause statement creation, and are most commonly used with - and provided by - [nk-mvc](http://github.com/mmod/nk-mvc)'s model system. Models cannot be used with regular statements (unprepared), or with UPDATE, DELETE, CREATE, and advanced SELECT queries when using prepared statements.
 
 ```node
@@ -93,10 +94,12 @@ var db = new driver( config );
 ...
 ```
 
+<br />
 ### Regular Statements (Unprepared)
 
 Unprepared Statements are Directly Executed Queries.  This is not recommended for situations where queries are reused with the same parameters containing only differing values.  There are several good reasons for this, all can be read up on here:  http://dev.mysql.com/doc/refman/5.7/en/c-api-prepared-statements.html
 
+<br />
 #### Select
 ```node
 ...
@@ -111,6 +114,7 @@ for( var recs in records )
 }
 ```
 
+<br />
 #### Insert, Update, Delete (No resultsets)
 ```node
 // If we do not want to instantiate another db object after running a query, we can reset the one we have once 
@@ -125,14 +129,17 @@ console.log( 'Affected Rows: ' + affected );
 }
 ```
 
+<br />
 Keep in mind that Create and Drop queries will always return 0, unless - and only in the case of a Drop query - there are records in the table at the time it is dropped, you may see the number of rows instead as a return result.
 
 More examples of regular statements can be seen in the test file [here](http://github.com/mmod/nodamysql/blob/test/features.js).
 
+<br />
 ### Prepared Statements
 
 Prepared statements are the recommended way to execute queries in any application when queries are reused over and over as they may provide a performance benefit as well as a security benefit.  The link given above under Regular Statements to MySQL explains why this is.
 
+<br />
 #### Select
 
 ##### Simple Select
@@ -150,6 +157,7 @@ db.reset( modelForExample );
 var records = db.select( 'tableName' ).execute();
 ```
 
+<br />
 Otherwise, if no model we would specify the selection
 ```node
 db.reset( false );
@@ -163,6 +171,7 @@ for( var recs in records )
 }
 ```
 
+<br />
 ##### A more involved Select
 ```node
 // Let's run a more involved select query, we're going to use a model so we do not need to write out the full
@@ -183,6 +192,7 @@ var records = db.select( 'tableName' )
 ...
 ```
 
+<br />
 ##### An advanced example
 ```node
 // Let's run an advanced select query, we're not going to use a model so we do need to write out the full
@@ -203,6 +213,7 @@ var records = db.select( 'col1, col2, col3, table2Name.col1 as fakeCol from tabl
 ...
 ```
 
+<br />
 #### Update
 
 ##### The basic example
@@ -227,6 +238,7 @@ var records = db.update( 'tableName' )      // Records contains the number of ro
 ...
 ```
 
+<br />
 #### Insert:
 
 ##### The simple example
@@ -246,6 +258,7 @@ var records = dbo.insert( 'tableName' )     // Records contains the number of ro
 ...
 ```
 
+<br />
 ##### The advanced example
 ```node
 // Let's run an insert query, no model is used here and we're inserting multiple values at once
@@ -266,6 +279,7 @@ var records = db.insert( 'tableName' )      // Records contains the number of ro
 ...
 ```
 
+<br />
 ##### The alternate advanced example
 ```node
 // Let's run an insert query, no model is used here and we're inserting multiple values at once, but doing so
@@ -285,6 +299,7 @@ var records = db.insert( 'tableName' )      // Records contains the number of ro
 ...
 ```
 
+<br />
 #### Delete:
 
 ##### The simple example
@@ -305,19 +320,23 @@ var records = db.delete( 'tableName' )      // Records contains the number of ro
 ...
 ```
 
+<br />
 ### Models
 
 As you've seen thus far, models are used only to automate <b><i>select</i></b> and <b><i>insert</i></b> clause creation as far as nk-mysql is concerned - and are never required.  They are used a bit more extensively by nodakwaeri, and are planned to be used for more advanced data tools as well.
 
+<br />
 ### Additional Notes & Troubleshooting
 
 Aside from keeping in mind that Limit clauses should always be at the end of a query statement, and that you should invoke members of the database object in the order you would typically write out a query manually; there are some tools in place to help out:
 
+<br />
 ##### Logical Implementation
 
 For example, you cannot invoke.join() before setting a clause (such as .select, .insert, or .delete)
 * .on(), .where(), .values(), .order(), .limit(), .execute(), .executeQuery() all follow similar common-sense rules as .join() to help avoid SQL errors.
 
+<br />
 ##### Getting Connection Info
 ```node
 ...
@@ -325,6 +344,7 @@ console.log( db.getConnection() );
 ...
 ```
 
+<br />
 ##### Reviewing the Query
 ```node
 ...
@@ -332,11 +352,17 @@ console.log( db.getQuery() );
 ...
 ```
 
+
+<br />
 ## Development 
 
 Feel free to fork the repository and submit pull requests. Browse any of our other repositories as well http://github.com/mmod.
 
+   <sub>*You may also contribute by making a donation*</sub>   
+   [![Donate via PayPal.com](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8ZCX9RCEQ2DDJ)
 
+
+<br />
 ### Created with:
 
 [Eclipse Luna](https://www.eclipse.org/downloads/)
