@@ -24,6 +24,8 @@
 .README.md.html
 .*~
 .*.*~
+.settings
+.pydevproject
 
 # Build directories in root
 build
