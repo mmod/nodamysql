@@ -24,6 +24,7 @@
 .README.md.html
 .*~
 .*.*~
+.project
 .settings
 .pydevproject
 
