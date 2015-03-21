@@ -384,7 +384,7 @@ console.log( db.getQuery() );
 <br />
 ## Development 
 
-Feel free to fork the repository and submit pull requests. Browse any of our other repositories as well http://github.com/mmod.
+Feel free to fork the repository and submit pull requests. Browse any of our other repositories as well [MMOD @ Github](http://github.com/mmod).
 
    <sub>*You may also contribute by making a donation*</sub>   
    [![Donate via PayPal.com](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8ZCX9RCEQ2DDJ)
