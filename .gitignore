@@ -31,3 +31,4 @@
 # Build directories in root
 build
 node_modules
+/npm-debug.log
