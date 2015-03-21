@@ -19,7 +19,7 @@
     "mysql"
   ],
   "author": "Richard Winters <rik@mmogp.com> (http://www.mmogp.com)",
-  "license": "Apache V2.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mmod/nodamysql/issues"
   },
