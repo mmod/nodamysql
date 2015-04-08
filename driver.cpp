@@ -1412,7 +1412,7 @@ nkMethodReturnType Driver::Execute( const nkMethodArgumentType& args )
                             Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                             record->Set( k, Integer::New( nkPreIsolated  svh->IntegerValue() ) );
                         }
-                        else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
+                        else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) || ctype == std::string( "DATETIME" ) )
                         {
                             Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                             nkV8StringValueType sav( svh );
