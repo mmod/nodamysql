@@ -1345,7 +1345,7 @@ nkReturnType Driver::Execute( const nkArguments& args )
                             Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                             record->Set( k, Integer::New( nkPreIsolated  svh->IntegerValue() ) );
                         }
-                        else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
+                        else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) || ctype == std::string( "DATETIME" ) )
                         {
                             Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                             String::AsciiValue sav( svh );
@@ -1459,7 +1459,7 @@ nkReturnType Driver::ExecuteQuery( const nkArguments& args )
                         Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                         record->Set( k, Integer::New( nkPreIsolated  svh->IntegerValue() ) );
                     }
-                    else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) )
+                    else if( ctype == std::string( "VARCHAR" ) || ctype == std::string( "TEXT" ) || ctype == std::string( "DATETIME" ) )
                     {
                         Handle<Value> svh = nkNewV8String( rset->getString( rsmeta->getColumnLabel( cc + 1 ).c_str() ).c_str() );
                         String::AsciiValue sav( svh );
